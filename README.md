@@ -16,6 +16,7 @@ claim is checkable.
 |---|---|
 | **`AGENTS.md`** | Drop-in house rules for a coding agent. Put it in your repo root and your agent reads it. |
 | **`agents/`** | The deeper references `AGENTS.md` points at — verification, orchestration, skills and routines, prompts. |
+| **`playbooks/`** | Nine role-based workshops — engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each one: the real team of bots, the workflow as it ran, the prompts, the routines, the numbers. |
 | **`guide/`** | *Grok Bot Guide by SpaceX Engineers* — a 24-page designed PDF covering the whole three days as narrative: mental model, software factory, case study, failure log, economics. |
 | **`notes/`** | Structured extraction notes, one per day. Product facts, workflows, verbatim prompts, failures, numbers, roster, chronology. This is the working source everything else was built from. |
 | **`transcripts/`** | The raw transcripts. Cleaned plain text, plus the original timestamped SRT for day 2. |
@@ -26,6 +27,7 @@ claim is checkable.
 - **Your agents keep asking you to test their work** → `agents/VERIFICATION.md`. Highest-leverage file in the repo.
 - **You're designing a team of agents, not prompting one** → `agents/ORCHESTRATION.md`.
 - **You want the phrasing that actually worked** → `agents/PROMPTS.md`.
+- **You want to set this up for your own role** — support, sales, marketing, PM… → `playbooks/`. Start with `playbooks/README.md`.
 - **You want the whole story** → `guide/`.
 - **You want to check a claim or dig for something I missed** → `notes/` then `transcripts/`.
 
@@ -47,17 +49,14 @@ however well the loop has been working.
 There is a lot still sitting in the transcripts. Ranked by how much material
 exists and how useful it would be.
 
-### Next up
+### Done
 
-- [ ] **`playbooks/` — nine role-based workshops.**
-      Across the three days there were nine separate hour-long sessions: sales
-      engineering, sales, SDR, customer support, marketing, post-sales, product
-      management, founders, engineering. Each one walks through a real team of
-      agents, the workflow, the prompts and the numbers. The guide compresses
-      six of them into three paragraphs each. They deserve nine full files —
-      *"how support runs on agents: four bots, an evals table, a traces table,
-      the crawl-walk-run ladder, worked ticket examples."* The largest unmined
-      block in the material, and the most directly copyable.
+- [x] **`playbooks/` — nine role-based workshops.** One file per session:
+      the team of bots, the workflow as it ran on stream, the prompts, the
+      routines, the numbers, and a copy-this checklist. See
+      `playbooks/README.md` for the cross-session patterns.
+
+### Next up
 
 - [ ] **`roster/` — a catalog of agent roles.**
       Forty-plus named agents are described across the three days with real
