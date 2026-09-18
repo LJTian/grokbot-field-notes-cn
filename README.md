@@ -16,6 +16,7 @@ claim is checkable.
 |---|---|
 | **`AGENTS.md`** | Drop-in house rules for a coding agent. Put it in your repo root and your agent reads it. |
 | **`agents/`** | The deeper references `AGENTS.md` points at — verification, orchestration, skills and routines, prompts. |
+| **`roster/`** | Sixty-nine agent roles, one file each: what it owns, what it doesn't, source of truth, approval gates, and a paste-ready description with placeholders. |
 | **`playbooks/`** | Nine role-based workshops — engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each one: the real team of bots, the workflow as it ran, the prompts, the routines, the numbers. |
 | **`guide/`** | *Grok Bot Guide by SpaceX Engineers* — a 24-page designed PDF covering the whole three days as narrative: mental model, software factory, case study, failure log, economics. |
 | **`notes/`** | Structured extraction notes, one per day. Product facts, workflows, verbatim prompts, failures, numbers, roster, chronology. This is the working source everything else was built from. |
@@ -27,6 +28,7 @@ claim is checkable.
 - **Your agents keep asking you to test their work** → `agents/VERIFICATION.md`. Highest-leverage file in the repo.
 - **You're designing a team of agents, not prompting one** → `agents/ORCHESTRATION.md`.
 - **You want the phrasing that actually worked** → `agents/PROMPTS.md`.
+- **You want a bot's job description you can paste** → `roster/`. Chief of staff, triage, playtester, voice, one-per-account… start with `roster/README.md`.
 - **You want to set this up for your own role** — support, sales, marketing, PM… → `playbooks/`. Start with `playbooks/README.md`.
 - **You want the whole story** → `guide/`.
 - **You want to check a claim or dig for something I missed** → `notes/` then `transcripts/`.
@@ -56,16 +58,12 @@ exists and how useful it would be.
       routines, the numbers, and a copy-this checklist. See
       `playbooks/README.md` for the cross-session patterns.
 
-### Next up
+- [x] **`roster/` — a catalog of agent roles.** Sixty-nine roles,
+      deduplicated by role rather than bot name. Each: owns / does not
+      own, source of truth, approval gates, triggers, outputs, routines,
+      and a paste-ready description with placeholders.
 
-- [ ] **`roster/` — a catalog of agent roles.**
-      Forty-plus named agents are described across the three days with real
-      roles: chief of staff, triage, triage validator, playtester, voice/tone,
-      one-per-account, self-improvement scan, comment cleanup, data scientist,
-      ICP researcher. One file per role: what it owns, what it explicitly does
-      *not* own, its source of truth, what needs approval, and a ready-to-paste
-      role description with placeholders. The thing people take out of a repo
-      most often.
+### Next up
 
 - [ ] **`ANTIPATTERNS.md` — the full failure log.**
       Ten made it into the guide; there are roughly twenty-five distinct
