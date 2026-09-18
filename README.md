@@ -2,14 +2,7 @@
 
 # Grok Bot Field Notes
 
-Three engineers from the xAI Grok Bot team — [Roshan Sadanani](https://www.linkedin.com/in/roshansadanani)
-(product), [Lauren Tan](https://www.linkedin.com/in/laurenelizabethtan)
-(engineering, author of PStack) and [Matt Palmer](https://www.linkedin.com/in/matt-palmer)
-(developer experience) — built and launched a product from an empty repo in
-72 hours, live on stream, using their own agent platform. This repo is what I
-pulled out of those three days: a designed guide, rules you can drop into
-your own agents, nine role playbooks, a catalogue of bot roles, and a log of
-everything that broke.
+Three engineers from the xAI Grok Bot team built and launched a product from an empty repo in 72 hours, live on stream, using their own agent platform: [Roshan Sadanani](https://www.linkedin.com/in/roshansadanani) (product), [Lauren Tan](https://www.linkedin.com/in/laurenelizabethtan) (engineering, author of PStack), and [Matt Palmer](https://www.linkedin.com/in/matt-palmer) (developer experience). This repo is what I pulled out of those three days: a designed guide, rules you can drop into your own agents, nine role playbooks, a catalogue of bot roles, and a log of everything that broke.
 
 ## What's here
 
@@ -40,9 +33,8 @@ everything that broke.
 
 ## In one paragraph
 
-Give each agent one narrow job and a name. Build a verification loop before
-you build the second agent. Make the agent reproduce a bug before it fixes
-one, and attach proof to everything. When it's wrong, write down the general
-principle, never the specific story. Audit your routines weekly, because
-frequency is where the money goes. Keep a human gate on migrations, deploys,
-money and permissions, no matter how well the loop has been working.
+Give each agent one narrow job and a name. Build a verification loop before you build the second agent.
+
+Make the agent reproduce a bug before it fixes one, and attach proof to everything. When it's wrong, write down the general principle, never the specific story.
+
+Audit your routines weekly, because frequency is where the money goes. Keep a human gate on migrations, deploys, money and permissions, no matter how well the loop has been working.
