@@ -15,6 +15,7 @@ claim is checkable.
 | Path | What it is |
 |---|---|
 | **`AGENTS.md`** | Drop-in house rules for a coding agent. Put it in your repo root and your agent reads it. |
+| **`ANTIPATTERNS.md`** | The full failure log: forty things that broke on air, each as what broke → why → the rule it produces. |
 | **`agents/`** | The deeper references `AGENTS.md` points at — verification, orchestration, skills and routines, prompts. |
 | **`roster/`** | Sixty-nine agent roles, one file each: what it owns, what it doesn't, source of truth, approval gates, and a paste-ready description with placeholders. |
 | **`playbooks/`** | Nine role-based workshops — engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each one: the real team of bots, the workflow as it ran, the prompts, the routines, the numbers. |
@@ -30,6 +31,7 @@ claim is checkable.
 - **You want the phrasing that actually worked** → `agents/PROMPTS.md`.
 - **You want a bot's job description you can paste** → `roster/`. Chief of staff, triage, playtester, voice, one-per-account… start with `roster/README.md`.
 - **You want to set this up for your own role** — support, sales, marketing, PM… → `playbooks/`. Start with `playbooks/README.md`.
+- **You want to know what goes wrong** → `ANTIPATTERNS.md`. Forty failures, each with the rule it produced.
 - **You want the whole story** → `guide/`.
 - **You want to check a claim or dig for something I missed** → `notes/` then `transcripts/`.
 
@@ -63,15 +65,11 @@ exists and how useful it would be.
       own, source of truth, approval gates, triggers, outputs, routines,
       and a paste-ready description with placeholders.
 
+- [x] **`ANTIPATTERNS.md` — the full failure log.** Forty failures
+      grouped by cause — rules, verification, content, access, production,
+      cost, strategy — each as what broke → why → the rule it produces.
+
 ### Next up
-
-- [ ] **`ANTIPATTERNS.md` — the full failure log.**
-      Ten made it into the guide; there are roughly twenty-five distinct
-      failures in the transcripts. Format: what broke → why → the rule it
-      produces. Cheap to build and usually the most-read file in a repo like
-      this.
-
-### After that
 
 - [ ] **`reference/PRODUCT.md`** — features, limits, memory semantics, what
       does and doesn't transfer when a template is shared. A dated snapshot.
