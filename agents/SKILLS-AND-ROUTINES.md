@@ -112,6 +112,14 @@ The dominant cost driver in every practitioner's setup. Three routines at every
 - **Audit them on a schedule.** Put a recurring reminder in your own calendar to
   look at the list and kill what isn't earning its keep
 
+### Connector or browser
+
+A connector (an MCP, an API plugin) is faster than the bot driving a browser,
+cheaper per task, and easier to whitelist or blacklist. Filling a web form by
+clicking through it costs more than the same form's own API. Use a connector
+when one exists; the browser is the fallback for anything that has no
+connector, not the default.
+
 ### Test on safe data
 
 A test run performs real work. It can change real files and hit real sites.
