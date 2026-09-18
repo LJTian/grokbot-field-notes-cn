@@ -1,101 +1,64 @@
+![Grok Bot Guide by SpaceX Engineers](guide/cover.png)
+
 # Grok Bot Field Notes
 
-Everything useful extracted from three consecutive livestreams in which the
-xAI Grok Bot team built and launched a product from an empty repo — live, in
-72 hours, using their own agent platform.
-
-Roughly 24 hours of material, turned into things you can actually use: a
-designed guide, drop-in rules for your own agents, and the raw source so every
-claim is checkable.
-
----
+The xAI Grok Bot team built and launched a product from an empty repo in 72
+hours, live on stream, using their own agent platform. This repo is what I
+pulled out of those three days: a designed guide, rules you can drop into
+your own agents, nine role playbooks, a catalogue of bot roles, and a log of
+everything that broke.
 
 ## What's here
 
 | Path | What it is |
 |---|---|
-| **`AGENTS.md`** | Drop-in house rules for a coding agent. Put it in your repo root and your agent reads it. |
-| **`ANTIPATTERNS.md`** | The full failure log: forty things that broke on air, each as what broke → why → the rule it produces. |
-| **`agents/`** | The deeper references `AGENTS.md` points at — verification, orchestration, skills and routines, prompts. |
-| **`roster/`** | Sixty-nine agent roles, one file each: what it owns, what it doesn't, source of truth, approval gates, and a paste-ready description with placeholders. |
-| **`playbooks/`** | Nine role-based workshops — engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each one: the real team of bots, the workflow as it ran, the prompts, the routines, the numbers. |
-| **`guide/`** | *Grok Bot Guide by SpaceX Engineers* — a 24-page designed PDF covering the whole three days as narrative: mental model, software factory, case study, failure log, economics. |
-| **`notes/`** | Structured extraction notes, one per day. Product facts, workflows, verbatim prompts, failures, numbers, roster, chronology. This is the working source everything else was built from. |
-| **`transcripts/`** | The raw transcripts. Cleaned plain text, plus the original timestamped SRT for day 2. |
+| `AGENTS.md` | House rules for a coding agent. Put it in your repo root and your agent reads it. |
+| `ANTIPATTERNS.md` | Forty things that broke on air. Each one: what broke, why, and the rule that came out of it. |
+| `agents/` | The longer references `AGENTS.md` points at: verification, orchestration, skills and routines, prompts. |
+| `roster/` | Sixty-nine agent roles, one file each. What the role owns, what it doesn't, where it gets its facts, what needs approval, and a description you can paste. |
+| `playbooks/` | Nine role workshops: engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each has the team of bots, the workflow as it ran, the prompts, the routines and the numbers. |
+| `guide/` | *Grok Bot Guide by SpaceX Engineers*, a 24-page PDF that tells the three days as a story: mental model, software factory, case study, failure log, economics. |
+| `notes/` | Structured notes, one per day. Product facts, workflows, prompts, failures, numbers, who was who. Everything else was built from these. |
 
-## Start here
+## Where to start
 
-- **You want rules for your agent right now** → copy `AGENTS.md` into your repo root.
-- **Your agents keep asking you to test their work** → `agents/VERIFICATION.md`. Highest-leverage file in the repo.
-- **You're designing a team of agents, not prompting one** → `agents/ORCHESTRATION.md`.
-- **You want the phrasing that actually worked** → `agents/PROMPTS.md`.
-- **You want a bot's job description you can paste** → `roster/`. Chief of staff, triage, playtester, voice, one-per-account… start with `roster/README.md`.
-- **You want to set this up for your own role** — support, sales, marketing, PM… → `playbooks/`. Start with `playbooks/README.md`.
-- **You want to know what goes wrong** → `ANTIPATTERNS.md`. Forty failures, each with the rule it produced.
-- **You want the whole story** → `guide/`.
-- **You want to check a claim or dig for something I missed** → `notes/` then `transcripts/`.
+- You want rules for your agent now: copy `AGENTS.md` into your repo root.
+- Your agents keep asking you to test their work: `agents/VERIFICATION.md`.
+- You are designing a team of agents rather than prompting one: `agents/ORCHESTRATION.md`.
+- You want the wording that worked: `agents/PROMPTS.md`.
+- You want a bot's job description to paste: `roster/`, starting with `roster/README.md`.
+- You want a setup for your own role, say support or sales: `playbooks/`, starting with `playbooks/README.md`.
+- You want to know what goes wrong: `ANTIPATTERNS.md`.
+- You want the whole story: `guide/`.
+- You want to check a claim: `notes/`.
 
----
+## In one paragraph
 
-## The one-paragraph version
-
-Give each agent one narrow job and a name. Build a verification loop before you
-build the second agent. Make the agent reproduce a bug before it fixes one, and
-attach proof to everything. When it's wrong, write down the general principle —
-never the specific story. Audit your routines weekly, because frequency is where
-the money goes. Keep a human gate on migrations, deploys, money and permissions,
-however well the loop has been working.
-
----
+Give each agent one narrow job and a name. Build a verification loop before
+you build the second agent. Make the agent reproduce a bug before it fixes
+one, and attach proof to everything. When it's wrong, write down the general
+principle, never the specific story. Audit your routines weekly, because
+frequency is where the money goes. Keep a human gate on migrations, deploys,
+money and permissions, no matter how well the loop has been working.
 
 ## Roadmap
 
-There is a lot still sitting in the transcripts. Ranked by how much material
-exists and how useful it would be.
-
 ### Done
 
-- [x] **`playbooks/` — nine role-based workshops.** One file per session:
-      the team of bots, the workflow as it ran on stream, the prompts, the
-      routines, the numbers, and a copy-this checklist. See
-      `playbooks/README.md` for the cross-session patterns.
+- [x] `playbooks/`: nine role workshops, one file per session.
+- [x] `roster/`: sixty-nine roles with paste-ready descriptions.
+- [x] `ANTIPATTERNS.md`: the full failure log, grouped by cause.
 
-- [x] **`roster/` — a catalog of agent roles.** Sixty-nine roles,
-      deduplicated by role rather than bot name. Each: owns / does not
-      own, source of truth, approval gates, triggers, outputs, routines,
-      and a paste-ready description with placeholders.
+### Next
 
-- [x] **`ANTIPATTERNS.md` — the full failure log.** Forty failures
-      grouped by cause — rules, verification, content, access, production,
-      cost, strategy — each as what broke → why → the rule it produces.
-
-### Next up
-
-- [ ] **`reference/PRODUCT.md`** — features, limits, memory semantics, what
-      does and doesn't transfer when a template is shared. A dated snapshot.
-- [ ] **`reference/INTEGRATIONS.md`** — every connector named on stream, plus
-      the rule for when to use a connector versus driving a browser.
-- [ ] **`reference/STACK.md`** — what they actually built with and why:
-      Go, Vercel, PlanetScale, Clerk, Zod, Remotion, Strudel, Suno, tldraw.
-- [ ] **`reference/ECONOMICS.md`** — every cost and metric quoted, in one place.
-- [ ] **`case-study/`** — the full Thursday Arena build log plus a three-day
-      chronology: what was announced when, what broke when. The guide condenses
-      this to two pages; there is four times as much.
-- [ ] **`guide/src/`** — the HTML and CSS the PDF is generated from, so the
-      layout can be reused for other documents.
-
----
-
-## Notes on the material
-
-The transcripts are auto-captioned, so the product name appears as "GrokBot,"
-"Rockbot" and "Brockbot," and the company as "SpaceX AI." They all mean the same
-thing.
-
-Every figure was stated live and was a moving target on the day. Features and
-limits are as described during the streams and will have changed since. Treat
-the reference material as a shape, not a specification — check anything
-load-bearing against current documentation before building on it.
-
-Quotes belong to the people who said them. Links to the original streams are in
-`transcripts/README.md`.
+- [ ] `reference/PRODUCT.md`: features, limits, how memory works, what does
+      and doesn't transfer when a template is shared. A dated snapshot.
+- [ ] `reference/INTEGRATIONS.md`: every connector named on stream, and when
+      to use a connector versus driving a browser.
+- [ ] `reference/STACK.md`: what they built with and why. Go, Vercel,
+      PlanetScale, Clerk, Zod, Remotion, Strudel, Suno, tldraw.
+- [ ] `reference/ECONOMICS.md`: every cost and metric quoted, in one place.
+- [ ] `case-study/`: the full Thursday Arena build log and a three-day
+      timeline of what was announced and what broke, and when.
+- [ ] `guide/src/`: the HTML and CSS the PDF is generated from, so the
+      layout can be reused.

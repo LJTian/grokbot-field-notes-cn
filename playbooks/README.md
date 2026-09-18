@@ -29,8 +29,8 @@ six of them into three paragraphs each; here they get the full treatment.
 | [`marketing.md`](marketing.md) | Josh Kim, marketing | 3 | Six bots run a campaign to prod; then a PM bot learns where you intervened and takes over |
 
 Not included: the day-3 RevOps / MarOps talk (Matthew, "build tools, not
-rules"). It's covered in [`../notes/day-3-notes.md`](../notes/day-3-notes.md)
-and the transcript; it wasn't one of the nine role workshops.
+rules"). It's covered in [`../notes/day-3-notes.md`](../notes/day-3-notes.md);
+it wasn't one of the nine role workshops.
 
 ---
 
@@ -72,7 +72,7 @@ only take the intersection:
 
 ## Bots by name, across sessions
 
-Useful when a name comes up in the notes or transcripts and you want the
+Useful when a name comes up in the notes and you want the
 session it belongs to.
 
 | Bot | Session | Role |

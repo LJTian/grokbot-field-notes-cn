@@ -74,5 +74,4 @@ using their own agent platform. Quotes are theirs. Figures were stated live and
 were moving targets on the day.
 
 The companion PDF in `../guide/` covers the same material as narrative,
-including the case study, the failure log and the economics. Raw source is in
-`../transcripts/`, structured extraction notes in `../notes/`.
+including the case study, the failure log and the economics. Structured extraction notes are in `../notes/`.
