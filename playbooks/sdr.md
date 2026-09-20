@@ -1,200 +1,131 @@
-# SDR
+# 业务拓展代表 (SDR) 剧本
 
-**Session:** GrokBot for SDRs — day 2
-**Ran by:** Simon, xAI go-to-market, SDR team.
+**实战专场：** 面向业务拓展代表 (SDR) 的 GrokBot 实战 —— 第 2 天  
+**主讲人：** Simon，xAI 市场拓展 (GTM) 团队 SDR 业务负责人。
 
-The most *systems*-minded of the nine sessions. His argument: single-task
-prompting is easy and pointless; the value is an end-to-end pipeline —
-prospect → enrich → context → sequence → outbound — that runs on routines,
-with **one bot you actually talk to.** "What's working for us today was not
-working three months ago." So the setup has to be cheap to change and cheap
-to share.
+这是九场专场中最具**系统性工程思维**的一场。Simon 的核心观点：单点孤立的 Prompt 提问不仅简单而且毫无意义；真正产生巨大商业价值的是一条端到端的全自动外呼获客流水线——**线索挖掘 (Prospect) → 数据补全 (Enrich) → 提取业务上下文 (Context) → 序列化排队 (Sequence) → 外发触达 (Outbound)**——全流程依托定时 Routine 自主运转，并且**人类日常只跟唯一一位主控 Bot 对话**。“今天对我们行之有效的方法，三个月前根本不存在。”因此整个系统架构必须做到改造成本极低、跨团队共享极快。
 
 ---
 
-## Setup rules he stated up front
+## Simon 开宗明义的五大建构准则
 
-1. **Chief of staff first.** It's the first bot you create.
-2. **Build every other bot *through* the chief of staff.** When you create a
-   bot via the chief, the chief knows its purpose and end goal, so later it
-   knows who to delegate to — and when a task needs two bots talking to each
-   other.
-3. **One bot per platform, not per task.** Bots are things that run in
-   parallel. One email bot does all of email (draft, send, inbox). A second
-   outbound bot only if you outbound on a second platform.
-4. **Colour-code by function.** Orange = research, another colour =
-   Shakespeare / copy, green = account-research army. "When my chief of
-   staff messages an orange bot, I know at a glance it's in the research
-   phase." Everything is delegated from the chief, so the colours are how he
-   reads the pipeline.
-5. **Don't sprawl.** "I promise you I've had way too many at some points. It's
-   more chaotic and does more harm than good." Before a new bot: *why can't
-   the email bot also be the inbox manager? Should this be a routine
-   instead?*
+1. **幕僚长先行（Chief of Staff First）。** 它必须是你创建的第一个 Bot。
+2. **所有其他下属 Bot 必须“通过幕僚长来创建”。** 当你通过幕僚长派生新 Bot 时，幕僚长会完整理解该下属的职能定位与最终目标。后续它就知道该把什么任务精准委派给谁，以及何时需要撮合两个下属 Bot 协同。
+3. **按“渠道平台”而非按“细分任务”建 Bot。** Bot 是能够并发运行的独立实体。一个邮件 Bot 统管所有跟邮件相关的事务（草拟、外发、收件箱管理）。只有当你开拓了第二套外呼获客平台（如 LinkedIn 或电话）时，才需要创建第二个外呼 Bot。
+4. **按职能统一颜色编码（Colour-code）。** 橙色 = 背景调研类；某种颜色 = 莎士比亚文风润色；绿色 = 负责企业调研的底层工兵蜂群。“当我的幕僚长向一个橙色 Bot 发送消息时，我扫一眼侧边栏就知道当前流程正处于调研阶段。” 所有任务都由幕僚长向下分派，颜色是他一目了然监控流水线进度的仪表盘。
+5. **警惕 Bot 盲目膨胀。** “我向你保证，我曾经在某些阶段建过太多 Bot。坦率讲，那只会平添混乱，弊远大于利。” 在新建 Bot 之前必须灵魂拷问：*为什么现有的邮件 Bot 不能兼任收件箱管理？这难道不能通过增加一个 Routine 解决吗？*
 
 ---
 
-## The team
+## 团队架构
 
-| Bot | Colour | Job | Tools |
+| Bot 角色 | 颜色标识 | 核心职责 | 挂载工具 |
 |---|---|---|---|
-| **Simon-bot** | — | Chief of staff. **The only bot he talks to.** Every other bot was built from it | Calendar, everything below via delegation |
-| **Shakespeare** | copy | Email. Meticulously trained on his voice | Gmail |
-| **Web Search** | orange | Public signals: funding, job postings, news | Exa |
-| **Simon soldiers** (an army) | green | Low-context sub-bots. Web Search splits a batch across them | — |
-| **Army huddle** | — | Group chat: Web Search giving orders, soldiers reporting back | — |
-| **Customer / Voice of Customer** | orange | Context from closed-won and closed-lost: why they bought, what pain, what product areas | Salesforce, call recordings |
-| **PLG bot** | orange | Internal usage: who signed up, power users, what they use, closed-lost | Salesforce, product data |
-| **Ample Market** | orange | Enrichment: find and **verify** emails so nothing bounces and deliverability stays clean | Ample Market |
-| **Company research** | orange | Tech stack, job postings, org chart ("who leads their SDR team") | Sumble |
-| **Inbox manager** | — | Ranks overnight Slack, meeting invites, external email into an action order | Slack, Gmail, calendar |
+| **Simon-bot** | — | SDR 幕僚长。**Simon 唯一直接对话的 Bot**。其他所有下属 Bot 均由它派生创建 | 日历、通过分权调度下述所有工具 |
+| **Shakespeare（莎士比亚）** | 文案色 | 专属邮件文案管家。极度严苛地拟合了 Simon 本人的独家口吻 | Gmail |
+| **Web Search** | 橙色 | 公网情报雷达：融资动态、招聘信息、行业突发新闻 | Exa 搜索引擎 |
+| **Simon soldiers（工兵蜂群）** | 绿色 | 庞大的低上下文工兵 Bot 集群。由 Web Search 将大批量任务切片并发分发给它们 | — |
+| **Army huddle（蜂群碰头会）** | — | 专属多 Bot 群聊：Web Search 下达切片指令，工兵蜂群在此回传交付结果 | — |
+| **Customer / Voice of Customer** | 橙色 | 赢单与丢单深度复盘：客户为什么买单、核心痛点是什么、涉及哪些产品模块 | Salesforce、客户通话录音库 |
+| **PLG bot** | 橙色 | 内部产品遥测数据：谁刚注册了账号、高频超级用户是谁、他们具体使用了什么功能、哪些线索曾流失 | Salesforce、产品底层数据宽表 |
+| **Ample Market** | 橙色 | 线索数据深度清洗与增强：挖掘并**严格检验**邮箱有效性，确保零退信、保护发件域名信誉 | Ample Market 插件 |
+| **Company research** | 橙色 | 企业组织与技术栈深挖：研发技术栈、招聘岗位画像、组织架构树（“谁在主管他们的 SDR 团队”） | Sumble |
+| **Inbox manager** | — | 收件箱智能排序：将夜间堆积的 Slack 消息、新会议邀请、外部客户邮件按轻重缓急排定处理顺序 | Slack、Gmail、日历 |
 
-Everything ends up in a **CSV** — the sequencer, the prospect queue, the
-board, and "what I need to action today." "A hideous UI. You shouldn't be
-looking at this much, if at all. It's GrokBot's brain. Trust it to have the
-context and only look when you really need to."
+所有业务流转最终汇总沉淀为一张 **CSV 数据库看板**——外呼序列排期、潜在客户等待队列、流转看板以及“我今天必须处理的高优事项”。“虽然这个界面看起来很朴素甚至有些丑陋，但你平时根本不需要盯着它看。这是 GrokBot 的数字大脑。相信它掌握着全部上下文，只有在极度必要时才去翻阅它。”
 
 ---
 
-## The pipeline
+## 全自动获客流水线详解
 
-**ICP first.** For an early-stage company: ask the chief which titles carry
-deals past stage 1, which title/industry is most responsive to a first
-meeting, and how that differs from the economic buyer. Reverse-engineer from
-your own goal ("how many S1s can I get").
+### 1. 明确目标客户画像 (ICP First)
+对于早期业务：直接询问幕僚长——在历史成交中，哪些职级的关键人能够顺利把商机推进过第一阶段（Stage 1）？哪类职能/行业的画像对首次破冰会议的回复率最高？这与最终掏钱买单的经济决策人（Economic Buyer）有何差异？从你的终极销售目标反向倒推拆解。
 
-**Prospect.** Web Search + soldiers scan 100–200 accounts for net-new
-signals. PLG bot pulls sign-ups and usage. Company research pulls stack and
-org.
+### 2. 潜客线索挖掘 (Prospect)
+Web Search 联手底层工兵蜂群，批量扫描 100–200 家目标企业的最鲜活公开动态。PLG Bot 同步提取内部注册与用量数据。Company Research 深度爬取其技术栈与组织阵型。
 
-**Enrich.** Ample Market finds and tests emails.
+### 3. 数据增强与验证 (Enrich)
+Ample Market 自动挖掘并验证邮箱可达性，拦截死信。
 
-**Context.** The nuance he says he hasn't seen elsewhere: your AE had a call
-with the account *yesterday*. That transcript is gold and should shape
-today's message. The bot has it: "they mentioned tool fatigue, AI fatigue" —
-or "Simon on the AI team is investigating exactly this, reach out to him."
-Most of those never get actioned. Here they get sequenced automatically.
+### 4. 提取极度鲜活的上下文 (Context)
+Simon 分享了他在别处从未见过的独家细节：**你的同事（客户经理 AE）可能*昨天*刚跟这家客户开过一次会！** 那次通话的转录记录就是无价之宝，必须直接用来指导今天的破冰策略。Bot 掌握着全部记录：“客户在会上抱怨了严重的工具疲劳和 AI 疲劳”——或者“客户提到他们内部的 Simon 正在主导调研这类工具，建议直接联系他”。在传统模式下，绝大部分这类高价值线索都会被遗忘；而在这里，它们被全自动串联进了外呼序列。
 
-Cross-bot example he walked through: a prospect account is closed-lost.
-Chief asks Voice of Customer why → "we didn't support a critical function
-then." Chief notices from recent closed-won that **now we do**. Account gets
-**ranked higher** in the sequence — re-engage on the exact thing they care
-about. Then chief hands to Shakespeare with the FinTech-specific context to
-draft.
+**经典的跨 Bot 协同闭环案例：**  
+某潜在客户在系统里标记为“丢单（Closed-Lost）”。幕僚长私信询问 Voice of Customer 丢单原因 → 答复：“因为我们当时不支持某项关键底层功能”。幕僚长比对近期最新赢单动态敏锐发现：**我们上周刚发布了该功能，现在已经完全支持了！** 该客户在当天的外呼优先级序列中**被瞬间大幅提前**——直奔对方当初最介意的痛点进行精准召回。随后幕僚长把整理好的金融科技行业背景打包交接给 Shakespeare，草拟专属召回邮件。
 
-**Sequence.** Each day's actions come with Gmail draft IDs. He reviews in
-Gmail one by one. Or asks the chief:
+### 5. 序列排期与最终外发 (Sequence)
+每天清晨生成的待办事项都附带了 Gmail 的草稿唯一 ID。Simon 在 Gmail 中逐封快速过目确认。或者直接反问幕僚长：
 
-> Can you give me a score on how confident you are that this email is
-> accurate, solid, and that they might actually respond?
+> 针对这封邮件的准确度、论据扎实度以及客户真正回复的概率，给出你的置信度评分。
 
-He's now at the point of somewhat trusting it — but says: early on,
-thoroughly read every draft and give honest feedback.
+他现在已经建立起了相当程度的信任——但强调：在体系搭建初期，必须逐字通读每一封草稿，并给出严格真诚的纠偏反馈。
 
 ---
 
-## Training Shakespeare — the voice
+## 如何把莎士比亚（Shakespeare）训练出你的独家灵魂
 
-Everyone says "sync your email." He pushed further, in this order:
+很多人只懂得简单粗暴地说“把我的发件箱同步给它”。Simon 制定了更为精准的高阶训练四步法：
 
-1. Look at **my sent email to external companies that match a Salesforce
-   account where I'm the assigned SDR.** (Not all sent mail.)
-2. From that set, look at the ones that **got positive responses**, not
-   negative ones.
-3. Put a **heavier weight on recent positive responses.** The product
-   changes every few months; three-month-old messaging may be dead.
-4. Still pull inspiration from older messages for the human aspect.
+1. **严格限定筛选范围**：只研读我发给外部企业的、且在 Salesforce 中**明确由我担任归属 SDR 的目标客户邮件**（坚决不喂全量发件箱）；
+2. 在上述邮件中，**只挑选那些获得了客户正面积极回复的标杆邮件**，剔除所有被拒绝或石沉大海的样本；
+3. **给近期产生正面回复的邮件赋予更高权重**。产品每隔几个月就会大幅迭代；三个月前的旧卖点话术在今天可能已经彻底过时；
+4. 适度保留更早之前的历史优质邮件，汲取其文字温度与高情商的人情味。
 
-Then the critique loop. The first drafts came back templated — same email
-with the name and company swapped. So:
+随后开启严苛的**批评闭环（Critique Loop）**。第一批生成的草稿依然充斥着浓浓的模板味——换汤不换药。于是他下令：
 
-> Give me examples of these emails.
+> 给我列出你生成的几个邮件样本。
 
-And on each one: *this is why this email sucks and here's how to make it
-better.* Repeatedly, until it broke out of the standard format.
+针对每一个样本进行无情痛批：*这封邮件之所以写得像垃圾，原因在哪里，具体应该如何修改重写。* 反复打磨，直到彻底打破一切刻板结构：
 
-> Not a single one of your emails should look like a template.
+> **从你手里出来的任何一封邮件，都绝对不能让人看出哪怕一丝一毫套模板的痕迹。**
 
 ---
 
-## Routines
+## 定时例行任务设计
 
-| Routine | When | What |
+| 例行任务 (Routine) | 触发时机 | 核心动作 |
 |---|---|---|
-| **50 new prospects** | daily | Ranked. **Top 5** are the ones to action first thing: someone who contacted sales and nobody replied, someone who downloaded content that matches a live conversation. |
-| Calendar blocking | daily | Chief has calendar access: blocks **15 minutes at 9 a.m.** for the top 5, and **an hour at 1 p.m.** for the other 45. It learned how he likes to split his time. |
-| Inbox ranking | every morning | Slack, new meeting invites, external email → ordered by what to action now. |
-| Account signal scan | **8 a.m. every weekday** | All accounts, net-new signals: sign-ups, content downloads, inbound. "Speed to lead. Even a weak signal actioned while it's warm gets the most receptive responses." |
-| **Salesforce trigger** | on stage change | If an account moves stage 0 → 1, **un-sequence** those contacts. Runs in parallel with the sequencer so you stop outbounding a deal that's moving. |
+| **每日 50 条新潜客挖掘** | 每天清晨 | 输出带有优先级排名的线索清单。**排名前 5 位的高优线索**是上班第一件事必须立即处理的：比如昨天刚联系了销售但无人认领的客户、下载了与当前对话高度相关的白皮书的用户等。 |
+| 日程日历自动锁定 | 每天定时 | 幕僚长掌握日历写权限：自动为 Simon 在 **上午 9:00 锁定 15 分钟专注时间** 专攻这前 5 个高优线索；在 **下午 1:00 锁定 1 小时** 处理其余 45 条线索。Bot 彻底适应并固化了他的时间切片习惯。 |
+| 收件箱智能分流 | 每天清晨 | 扫描夜间堆积的 Slack 讨论、新会议邀请、外部邮件 → 按即刻行动价值排定处理顺序。 |
+| 全局客户信号扫描 | **每个工作日早晨 8:00** | 全量扫描所有线索库中的鲜活动态：新注册用户、资料下载行为、官网表单线索。“**响应速度即成单率。** 哪怕是一个微弱的信号，只要在余温尚存的当下立即响应，获得的积极回复率永远是最高的。” |
+| **Salesforce 状态触发器** | 当商机阶段发生变动时 | 当某家客户从 Stage 0 推进到 Stage 1 时，**全自动从外呼排期中移出该客户的所有联系人**。与序列化工具并发运行，彻底避免了“销售正在跟进，自动化脚本还在盲目给对方发推销信”的尴尬翻车。 |
 
-Alternative cadence he offered in Q&A: 250 prospects delivered Monday
-morning for the week, if 50/day is more than your outbound needs.
-
----
-
-## Skills
-
-- **Prospecting skill** — everything he wants for a one-off account: title,
-  ICP persona, owner, why, enrichment, LinkedIn, location. Run for net-new
-  accounts mid-day; the rest runs on routines.
-- **ICP skill** — their own evolving understanding of who buys GrokBot,
-  fed by stage-1+ deals and Voice of Customer. Kept as a **skill rather than
-  memory** deliberately: it will change drastically, and a skill can be
-  updated once and called by every system.
+*注：问答环节补充：如果每天 50 条线索消化不完，可调整为每周一清晨一次性交付 250 条周度线索包。*
 
 ---
 
-## The army pattern
+## 核心技能模块
 
-Web Search needs to check 200 companies. It won't do that in one context.
-So: an **army huddle** group chat where Web Search says "40 each, run in
-parallel," the soldiers do it, and results flow back to Web Search — not to
-the chief, not to Simon.
-
-Why a group chat instead of direct messages (Q&A): he can open the huddle
-and check each sub-agent's output is accurate and flowing; and it scales
-from 5 soldiers to 20 on a whim because the soldiers are **low-context** —
-Web Search hands off exactly what each needs.
+- **单兵线索调研技能（Prospecting skill）：** 针对临时偶发的单一目标客户的一键深挖能力：职务头衔、ICP 画像、内部负责人、成单逻辑、邮箱电话、领英链接、地理位置。用于白天突发偶遇的新线索；其余全量挖掘全部依托 Routine 定时跑。
+- **动态 ICP 技能（ICP skill）：** 团队对“究竟谁在买单”的认知认知模型。由 Stage 1 以上的真实推进案例和客户之声持续回喂。**刻意将其做成独立 Skill 而非 Bot 记忆**：因为对 ICP 的认知会随着产品演进而发生剧烈剧变，做成独立技能只需在源头更新一次，全系统的所有 Bot 都能立即统一调用最新标准。
 
 ---
 
-## Takeaways (his three)
+## 工兵蜂群协作模式（The Army Pattern）
 
-1. **Go end to end.** It's a lot of pain up front to prompt back and forth
-   and build the system. Stick through it, train it on your style, and the
-   payoff is the full workflow running without you.
-2. **Be intentional.** Build through the chief. Bots should talk to each
-   other. "You shouldn't be focusing even harder and messaging even more
-   bots — that's exhausting."
-3. **Think systematically.** Question every new bot. Turn repeated chats
-   into routines.
+Web Search 需要在极短时间内深度排查 200 家企业，单凭一个 Bot 的上下文窗口必定爆仓崩溃。
+
+**解决方案：** 组建一个**蜂群碰头会（Army Huddle）**多 Bot 群聊房间。Web Search 在群里发布任务调度：“你们 5 个工兵每人负责 40 家，并发开始干活”；工兵们领命并在后台独立执行，最终将结果汇聚回传给 Web Search——**绝对不越级回传给幕僚长，更绝对不打扰 Simon 本人**。
+
+**为什么采用群聊而非逐个单聊：** Simon 可以随时点开群聊窗口一目了然抽检每个子工兵的产出质量；并且支持根据任务规模随时弹性将工兵由 5 个瞬间扩充至 20 个，因为这些底层工兵全部都是**极轻量、低上下文（Low-context）的设计**——主控 Bot 每次只向其传递单点任务所需的最简信息。
 
 ---
 
-## Q&A worth keeping
+## Simon 的三大核心铁律
 
-- **Token cost of 50/day?** "It very much depends" — how many Gong calls
-  you pull, how much Databricks context, how many fresh enrichments vs.
-  Salesforce records you already have. Ask the bot where the spend is and
-  how to optimise. Consider 250/week.
-- **Fastest time-to-value if I know nothing?** Talk to the chief at a high
-  level about what your workflow is. It will tell you where separate bots
-  make sense.
+1. **坚决追求端到端贯通。** 在前期通过反复对话打磨指令、构建这套流水线确实非常耗费心力。但只要咬牙扛过去，用你的独家标准将其彻底调教成熟，后续全流程脱离人类全自动狂飙的复利回报将极其惊人。
+2. **凡事谋定而后动（Be Intentional）。** 所有下属 Bot 必须统一通过幕僚长来派生创建。让 Bot 之间去充分沟通对话。“你不应该把自己搞得更累、去同时跟更多的 Bot 手动打字——那样只会让你精神崩溃。”
+3. **具备顶层系统化思维。** 严格拷问每一个新建 Bot 的必要性。将每一次重复发生的对话交流，统统沉淀固化为定时 Routine。
 
 ---
 
-## Copy this
+## 一键抄作业（落地实施清单）
 
-1. Chief of staff. Build everything else from it. Talk only to it.
-2. One bot per platform. Colour-code.
-3. A voice bot trained on *positive-response, recent, in-territory* sent
-   mail — then critique it until nothing looks templated.
-4. Daily ranked batch with a small "action now" tier; let the chief block
-   the calendar.
-5. A signal scan every morning. A CRM trigger to un-sequence.
-6. An army for batch research, reporting to its parent bot in a group chat.
-7. Put anything that will change (your ICP) in a skill, not in memory.
-
-Related: [`sales.md`](sales.md) (PG is the AE-scale version of this),
-[`post-sales.md`](post-sales.md) (the same "one bot I talk to" discipline,
-after the sale).
+1. [ ] 设立 SDR 幕僚长 Bot。所有后续专职 Bot 统一由它派生创建。日常只与它一人对话；
+2. [ ] 按触达渠道（而非按零碎动作）划分 Bot，并按职能执行严格的界面颜色管理；
+3. [ ] 训练专属邮件文风 Bot：严格基于“目标区域内、带来正面回复、按时间越近权重越高”的历史真实邮件进行训练，并通过严苛批评直到彻底杜绝模板感；
+4. [ ] 每日输出带优先级的潜客批次，圈定 Top 5 高优目标，让幕僚长在日历上自动锁定专注处理时间；
+5. [ ] 设立每个工作日早晨 8:00 的客户信号巡检；配置 CRM 阶段变动联动撤销外呼的保护钩子；
+6. [ ] 引入低上下文工兵蜂群处理大批量调研，由父级 Bot 在专属群聊中闭环管理；
+7. [ ] 将随时可能剧烈变动的战略认知（如 ICP 画像）封装为独立技能（Skill），而非硬塞在长期记忆中。

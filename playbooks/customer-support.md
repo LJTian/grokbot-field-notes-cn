@@ -1,213 +1,144 @@
-# Customer Support
+# 客户支持剧本 (Customer Support Playbook)
 
-**Session:** GrokBot for Customer Support — day 2
-**Ran by:** David, software engineer in xAI's user-ops org.
+**实战专场：** 面向客户支持 (User Ops / Customer Support) 的 GrokBot 实战 —— 第 2 天  
+**主讲人：** David，xAI 用户运营（User Ops）团队软件工程师。
 
-Demo-heavy and the most operational of the nine: a ticketing system, a
-knowledge base with public and internal sections, an SOP, Stripe, Slack, and
-four bots working real tickets end to end — including executing a refund.
+九场专场中实操性最强、演示密度最高的一场：工单系统（Plane）、区分公开与内部的三层知识库、标准作业程序 (SOP)、Stripe 真实计费系统、Slack 以及协同处理真实工单的四个 Bot——甚至包括在现场真实执行退款操作。
 
-His caveat, twice: "The whole product is still so new. I don't think there's
-one meta or one clear playbook. Make the bots fit into how you work, not vice
-versa."
+David 两次重点提醒：“整套 Agent 产品依然非常崭新。我不认为目前存在某种唯一正确的‘标准版本’或一成不变的打法。**让 Bot 去适应你的既有工作习惯，而不是反过来让你去迁就 Bot。**”
 
 ---
 
-## The team
+## 团队架构
 
-He is explicit that you should **not** start with four bots. Start with one
-bot with a generic name, teach it one workflow, and split when scope grows or
-you need two running at once. This is where he ended up:
+David 明确强调：**起步阶段坚决不要一上来就搞四个 Bot**。从一个拥有通用名称的单体 Bot 开始，先教会它一条完整工作流；只有当业务范围扩大，或者确实需要两个 Bot 同时并发运行推进时，才进行拆分。他最终演进出的架构如下：
 
-| Bot | Job | Connected to |
+| Bot 角色 | 核心职责 | 挂载系统与工具 |
 |---|---|---|
-| **Build** | Setup and infrastructure. Installs connectors, creates the evals and traces tables | Plane, Notion, Supabase (Postgres), Slack |
-| **Reply** | Answers tickets in the ticketing system and questions in Slack, following a written process | Plane, Notion, Stripe, Slack |
-| **Alert** | Pinged by Reply when something needs a human now. Posts in a Slack alerts channel and tags him | Slack |
-| **Tune** | Self-improvement. Updates the knowledge base (with approval). Reviews last week's tickets for what could have gone better | Notion, traces |
+| **Build** | 基础设施与环境搭建。安装各类连接器，在底层数据库中创建链路追踪（Traces）与评测（Evals）数据表 | Plane 工单系统、Notion、Supabase (Postgres)、Slack |
+| **Reply** | 工单回复专员。严格依据书面 SOP 规范，负责在工单系统中回复用户、在 Slack 中解答内部提问 | Plane、Notion、Stripe、Slack |
+| **Alert** | 紧急报警总机。当 Reply 遇到必须立即由人类介入的棘手问题时由其通知。负责在专属 Slack 告警频道中发帖并 @ 主讲人 | Slack |
+| **Tune** | 自我调优专家。负责知识库的扩充更新（需经人类审批）。复盘上周的所有历史工单，总结哪些地方可以改进 | Notion、链路追踪数据表 |
 
-Demo company: Flylo again. One SKU to keep it simple: an in-flight Wi-Fi
-subscription, $20/month, billed monthly.
-
----
-
-## The knowledge base (Notion, for the demo)
-
-Three sections, and the split matters:
-
-1. **Public docs** — what a user could find by searching: product, auth,
-   billing, FAQ. Reply may quote these.
-2. **Internal policies** — what a human billing agent should know but the
-   public shouldn't see. The refund SOP: *subscribed ≤ 14 days → approve,
-   cancel, refund. > 14 days → deny.*
-3. **The agent's process** — the loop Reply runs on every ticket, which he
-   told it to re-read every time so edits take effect immediately:
-
-   > Read the ticket → look for the knowledge → decide: reply or hand off →
-   > act → leave a note.
-
-Add a step 7 to the process doc and it's live on the next ticket.
+演示背景公司：Flylo。为保持清晰极简，只设一个单一商品（SKU）：机上 Wi-Fi 订阅，每月 $20，按月自动扣费。
 
 ---
 
-## The crawl → walk → run ladder
+## 三层知识库设计（Notion 承载）
 
-"It can be scary to let an agent reply to your customers. Build up to it."
+严格划分为三个截然不同的独立分区，这种拆分至关重要：
 
-1. **Crawl** — read tickets only. Summarise, name the root issue, maybe draft
-   a response *for you.*
-2. **Walk** — add the draft as an **internal note** on the ticket. You see it
-   before anything goes out.
-3. **Run** — reply to the user, and take real actions (Stripe).
+1. **公共文档（Public docs）** —— 任何普通用户在官网搜索都能看到的公开内容：产品介绍、认证登录、账单说明、常见 FAQ。Reply 在回复客户时可以直接引用这部分内容；
+2. **内部专属策略（Internal policies）** —— 人类客服必须掌握、但绝对不能让外部客户看到的内部规则。例如退款 SOP：*订阅时间 ≤ 14 天 → 允许退款，解约并执行退款；订阅时间 > 14 天 → 拒绝退款*；
+3. **Agent 自执行流程（The agent's process）** —— Reply 在处理每一张工单时必须机械化遵循的标准闭环。**明确命令它每次处理工单时都必须重新研读此规范**，以便人类对流程的任何修改能即刻生效：
 
-Orthogonal to that: **read-only first, writes later, and per-bot
-permissions.** One bot may post to Slack automatically; another must ask.
-The knowledge base is the thing he keeps human-gated even at "run": if a
-wrong entry goes out and 100 people ask the same thing, that's an incident.
+   > 研读工单 → 检索对应知识库 → 做出裁决（直接回复还是上报转交） → 执行操作 → 在工单系统留下内部备注。
+
+*在流程文档中新增第 7 步，下一次处理新工单时该规则便立即无缝生效。*
 
 ---
 
-## The four tickets, as run
+## 循序渐进演进阶梯：爬行 → 慢走 → 奔跑 (Crawl → Walk → Run)
 
-**Alex — "I forgot my password."** Basic.
+“直接放手让 Agent 去直接回复你的真实客户，确实会让人心里发慌。务必循序渐进搭建信任。”
 
-> Hi, can you reply to Alex in Plane?
+1. **爬行（Crawl）** —— 纯只读模式。只负责阅读工单、总结摘要、指出问题根因，至多替你起草一份回复草稿**供你参考**；
+2. **慢走（Walk）** —— 将起草的回复作为**工单系统内部私密备注（Internal note）**贴在工单中。你在内容正式发给客户前拥有绝对的预览与把关权；
+3. **奔跑（Run）** —— 赋予直接回复客户的权限，并允许其在关联系统（Stripe）中执行真实的资金与业务变更操作。
 
-Reply followed the loop and left a **thinking note** on the ticket: *can
-reply with high confidence; root issue; source referenced* — then replied
-with the exact steps from Public → Auth → Forgot your password.
-
-**Ben — SSO / Okta.** Not in the toy knowledge base.
-
-> Try replying to Ben in Plane.
-
-*No public docs or internal policy → low confidence → hand off.* It left the
-note **and messaged Alert**, because he'd set a rule: an enterprise customer
-who looks locked out gets escalated. Alert posted to the Slack alerts
-channel and tagged him. Real-time visibility on the tickets that matter,
-without reading every ticket.
-
-**Carter and Damon — refunds.** Two users; Carter subscribed today (renews in
-a month), Damon renews in ~10 days (so ~20 days in). Per the SOP: approve
-Carter, deny Damon.
-
-> Now try to answer Carter and Damon. [customer IDs pasted]
-
-Both replies went out. **Carter: cancelled and refunded — verified in Stripe
-(active → cancelled, payment refunded).** Damon: refund denied, *without
-quoting the internal 14-day rule* — kept vague, and offered to schedule a
-cancellation at period end so he isn't billed again. Stripe unchanged for
-Damon. Stripe actions can be approve-gated or not; "you can let it run
-loose."
-
-**Elena — "can I share my Wi-Fi pass?"** Not in the KB.
-
-Reply classified the root issue (pass sharing), searched, couldn't answer,
-left a hand-off note, and **recommended asking Tune to add it to the
-knowledge base** — it asked rather than editing. He approved:
-
-> Add pass-sharing to the FAQ. Say this is not allowed. Do it in green.
-
-Tune added it. Then:
-
-> Can you try again now that the information is added?
-
-Reply answered with high confidence and linked the new section.
-
-**Internal Q&A in Slack.** A teammate on billing asks the same bot:
-
-> What is the refund SOP?
-
-It answers with the *internal* policy, because the asker is internal. Same
-KB, same bot, different audience. "Other support agents are focused on
-customer replies; using the KB you already built to answer your own team is
-surprisingly cumbersome." Use cases: GTM prepping for a call on today's
-release; a manager checking how the refund policy changed over time.
-
-Side note from the run: the bot asked permission to post in Slack. He set
-"always allow." Also, "it was even more protective than I wanted at the end —
-that's probably better for writes."
+与此并行的一大原则：**先只读后写入，且按 Bot 细分权限粒度**。一个 Bot 可以被允许全自动向 Slack 推送消息；而另一个 Bot 在发帖前必须弹窗申请许可。**知识库的编辑权限即使在“奔跑”阶段，也必须由人类严格把关**：因为一旦知识库被写入了一条错误条目，后续 100 位提问同类问题的用户都会收到错误答复，那将直接酿成线上事故。
 
 ---
 
-## Alerting as a use case
+## 现场实操处理的四张真实工单
 
-Anyone on the team with a bot connected to the ticketing system can say:
+### 工单 1：Alex —— “我忘记密码了”（基础常规问题）
 
-> Create a routine that looks through tickets every hour, classifies whether
-> a user is threatening to churn and has been a customer for six months or
-> more, and sends an alert to this Slack channel.
+> 你好，请去 Plane 工单系统中回复 Alex。
 
-No engineer needed.
+Reply 遵照标准流程执行，并在工单后台留下了一条**思考备注（Thinking note）**：*高置信度可回复；定位到根因问题；引用的具体知识库章节* —— 随后严格按照“公共文档 → 登录认证 → 忘记密码”的标准步骤给出了详尽指引。
 
----
+### 工单 2：Ben —— “关于企业级 SSO / Okta 单点登录”（超出玩具知识库范围）
 
-## Evals and traces — how you debug it
+> 请尝试在 Plane 中回复 Ben。
 
-Set up with a Supabase connector on Build:
+Reply 检索知识库：*未在公共文档或内部策略中检索到相关条款 → 置信度低 → 判定必须转交人工处理*。它在工单中留下了转交备注，**并主动给 Alert 发送了消息**，因为预设了规则：任何看起来被锁在系统门外的大企业客户必须立即升级处理。Alert 随即在专属 Slack 告警频道发帖并 @ 了 David。人类无需人工死盯每一张工单，即可获得对高危事件的实时掌控。
 
-> You have access to Postgres now. Create a traces table and an evals table.
-> Write to those tables every time I ask you to run an eval or create a new
-> eval, and every time you run a trace or answer a ticket — internal,
-> external, even a dry run, even if you're only leaving a note.
+### 工单 3：Carter 与 Damon —— 申请退款（涉及真实金钱操作）
 
-Per run: how long it took, which files it looked at, which files it ended up
-using (usually a filtered-down list). From that you can see where it went
-wrong. Evals are the things you want to re-test every time you change
-something. And Tune reads the traces to find improvements — "a big unlock."
+两名用户申请退款：Carter 今天刚付费订阅（一个月后才到期）；Damon 的订阅再过 10 天就将扣费续订（即已经使用了约 20 天）。根据退款 SOP：批准 Carter 的申请，拒绝 Damon 的申请。
 
----
+> 现在尝试处理 Carter 和 Damon 的工单。[粘贴客户唯一 ID]
 
-## Numbers
+两条处理均顺利完成。**Carter：订阅被取消，且退款执行成功——现场在 Stripe 后台得到确凿验证（状态从活跃变为已取消，金额全额原路退回）。** Damon：退款被拒绝，**且在回复话术中没有生硬透露内部的“14天红线”原则**——委婉得体地告知无法退款，并主动提出为其设置在当前周期结束时自动停止续费，避免下月再次扣款。Damon 在 Stripe 中的状态保持不变。Stripe 操作可以配置为审批确认或全自动；“你可以根据信心选择放手。”
 
-- **$1–2 per ticket** for medium-to-complex tickets, the way he runs it
-  (classifiers before every ticket, traces and evals written).
-- **~$0.20 per ticket** for low-complexity billing tickets ("user just asks
-  for a refund," "user asks about an email they got") once you bucket them:
-  run a script to find them first, then reply to the bucket at once.
-- Competing support-agent products charge per resolution, "$1 to $10, order
-  of magnitude." Humans: noticeably higher.
-- "That's with half a day of trying to improve it."
+### 工单 4：Elena —— “我能把我的 Wi-Fi 通行证借给别人共享吗？”（知识库缺失但属常规拓展）
 
----
+Reply 判定该诉求属于“通行证共享”，全局检索未果，留下转交备注，并**主动建议让 Tune 将这一条目补充进知识库**——它主动申请而不是自作主张修改。David 现场批准：
 
-## Q&A worth keeping
+> 在 FAQ 中补充关于通行证共享的说明。明确告知不被允许。用绿色字体标出。
 
-- **Non-technical users writing to production?** Whoever sets it up first
-  (slightly more technical, or just architecture-aware) gives others a
-  **template** with the guardrails baked in — e.g. "you can't update the
-  knowledge base yourself." Stronger: put the KB in **GitHub** instead of
-  Notion. You get branches, PRs, code owners. The self-improvement bot must
-  open a PR, a bug bot reviews it, it pings the owner, **evals run against
-  the PR branch** before approval. Same building blocks, real gates.
-- **Is it cheaper to batch?** Yes, and be specific. "Reply to Alex" makes it
-  list all open tickets, string-search for Alex, then read. Give it ticket
-  IDs. "More hard details it can look up easily."
-- **Phone support?** He hasn't; Matt on the stream had given a bot a phone
-  number (see the day-3 voice-agent feedback line in
-  [`../notes/day-3-notes.md`](../notes/day-3-notes.md)).
-- **Where to start, for the stream's new company?** 80/20: 20% of use cases
-  create 80% of ticket volume. Identify those, get them into the KB with
-  SOPs, run evals until it handles them, *then* put the bot in front of
-  tickets.
-- **Missing connector?** Have GrokBot spin up a cloud agent and build it. Don't
-  wait on a roadmap or a vendor.
+Tune 随后在 Notion 知识库中完成了补充。接着：
+
+> 既然信息已经补充进去了，现在请重新尝试处理 Elena 的工单。
+
+Reply 再次检索，以极高置信度给出了否定答复，并附带了新补充的官方 FAQ 链接。
+
+### 内部提问通道：Slack 内部问答
+
+计费部门的同事在 Slack 里向同一个 Bot 提问：
+
+> 我们的退款标准操作流程 (SOP) 是什么？
+
+Bot 直接引用**内部专属策略**作答，因为提问者是经过认证的内部员工。**同一个知识库，同一个 Bot，根据受众身份智能切换输出尺度。** “很多客服 Agent 只能处理对外客户回复；而想让自家内部员工去查询这套现成的知识库往往极其繁琐。” 典型场景：销售在开会前速查当天新版本的细节；管理层核对退款政策在历史上的演进脉络。
 
 ---
 
-## Copy this
+## 异常监控报警机制 (Alerting)
 
-1. One bot, one workflow, then split.
-2. KB with three sections: public, internal, and the agent's own process.
-   Make it re-read the process every run.
-3. Crawl → walk → run. Read-only → notes → replies → actions.
-4. An alert rule for the tickets that actually need a human, into a shared
-   channel.
-5. Human gate on KB edits. If your KB can live in git, put it there and use
-   PRs as the gate.
-6. Traces on every run from day one; evals for every change.
-7. Bucket the cheap tickets and batch them.
-8. Point the same bot at your team's internal questions.
+团队中任何拥有工单系统读取权限的员工，只需对 Bot 说一句：
 
-Related: [`../agents/VERIFICATION.md`](../agents/VERIFICATION.md) — the
-traces/evals idea is the support-shaped version of the verification loop.
+> 设立一个定时 Routine，每小时扫描一次所有工单。如果发现有客户威胁要退订流失，且该客户在我们平台已付费满 6 个月以上，立即向本 Slack 频道发送报警。
+
+全程零代码，无需研发工程师插手。
+
+---
+
+## 链路追踪 (Traces) 与评测基准 (Evals) —— 调试运维的底层基石
+
+在 Build Bot 上挂载 Supabase 连接器：
+
+> 你现在拥有了访问 Postgres 数据库的权限。请创建一张链路追踪表 (traces) 和一张评测基准表 (evals)。每当我要求你运行 eval、创建新 eval、每次你记录 trace、或者每次你回复一张工单时（无论是内部提问、外部客户、乃至预演测试，哪怕只是留了一条内部备注），统统把完整元数据写入这两张表中。
+
+每次运行记录：耗时多久、检索了哪些文件、最终实际采纳了哪些知识条目（通常是经过二次筛选的精简列表）。通过这些数据，你能一眼看穿它到底在哪个步骤出现了偏差。Evals 是你每次修改知识库或调整 Prompt 后必须回归复测的考题。而 Tune 则通过研读 Traces 自动挖掘可改进的盲区——“这是极具威力的质变飞跃。”
+
+---
+
+## 关键量化成本对比
+
+- **中等至复杂工单：每单成本约 $1–2**（按照他的高标准架构运行：每张工单前先过分类器，且全程落表记录完整的链路追踪和评测数据）；
+- **低复杂度账单工单：降至约 $0.20/单**（如“纯粹申请退款”、“询问收到的某封系统邮件是什么意思”）：通过批量脚本先归类聚类，然后统一批处理回复；
+- **市面竞品客服 Agent 产品**：按解决量收费，“数量级在每单 $1 至 $10 不等”；人类客服成本则显著更高；
+- “而这仅仅是我花了半天时间去优化架构所达到的成果。”
+
+---
+
+## 现场精华问答
+
+- **非技术人员直接操作生产数据会不会危险？** 由团队中懂架构的先锋搭建出一套**内置完备护栏的标准化模板**并共享出来——例如严格锁死“普通客服人员无权修改知识库”。更高阶的工业级方案：**直接将知识库放在 GitHub 仓库中**而非 Notion。天然享受 Git 分支、PR 流程、Code Owners 保护。自我改进 Bot 想要更新知识库必须提交 PR，由审查 Bot 和人工 Review，且在 PR 分支上自动跑通 Evals 评测集才能批准合入。
+- **批量处理（Batching）是否能大幅节省成本？** 是的，而且指代必须尽可能具体。随口说“回复一下 Alex”，会导致 Bot 遍历全量工单去做模糊字符串搜索，极其浪费 Token。直接给它精准的工单唯一 ID。
+- **如何为新业务快速冷启动？** 运用二八法则：20% 的高频典型场景覆盖了 80% 的日常工单量。首先识别出这 20% 的核心用例，为其编写严密的 SOP 规范并录入知识库，反复运行 Evals 评测直到 Bot 能完美应对，**随后再正式把 Bot 推到工单最前线**。
+- **缺少官方连接器怎么办？** 让 GrokBot 自主拉起一个云端 Agent 现场手写一个并接入。绝不要干等着别人的产品排期。
+
+---
+
+## 一键抄作业（落地实施清单）
+
+1. [ ] 从一个单体 Bot 开始，跑通一条完整工作流，随后再按需拆分；
+2. [ ] 建立严格分层的三级知识库：对外公开、内部专享、Agent 运行流程。强制 Bot 每次处理前重新通读自执行流程；
+3. [ ] 遵从“爬行 → 慢走 → 奔跑”演进阶梯：纯只读 → 内部备注草稿 → 直接回复 → 写入权限；
+4. [ ] 设立高危工单告警规则，定向推送至内部专属 Slack 频道；
+5. [ ] 对知识库的修改必须设置强制的人工把关门禁；
+6. [ ] 从第一天起就配置好 Traces 追踪日志表，并为每一次改动配备自动化 Evals 评测；
+7. [ ] 将低复杂度工单进行聚类分桶，改用批量化脚本执行以大幅压降成本；
+8. [ ] 将同一套知识库复用给内部团队充当智能问答助手。

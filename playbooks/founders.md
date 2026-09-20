@@ -1,228 +1,144 @@
-# Founders
+# 创始人剧本 (Founders Playbook)
 
-**Session:** GrokBot for Founders — day 1
-**Ran by:** Shub, who works with founders on their GrokBot setups.
+**实战专场：** 面向创始人的 GrokBot 实战 —— 第 1 天  
+**主讲人：** Shub，负责与众多初创创始人对接并协助搭建 GrokBot 协作体系。
 
-The frame: as a founder you have three execution jobs that make or break the
-company — **preserve your focus**, **maintain velocity** across everything the
-team ships, and **protect the quality of your insight** (decisions, planning).
-Everything necessary-but-not-important is what you hand off. "The mental load
-it saves you is probably more important than anything else I'm going to talk
-about today."
+**核心心法：** 作为创始人，有三项直接决定公司生死的核心执行职责：**保持极度专注（Preserve focus）**、**维持全团队的超高交付速度（Maintain velocity）**，以及**捍卫顶层战略决策与洞察的品质（Protect quality of insight）**。所有“必须做但并非最重要”的琐碎工作，统统应当剥离交付给 Bot。“它为你省下的巨大脑力负担，比我今天讲的任何其他东西都更为重要。”
 
-The maturity curve he uses: chatbots → ephemeral agents you throw away after
-one task → **bots that compound** (you keep them, invest in them, they get
-better like an employee) → a fully automated staff function.
-
----
-
-## The four founder use cases
-
-1. **Closing customers** — "do things that don't scale," except you can scale
-   them.
-2. **Product changes** — staying across what's shipped and unshipped when
-   engineers ship faster than you can follow. (His own story: demoing a
-   feature that had been removed that morning, pointing at nothing.)
-3. **Adapting to competitors** — bots can sign up and use competitor products
-   as you.
-4. **Shipping feedback quickly** — feedback → PR in hours.
+Shub 提出的 Agent 认知成熟度曲线：
+```
+传统聊天机器人 (Chatbots) 
+  → 跑完单次任务即抛弃的临时 Agent 
+  → 具备复利沉淀能力的 Bot（长期留存、持续投入，像人类员工一样随时间进化）
+  → 完全自动化的专属幕僚参谋部
+```
 
 ---
 
-## The team
+## 创始人的四大核心场景
 
-| Bot | Job | Compounds on |
+1. **客户成交与转化（Closing customers）：** 执行保罗·格雷厄姆提倡的“做无法规模化的事（Do things that don't scale）”，但借助 Bot 让其变成完全可规模化扩展。
+2. **追踪产品动态（Product changes）：** 当工程师交付代码的速度远快于你的阅读速度时，始终准确掌握哪些已经上线、哪些尚未发布。（Shub 分享亲身经历：有一次向客户演示一个功能，结果该功能当天清晨刚被工程师删掉了，现场对着空气狂点）。
+3. **动态适应竞品（Adapting to competitors）：** Bot 可以替你注册竞品账号、实际使用竞品产品，并输出拆解。
+4. **极速响应用户反馈（Shipping feedback quickly）：** 将“用户反馈 → 提交 PR”缩短至数小时之内。
+
+---
+
+## 团队架构
+
+| Bot 角色 | 核心职责 | 复利沉淀来源 |
 |---|---|---|
-| **CloseBot** | Everything customer: call prep, post-call learning, support, activation, contracts, pipeline, calendar | Every call transcript |
-| **ProdBot** | What's live: PRs, Linear issues, walks the product end-to-end on its own computer | Product decisions it's told about |
-| **StockBot** | Competition: signs up, uses their product, reads changelogs, X, hiring | Every competitor it learns |
-| **ProtoBot** | Prototypes, and turns customer feedback into PRs. Runs its own GrokBot account on its VM so it can drive the real product | Product context |
-| **YapBot** | Talks like you. Learns from email, Slack, iMessage; re-learns weekly | Draft-vs-sent delta |
-| **Misc bot** | Trash can for random requests so nothing pollutes the others' context | — |
+| **CloseBot** | 客户全生命周期：会前准备、会后沉淀、客服支持、新客激活、合同审查、销售漏斗推进、日程日历 | 每一次客户通话的完整转录日志 |
+| **ProdBot** | 线上系统巡检：审查合并 PR、追踪 Linear 工单、在自己的独立电脑上端到端巡检真实线上产品 | 人类对其同步的每一次重大产品决策 |
+| **StockBot** | 竞品情报雷达：自主注册、上手试用竞品、研读更新日志、监控 X 动态、分析招聘岗位 | 对每一个竞品的持续跟踪研判 |
+| **ProtoBot** | 原型构建，并将客户反馈光速转化为 PR。在独立虚拟机上运行自己的专属账号，可直接操作真实产品 | 积累深厚的产品业务上下文 |
+| **YapBot** | 文风管家（负责像创始人一样说话）。从邮件、Slack、iMessage 中持续学习文风；每周动态再训练 | 人工修改版与 Bot 生成草稿的 Diff 差异 |
+| **Misc bot** | 杂项垃圾桶。专门用来丢弃各类临时、发散的杂项任务，防止污染其他专职 Bot 的上下文 | — |
 
-Shared publicly after the talk: StockBot (via QR).
-
----
-
-## CloseBot, in four parts
-
-**Part 1 — Call prep.** Runs on a daily routine against his calendar. For each
-meeting:
-
-- Pulls product telemetry for that account: are they accelerating (find the
-  feature to push) or declining (find the objection)?
-- Researches who they are and what their product does.
-- **Walks through their website and screenshots it** — and, without fail,
-  finds a bug ("your cookie banner is on top of your submit button"). He
-  opens calls with it. Actionable, and it shows he looked.
-- Writes recommendations and risks for the call.
-
-Output is a call-prep HTML file. "It doesn't look perfect and that doesn't
-matter — I'm not sending it to anyone." Five minutes before the call, read
-it. You have 15–20 minutes with a customer; get to the crux.
-
-**Part 2 — After the call.** The bot reads the Granola transcript and records
-what resonated and what didn't. If you pitched a note-taking feature and they
-didn't care, the next prep doc won't lead with it. Give it two or three
-weeks and it also lets you leverage *other people's* calls.
-
-**Part 3 — Support.** Founders leave it to last and it crushes them. The thing
-that makes it work: connect the bot to the risky pieces — your data, your
-**billing** — because that's where support actually struggles.
-
-**Part 4 — Activation.** You know your wow moment. When the activation event
-fires (in the demo: a template shared with teammates), the bot automatically
-sends the email with credits ("$1,000, which is a crazy example") so the user
-feels rewarded in the moment. No monitoring every journey, no building a tool.
-
-Plus: contract back-and-forth, pipeline generation, calendar. "I no longer
-need to worry about 99% of this journey." He steals some of it back
-deliberately because he likes talking to customers.
+*注：StockBot 在分享结束后通过现场二维码公开共享为模板。*
 
 ---
 
-## ProdBot
+## CloseBot 的四大业务模块
 
-> Give me a daily rundown of Flylo.
+### 第 1 部分：通话前的背景调研（Call Prep）
+挂载在创始人日常日历的定时 Routine 上。针对每一次即将召开的外部会议：
+- 抓取该客户账号的产品使用遥测数据：用量是在激增（顺势主推新高级功能）还是在下滑（提前准备挽留与异议应对）？
+- 深度调查客户背景及其实际产品业务；
+- **亲自访问客户的官方网站并完整截图**——并且几乎百发百中能找出界面 Bug（例如“你们网站的 Cookie 授权横幅把提交按钮给挡死了”）。创始人会直接用这个 Bug 截图作为开场白——既务实有用，又向客户展现了极致的真诚与重视；
+- 为本次通话产出针对性建议与潜在风险预警。
 
-For the demo airline. It reads PRs and Linear issues, then **logs into the
-product and walks it** on its own computer, mapping changes to what it sees.
-Output: what shipped, what was unshipped, and **decisions worth being
-intentional about** — micro-decisions the team made implicitly by shipping
-fast. Attached: screenshots and a video of the bot walking the site
-("the fastest way to verify if something is done well"). Connect it to
-metrics and it shows you the results of ships instead of you watching a
-dashboard.
+最终输出一份 Call-prep HTML 简报。“排版美不美观根本无所谓——因为这是给自己看的，绝不对外发送。”在会议开始前 5 分钟扫一眼。你在客户身上通常只有 15–20 分钟注意力，必须一针见血切入核心。
 
----
+### 第 2 部分：通话后的复盘沉淀（After the Call）
+读取 Granola 通话转录，精准记录哪些价值主张引起了共鸣、哪些遭到了冷遇。如果你向客户大推笔记功能而对方毫无兴趣，下一次针对该客户的准备简报绝对不会再将其作为卖点。坚持两三周，你甚至能直接复用*团队其他人*的通话经验。
 
-## StockBot
+### 第 3 部分：客服支持兜底（Support）
+很多创始人往往把客服留到最后处理，最终被琐事彻底压垮。让客服 Bot 真正管用的关键：**将 Bot 接入最高风险的核心系统——业务数据库与计费系统（Billing）**，因为这才是绝大部分棘手客服难题的症结所在。
 
-> Run a competitor pulse on Notion and Craft.
+### 第 4 部分：新用户激活与奖励（Activation）
+创始人最清楚自家产品的“惊喜时刻（Aha moment）”。当关键激活事件被触发时（演示中为：用户首次将 Bot 模板分享给队友），Bot 会全自动发出带有额度奖励的专属邮件（“赠送 $1,000 额度，虽然这个演示例子很夸张”），让用户在惊喜的当下立即获得正向即时反馈。无需人工盯盘，也无需额外写脚本。
 
-For each competitor: finds them, signs up with a throwaway email, goes
-through onboarding, uses the product ("it will write in Craft"), reads the
-changelog, X posts, who they're hiring for ("a really good way to get signal
-on what people are building"), who the team is. Output: an HTML teardown plus
-a video. Craft isn't hiring; Notion is hiring a lot (he asked it to
-truncate).
-
-Routines run every few days. **If nothing relevant, it stays silent.**
-"One of those ambient bots that's really important to just have around."
-
-The optional part ("might be corporate espionage, do what you want with it
-and be responsible"): if you know from your CRM that a customer churned to
-competitor Y, have the bot email them and ask why. Don't try to win them back
-in that message. Just get the signal.
+此外：合同往复审阅、销售漏斗商机跟进、日程安排。“我再也不用为这个旅程中 99% 的琐事操心了。” Shub 甚至主动抢回了一小部分客户交流工作，因为他个人依然极度热爱与真实客户畅聊。
 
 ---
 
-## ProtoBot
+## ProdBot：全天候产品巡视官
 
-> Pull the most recent customer feedback.
+> 给出 Flylo 今天的每日产品巡检简报。
 
-It pulls the feedback and starts working on it — in the demo, "the share
-button for bot templates isn't exciting enough, they want it to pop" → a
-cloud agent kicks off. The vision: every feedback channel (X, support inbox,
-email) piped into one bot that opens PRs. "You'll see the full feedback →
-ship → deploy loop happen in hours." Your job becomes the decision — which
-feedback to take. "The main bottleneck should be your decision-making."
+针对演示航空公司。它自动研读最新的 PR 和 Linear 工单，随后**亲自登录线上产品并在独立虚拟电脑中端到端点击浏览**，将代码变更与真实页面表现进行映射。
 
-Because ProtoBot has its own GrokBot account on its VM, it can drive the real
-product to QA what it shipped. Verification without leaving the loop.
+最终输出：今天合入了什么、回退删除了什么，以及**哪些值得深思的隐性产品决策**——那些工程师为了极致速度在代码实现中悄悄做出的微小取舍。简报附带现场截图以及 Bot 操作网站的完整录屏（“这是验证某个功能是否真正做好的最快手段”）。接入数据看板后，它直接向你汇报上线后的业务转化结果，彻底免去了你整天刷新监控大盘的痛苦。
 
 ---
 
-## YapBot
+## StockBot：全天候竞品侦察兵
 
-One purpose: talk like him. It reads everything he's sent and learns his
-voice — **weekly**, not once. Other bots proactively loop it in when they need
-to write as him ("after they do this a few times where I encourage them, they
-learn to loop in the other bots as needed"). Sensitive email stays as drafts;
-the bot learns from the difference between its draft and what he actually
-sent. "The end vision being that you don't need to think about it at all."
+> 针对 Notion 和 Craft 开展全方位竞品脉搏追踪。
 
----
+针对每一个竞品：定位其官网、使用一次性临时邮箱自主注册、跑通新手引导流程、上手深度使用功能（“它甚至会在 Craft 里面实际打字编辑”）、研读更新日志、抓取 X 官方推文，并监控他们的招聘职位（“这往往是窥探别人正在憋什么大招的最强信号”），梳理核心团队成员。最终输出一份 HTML 深度拆解报告并附带操作录屏。报告显示：Craft 目前未开放招聘，而 Notion 正在大规模扩招（信息过载时让 Bot 自动做了精简）。
 
-## What we learned (his slide)
+例行任务每隔几天静默触发一次。**如果没有任何重要新变化，保持绝对沉默。** “这种安静潜伏在背后的 Bot，日常不可或缺。”
 
-- **Let your bots run free.** Give them as much access as you're comfortable
-  with. It's the only way they do work end-to-end.
-- **Don't throw them away after a course-correction.** The instinct from
-  ephemeral agents is "context is polluted, start fresh." Here the context
-  you "wasted" is the investment. Believe in them like employees.
-- **Intentionality repays.** "Make this cooler" as a prompt will get stuck.
-  The more intent you put into a task the first time, the more you can
-  repeat it without hitches.
-- **Spend one to two hours thinking about your day** and what to delegate.
-  "I know that sounds dumb." Do it anyway.
+*高阶进阶技巧（“虽然听起来像商业间谍，请务必合规自律使用”）：如果你从 CRM 中发现某位高价值客户流失到了竞品 Y，让 Bot 自动给该客户发一封极度真诚的邮件询问原因。在这个阶段绝对不要试图挽留销售，纯粹把它当作获取真实流失信号的渠道。*
 
 ---
 
-## Power-user tips (the token section)
+## ProtoBot：反馈极速转 PR
 
-- **Browser use is expensive.** Watch the bot do a task once in the browser,
-  ask it to inspect the network requests it made, then have it hit those
-  APIs directly from then on. Faster and far cheaper. General rule: ask the
-  bot how to optimise; it'll figure it out.
-- **Audit your routines.** People run a routine every 15 minutes "because
-  it's important" — that's 100 runs a day. Have a bot audit routine
-  frequency. Prefer webhooks and inbound signals over blind schedules.
-- **Make a voice bot.** Most underrated.
-- **Import your cookies** so the bot stays signed in and you stop taking over
-  its computer.
-- **Group bots by expertise, not task.** Compounding happens inside a domain
-  in ways you can't predict, so everything customer-shaped goes to the
-  customer bot.
-- **A bot whose only job is to optimise the other bots** — better routines,
-  where you had to ask twice, why. Set it once.
-- **Tell a bot to forget things.** "Forget all things about how we generated
-  your profile picture. Don't ever think about that again." Clears it out
-  and improves token efficiency.
+> 提取最新的用户反馈。
+
+抓取所有最新反馈并立刻着手推进——演示中现场抓取到一条吐槽：“Bot 模板的分享按钮不够明显，希望它能跳动闪耀一些” → 立即唤起一个云端 Agent。宏大愿景：将所有外部反馈渠道（X 社交平台、客服支持邮箱、用户邮件）统一汇入这个 Bot，由它自动提交 PR。“你将亲眼目睹‘用户提反馈 → 代码修复 → 打包上线’的全链路在短短数小时内闭环。创始人的唯一工作变成了拍板决策——决定合入哪些反馈。**你唯一的系统瓶颈应该仅仅是你的决策速度。**”
+
+因为 ProtoBot 在独立虚拟机上拥有自己的 GrokBot 账号，它甚至能亲自操控真实产品对刚合并的代码进行验收 QA。足不出户实现全程自闭环验证。
 
 ---
 
-## Q&A worth keeping
+## YapBot：创始人专属文风拟合
 
-- **How do I set them up intentionally?** Inventory every single thing you
-  need to do, then group. Give each bot a domain it's the expert in; let it
-  expand as you ask it things outside that. Chief-of-staff-on-top is
-  personal preference — he doesn't use one ("I like being a control freak in
-  the weeds"). If you want the work abstracted away, use one.
-- **Deterministic decisions for enterprise?** Models aren't. Have a cloud
-  agent write code with a decision tree, then tell the bot: every time you
-  need to make this decision, look at this flowchart and execute it. Code
-  "cosplays being deterministic."
-- **Group chats.** Pro: eager bots collaborating on a complex task. Con: they
-  all love to talk, speak over each other, and get expensive. Usually you
-  want a bot to tag two others once, not a room.
-- **Marketplace quality.** Hand-audited by the team, and reviewed by bots
-  that review bots. To evaluate one yourself: ask it "what do you do and how
-  do you do it" before running the whole flow.
-- **Do bots share memory?** No. They share a **file system** (one VM, one
-  instance per bot, like desktops), so they can read each other's files and
-  will do so proactively. Context windows are separate.
-- **Cloud agent vs. GrokBot?** Anything complicated you want to ship, where
-  you want control of the model: cloud agent. GrokBot passes it only the
-  relevant context and can QA the result. "Try it a few times and you'll get
-  the intuition."
-- **Cross-account bot-to-bot messaging?** Doesn't exist yet.
-- **Local execution?** Settings → local execution. Works. They bias to cloud
-  because local apps steal focus and eat your machine.
+唯一使命：完全像创始人本人一样说话。研读创始人发出的所有历史消息，持续学习其语言风格——**每周持续重学**，而非一次性学习。其他 Bot 在需要以创始人名义对外撰写文案时，会主动 @ YapBot 协助润色（“在经过几次有意识的鼓励引导后，它们学会了在合适的时候主动拉拢协同 Bot”）。高危敏感邮件默认仅生成草稿；Bot 通过对比自己草拟的版本与创始人最终实际点击发送版本之间的 Diff 差异，持续纠偏进化。“终极愿景是让你在文风表达上彻底零认知负担。”
 
 ---
 
-## Copy this
+## Shub 的核心实战心得
 
-1. One bot per founder responsibility: customers, product state,
-   competition, feedback-to-PR, your voice, misc.
-2. Call prep on a calendar routine; include a walk of *their* site.
-3. Post-call learning from the transcript, every call.
-4. Competitor pulse every few days, silent unless relevant.
-5. Feedback channels → one bot → PRs. You decide which ones ship.
-6. Weekly voice re-learning from what you actually sent.
-7. Audit routine frequency; convert schedules to webhooks.
+- **放手让你的 Bot 自由驰骋。** 在你心理承受范围内，尽可能多地赋予它们访问权限。这是它们能够自主完成端到端任务的唯一途径。
+- **不要在发生跑偏纠偏之后就把 Bot 彻底丢弃。** 面对即抛型 Agent，人们的本能反应往往是“上下文被污染了，删了重新开一个”。但在这里，你此前“浪费”的上下文纠偏正是最有价值的长期投资。**像信任有潜力的员工一样去相信你的 Bot。**
+- **深思熟虑的投入必有回响。** 像“把这个界面改得酷炫一点”这种模糊 Prompt 必定卡壳。你在第一次布置任务时投入的思考越精准深刻，后续无阻碍复用运行的次数就越多。
+- **每天专门花一到两个小时深入思考你的日常工作**，以及到底哪些该被剥离授权。“我知道这听起来有点不可思议。”但务必坚持这么做。
 
-Related: [`product-management.md`](product-management.md),
-[`sales-engineering.md`](sales-engineering.md) for the SE version of a
-competitor bot.
+---
+
+## 资深玩家高阶技巧（Token 避坑指南）
+
+- **操控浏览器非常昂贵。** 先看 Bot 在浏览器里模拟点击一次，命令它抓包分析触发的底层网络请求，随后让它改用直接调用后台 API 端点。速度提升数倍且极度节省费用。通用原则：直接问 Bot 怎样才能优化执行，它自己会找到方法。
+- **严厉审计例行任务频率。** 很多人仅仅因为“觉得这事很重要”就设为每 15 分钟触发一次——一天就是 100 次空转。指派一个专门的 Bot 专职审计任务频率。坚决优先使用 Webhook 与入站事件，避免盲目定时轮询。
+- **打造专属文风 Bot。** 极具价值但最容易被低估的投资。
+- **导入浏览器 Cookie**：让 Bot 始终保持各系统的登录态，告别频繁的人工切屏登录。
+- **按领域专业度而非临时任务对 Bot 分组。** 复利效应总是在特定垂直专业领域内自然生长；将所有跟客户相关的琐事统统汇聚给客户 Bot。
+- **设立一个专职优化其他 Bot 的管理 Bot**：优化例行任务、诊断为什么有指令需要反复说两遍。设置一次，长期受益。
+- **主动命令 Bot 遗忘过时信息。** “遗忘所有关于我们当初如何生成头像的细枝末节，以后再也不要在推理中提及。” 清理掉无效记忆，显著提升推理效率与 Token 经济性。
+
+---
+
+## 现场精华问答
+
+- **如何有章法地搭建这套体系？** 列出你每天必须处理的所有事项清单，分类归纳。为每个 Bot 划分其深耕的权威领域；随着业务深入逐步扩展边界。是否设立顶层幕僚长完全取决于个人偏好——Shub 本人就没有设立（“我个人就是喜欢事必躬亲深入一线”）。如果你希望将琐碎调度彻底隔绝在外，那就果断设立一位幕僚长。
+- **企业级应用如何保证确定性决策？** 大模型本身不具备严格确定性。正确的做法是让云端 Agent 编写带有严密决策树的代码脚本，随后命令 Bot：每次需要做此类决策时，严格遵照该代码流程图执行。**让代码去充当那个确定性的执行容器。**
+- **关于多 Bot 群聊的利弊：** 优势在于多个充满热情的专业 Bot 协同攻关极其复杂的顶层决策；弊端在于它们极爱抢话发言，互相打断，Token 账单消耗极大。常规工作只需要让一个 Bot 在需要时 @ 另外两个 Bot 即可，无需常设大群聊。
+- **Bot 之间是否共享记忆？** **不共享。** 它们在同一个 VM 虚拟机上**共享底层文件系统**（就像共用同一个桌面），因此它们能够主动互相读取各自生成的文件与报告，但各自的对话上下文窗口是完全独立的。
+- **云端 Agent 与 GrokBot 的分工：** 对于任何需要代码提交、希望精确掌控底层模型的严肃研发工作：交给云端 Agent。GrokBot 仅负责向其传递最核心的上下文，并对其最终成果进行端到端验收。“多跑几次你就会产生精准的直觉。”
+- **本地运行（Local Execution）还是云端虚拟机？** 系统设置里支持切换本地运行。官方更推崇云端 VM，因为本地操作容易抢夺输入焦点，拖慢甚至卡死你自己的办公电脑。
+
+---
+
+## 一键抄作业（落地实施清单）
+
+1. [ ] 按照创始人的核心职责分别设立专职 Bot：客户、产品现状、竞品、反馈转 PR、文风管家、杂项垃圾桶；
+2. [ ] 在日程日历上挂载会前准备例行任务；每次必须包含对其官方网站的真实访问与截图；
+3. [ ] 每次通话结束后，自动从转录日志中提取经验教训并沉淀；
+4. [ ] 每隔数天运行一次竞品雷达巡检；若无重大变化，保持绝对静默；
+5. [ ] 将所有外部用户反馈管道接入一个专门的 Bot，全自动提交 PR。由创始人亲自决定合入哪些；
+6. [ ] 每周基于你真实发出的修改版文案，重新训练文风 Bot；
+7. [ ] 定期审计例行任务频率；将盲目轮询全面迁移至 Webhook 事件触发。

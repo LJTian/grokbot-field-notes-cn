@@ -1,191 +1,136 @@
-# Product Management
+# 产品管理剧本 (Product Management Playbook)
 
-**Session:** GrokBot for Product Managers — day 1
-**Ran by:** Kevin De Parco and Roshan, xAI product team.
+**实战专场：** 面向产品经理的 GrokBot 实战 —— 第 1 天  
+**主讲人：** Kevin De Parco 与 Roshan，xAI 产品团队。
 
-The framing is DHH's line, *software is product management*: what should it
-do, who for, how, what does it look like, what are the priorities. Now that
-building is cheap, every builder has to answer those. The session is "how we
-build GrokBot with GrokBot" from the product org.
+**核心背景：** 引用 Basecamp 创始人 DHH 的名言——*软件的本质就是产品管理*：做什么、为谁做、如何做、界面长什么样、优先级如何排布。当软件构建本身的门槛变得极度低廉时，每一位开发者都必须回答这些产品问题。本场专场分享的是 xAI 产品团队如何“用 GrokBot 打造 GrokBot”。
 
-The stat they opened with: GrokBot accounts for a **double-digit percentage of
-merged PRs** internally, and lets product people ship PRs to production
-themselves.
+开场公布的关键数据：在 xAI 内部，**由 GrokBot 产生的合并 PR 已经达到两位数百分比**，并让产品经理能够亲自将代码修改直接推向生产环境。
 
 ---
 
-## The four properties of a colleague (the design brief)
+## 优秀同事的四大特质（产品设计哲学）
 
-They built the product around what a good colleague does, and it's also how
-they expect you to use it:
+他们围绕一个“靠谱的人类同事应当具备怎样的特质”来构建产品，同时也期待你以相同的心态去使用它：
 
-1. **Ties multiple tools together.** Linear/Jira, Salesforce, Notion, Figma —
-   colleagues work across them, not inside one.
-2. **Long-running context.** They learn on the job. Start with little context,
-   get taught tasks, take feedback, get better.
-3. **Independence.** They complete tasks on their own with their own access.
-   Hence: every bot has its own computer.
-4. **Messaging, not turn-taking.** Rapid-fire, interrupt-driven, threaded.
-   You jump in and steer mid-task.
+1. **能够将多种跨领域工具串联起来。** Linear/Jira、Salesforce、Notion、Figma —— 真正的同事是在这些工具之间穿梭协作，而不是被困在某一个单一工具里。
+2. **具备长期演进的上下文（Long-running context）。** 随着工作实践不断学习成长。刚开始可能只有很少的背景，但在被指派任务、接收反馈后，会变得越来越老练。
+3. **具备高度的独立性（Independence）。** 拥有自己专属的权限，能独立自主完成端到端任务。因此：**每个 Bot 都配备了一台独立的虚拟电脑（VM）**。
+4. **消息化即时交互，而非生硬的一问一答（Messaging, not turn-taking）。** 支持高频、事件打断驱动的会话线程。你可以在任务执行中途随时插话介入纠偏。
 
-The two things to take away: bots you give **real work** to that come back
-with **results**, not questions; and they **finish jobs** and come back when
-they need approval.
+**最核心的两点预期：** 给 Bot 派发**真实的严肃工作**，它应当带着**确定性的交付结果**回来向你汇报，而不是抛出一堆无休止的疑问；它们**负责把事情办完**，只在需要关键审批时才找你。
 
 ---
 
-## The team
+## 团队架构
 
-Demo company: **Flylo**, a fictional boutique airline.
+演示背景公司：**Flylo**，一家虚构的高端精品航空公司。
 
-| Bot | Role | Notes |
+| Bot 角色 | 职能定位 | 关键特征与职责说明 |
 |---|---|---|
-| **Cora** | Chief of staff | Has email, calendar, listens on Slack. Builds a model of how you actually work. Grooms the inbox and only surfaces what matters. |
-| **Emily** | Engineering manager | **Coached not to write code.** Manages five engineer bots. Takes a large chunk of work, deconstructs it, delegates, and runs the verification loops on what comes back. |
-| Einstein, Igor, Nova, Larry, Eileen | IC engineers | Each spins up cloud agents with a copy of the repo when it's time to change code. |
-| **Ashley** | Data science / analytics | Connected to the data warehouse (Databricks, Snowflake — "pick your favourite"). Writes and runs the SQL, returns numbers and charts. |
-| **PMP** / "Pete" | Product assistant | Drafts PRDs, synthesises customer insight. Has a PRD skill: crisp P0/P1/P2 requirements, optimised for getting to code fast rather than document longevity. |
-| **Pixel** | Designer | Loaded with "how to be an S-tier AI designer" material plus the company design system (in Figma) and reference files: fonts, colours, patterns, and no-no's learned over time ("never put X buttons in the left corner"). |
-| **Ray** | Recruiter | Sourcing and pipeline. Not demoed. |
+| **Cora** | 幕僚长 (Chief of Staff) | 接入邮箱、日程日历、旁听 Slack 消息。在后台建模理解你的实际工作习惯。自动清洗收件箱，仅向你汇报真正重要的大事。 |
+| **Emily** | 研发工程经理 (EM) | **经过专门调教，明确禁止自己编写具体代码。** 管理五位工程师 Bot。负责承接大块业务需求、拆解工作包、分派任务，并对下属产出的代码运行严格的验证循环。 |
+| Einstein, Igor, Nova, Larry, Eileen | 一线业务工程师 (IC Engineers) | 当需要修改代码时，各自拉起一个带有完整仓库镜像的云端 Agent 沙箱并进行监控。 |
+| **Ashley** | 数据科学与商业分析 (Data Science) | 直连底层数据仓库（Databricks、Snowflake 等）。负责编写并执行真实 SQL，输出清洗后的核心指标与可视化图表。 |
+| **PMP** / "Pete" | 产品经理助理 | 负责草拟 PRD、提炼汇总客户洞察。具备极简 PRD 技能：产出紧凑且明确区分 P0/P1/P2 的需求文档，以“最高速度转化为代码”为导向，而非追求冗长繁文缛节。 |
+| **Pixel** | UI/UX 设计师 | 深度灌装了“如何成为顶级 AI 设计师”方法论，并挂载了公司在 Figma 中的官方设计规范与素材参考（字体、配色、组件库，以及历次踩坑积累的负面禁忌清单，如“左上角绝不放置关闭按钮”）。 |
+| **Ray** | 招聘专员 (Recruiter) | 人才线索搜寻与招聘管道推进（现场未作重点演示）。 |
 
-Sidebar groups: *Leadership* (pinned), *Engineering team*, and group chats
-**EngPod** (run a standup on a project), **EPD** (eng/product/design
-triumvirate), **War room** (incident triage).
+侧边栏分组架构：*核心高管层（置顶）*、*研发团队*，以及按场景划分的群聊小组：**EngPod**（单项目站会）、**EPD**（工程/产品/设计铁三角）、**战情响应室（War room）**（线上事故紧急排查）。
 
-Connected tools in the demo: Notion, Slack, Figma MCP, Gmail. The S-tier
-design skill is stored alongside.
+演示中连接的外部工具：Notion、Slack、Figma MCP、Gmail，外加团队专属的顶级设计规范技能。
 
 ---
 
-## Three PM use cases they named
+## 产品经理的三大典型核心场景
 
-1. **The attention list.** What have you been paying attention to this
-   morning / week / month, diffed against your priority list. Cora does this
-   by watching how you work.
-2. **Research and customer context.** Data questions on demand instead of
-   writing SQL and hunting for the trusted table.
-3. **Shipping.** "You cannot be a PM in 2026 if you're not focused on
-   delivering software to your customers."
+1. **注意力优先级看板（The Attention List）：** 分析你今天上午 / 本周 / 本月实际把注意力花在了哪些事情上，并与你预设的战略优先级清单进行 Diff 比对。Cora 通过静默观察你的工作痕迹自动完成此项分析。
+2. **即席数据调研与用户画像挖掘：** 随手用大白话提问即可获得深度数据洞察，彻底告别自己编写复杂 SQL 和在海量宽表中苦苦寻找可靠数据源的痛苦。
+3. **敏捷交付上线（Shipping）：** “在 2026 年，如果一个产品经理不专注于亲自向客户交付运行中的软件，那根本称不上合格的 PM。”
 
 ---
 
-## The workflow, as run on stream
+## 直播实际跑通的全流程工作流
 
-The whole loop went from a data question to a cloud agent opening a PR.
+现场演示了一条令人惊叹的完整闭环：从随口一句业务数据提问开始，一步步推进到云端 Agent 自动开启代码 PR。
 
-**1. Ask the data bot a question.**
+### 1. 向数据分析 Bot 随口提问
 
-> How many people purchased tickets yesterday on mobile versus web?
+> 昨天在移动端和 Web 端购买机票的用户分别有多少人？
 
-Ashley: 1,400 tickets, ~58% web / 42% mobile.
+Ashley 立即执行 SQL 并答复：共计购买 1,400 张机票，其中 Web 端约占 58%，移动端约占 42%。
 
-> How many families were flying? Help us visualise these with charts.
+> 其中有多少是家庭出行？帮我们用可视化图表直观展示。
 
-Ashley returns charts of solo / couple / family / group, and that 25% of
-flyers are families. Roshan's note: "I now get data queries and charts on
-demand" is his favourite daily use. Make it a routine:
+Ashley 迅速输出单人、情侣、家庭、团体的分布饼图与柱状图，指出 25% 的乘客属于家庭出行。Roshan 现场感慨：“我现在随时随地都能按需获得深度数据查询和可视化图表”，这是他日常最钟爱的能力。随后顺手将其固化为定时任务：
 
-> Send me this as an update every morning at 6:00 a.m.
+> 每天清晨 6:00 把这个数据看板作为例行更新发送给我。
 
-For major launches they've asked for **hourly reports** from the data store.
+对于重大产品发布期，他们甚至会让数据 Bot **每小时自动输出一次最新看板**。
 
-**2. Spot the problem in a funnel — and get corrected.**
+### 2. 识别转化漏斗中的瓶颈——并被 Bot 当场纠偏！
 
-Looking at a mobile purchase funnel Ashley had pulled earlier, they read it as
-"big fall-off at seat selection." They replied in the thread:
+在审查 Ashley 此前拉出的移动端购票全链路漏斗时，人类产品经理直觉判断“选座环节看起来发生了严重的断崖式流失”。于是在会话中下令：
 
-> Looks like a big fall off when people are choosing seats on mobile. Work
-> with @PMP to generate a product spec to optimize our mobile funnel.
+> 移动端在选座步骤似乎有极其严重的流失。请与 @PMP 协同产出一份产品规范，重点优化我们的移动端选座漏斗。
 
-Ashley messaged PMP — and **corrected the humans**: the big leak is
-*search → fare selection*, not seat selection. They'd misread the chart. The
-bot caught it before the spec was written.
+Ashley 立即向 PMP 派发消息——但同时**当场纠正了人类产品经理的误读**：数据漏斗中真正的大出血点其实是 **从搜索结果到选择票价（Search → Fare Selection）** 环节，而非选座环节！人类肉眼看错了图表坐标。**Bot 在产品需求文档动笔之前，成功拦截了一次方向性的人类误判。**
 
-**3. PRD.** PMP produced a Notion PRD with P0s and P1s: mobile fare results
-need a redesign, faster compare section, honest fare proof on the card.
+### 3. 输出高效实战 PRD
 
-They one-shot it for the demo, but said plainly: normally there's human
-review and iteration here. You can leave comments in Notion (or Google Docs)
-and tag the bot — bots read the comments. "That number feels off" as a
-comment is a real instruction.
+PMP 迅速在 Notion 中生成了一份结构严密的 PRD，清晰界定 P0 与 P1 级需求：重构移动端票价结果列表、新增快捷比价模块、在卡片上直接呈现真实票价明细。
 
-**4. Hand off to design and engineering in parallel.**
+在演示现场直接一步到位生成，但主讲人强调：日常工作中此处通常会经过人类的人工 Review 与多轮迭代。你可以直接在 Notion 或 Google Docs 中针对具体段落划线评论并 @Bot——Bot 能够直接读取并在上下文中修正。“这个数字感觉不对”这一句批注，对它而言就是一条真实的修改指令。
 
-> Hand the PRD to Emily and have the engineering team prototype these ideas.
-> Also get Pixel to design each of the P0s.
+### 4. 并发下发给设计与工程团队
 
-Two handoffs fire. Pixel comes back with Option A and Option B. Room votes A.
+> 将这份 PRD 交给 Emily，让工程团队对这些想法进行原型开发。同时让 Pixel 针对每一个 P0 级需求完成 UI 视觉设计。
 
-> Hand the first mock over to Emily to update the prototype.
+两条任务流并发启动。Pixel 迅速产出了 A 方案与 B 方案两张设计稿。全场投票选择 A 方案。
 
-**5. Engineering manager decomposes.** Emily split the priorities into scoped
-work per engineer and had **direct conversations with each one**, adding
-context. Their observation: "agents are really good at prompting — often
-better than we are at figuring out what context to give an agent." Give the
-team the goal and let them work out the context and decomposition.
+> 把 A 方案的高保真设计稿交接给 Emily，更新交互原型。
 
-**6. Cloud agents.** Nova asked whether to create a PR; they said yes. Nova
-launched a cloud agent on a local copy of the repo (setup scripts included so
-it's runnable and testable) and monitors it.
+### 5. 研发经理拆解任务
 
-**7. Verification loop.** The IC engineer reviews the cloud agent's output,
-then hands to QA or to Emily for a second layer of checks against the
-original goal.
+Emily 负责将各项优先级指标拆解为属于每位具体工程师的具体任务包，并**分别与每位工程师 Bot 展开一对一沟通**，补充详细背景。主讲人的深刻洞察：“Agent 之间互相编写 Prompt 的水平极高——往往比人类更懂得如何给另一个 Agent 提供最完备精准的上下文。” 人类只需给团队下达终极业务目标，让它们自己去搞定上下文补全与任务拆分。
 
-**How much human to put in the loop:** choose by stakes. A docs-site change
-or resizing something in the app — let it run. Implementing a design as
-spec'd — jump in and ask for a demo or prototype. Two things that help:
-giving agents an environment to verify their own output, *and* giving them
-the tools to help you verify it (screenshots, recordings).
+### 6. 云端 Agent 动工并提交 PR
+
+Nova 工程师 Bot 主动请示是否可以创建 PR；人类确认同意后，Nova 在本地代码镜像上拉起了一个云端 Agent（自带预置的环境配置脚本，确保完全可编译、可运行、可测试），并全程在后台进行监控。
+
+### 7. 多层自动化验证闭环
+
+一线业务工程师 Bot 先对云端 Agent 的代码产出进行初步 Review，随后交由 QA 测试 Bot 或交回给 Emily 进行第二道防线审查，核对是否精准达成了最初的业务目标。
+
+**人类应该在多大程度上介入把关：** 严格取决于风险与影响面。对于文档站修改或简单的界面样式调整——直接放行让其自动运转；对于落实一套严肃的核心功能设计规范——务必亲自介入并要求查看演示原型。两大核心助力：**为 Agent 提供能够自主验证自身成果的环境**，同时**让它们配备辅助人类进行快速验证的工具（自动生成截图与录像）**。
 
 ---
 
-## Alternative team shapes they suggested
+## 团队演进形态建议
 
-The Flylo team is one example. Others they've seen:
+Flylo 的团队编排只是一种经典形态。团队还分享了其他实战架构：
 
-- A team whose job is keeping a **knowledge base of requirements** up to date
-  and feeding it into the product — for complex systems where each small
-  requirement has knock-on effects.
-- A team that keeps **many repos in sync** in a convoluted codebase.
-- A single **builder bot** that is eng + product + design in one. It works;
-  they separate roles for the complex cases.
+- **需求知识库看护团队**：专职维护全系统的需求规范库，使其时刻与线上系统保持同步——特别适用于庞大复杂系统，任何一个微小需求的变动都会引发链式蝴蝶效应。
+- **跨仓库多端同步团队**：在复杂架构中保持多个底层仓库代码与接口规范的高度同步。
+- **全能单兵构建 Bot（Builder Bot）**：将工程、产品、设计三合一的单一全能型 Bot。对于轻量探索完全行之有效；但遇到复杂系统时，必须果断拆分为专业团队。
 
 ---
 
-## Hard-learned lessons (their list)
+## 极其宝贵的踩坑经验
 
-1. **Named agents with separate memory, learning on the job.** They are not
-   great on day zero. There's an onboarding phase where you give them skills,
-   context, and teaching. Over time they take on more.
-2. **Reduce noise.** When you set up a routine, tell the agent: *if this is a
-   no-op — nothing important or urgent — handle it yourself or don't update
-   me.* Cora grooms the inbox and only escalates.
-3. **Agents all the way down.** Managers of agents. Agents coordinating cloud
-   agents. Don't feel you have to be the one holding it together.
+1. **拥有独立记忆的命名 Agent 能够实现真正的岗位成长。** 在第 0 天它们并不会一上来就很完美。必须经历一个类似人类新员工的入职期（Onboarding）——你为其配置技能、灌输上下文、持续指导纠偏。随着时间推移，它承担的工作会越来越多。
+2. **全力降低无效噪音。** 在设立任何定时例行任务（Routine）时，必须明确告知 Agent：*如果这只是一次无事发生的空操作（No-op）——没有任何重要或紧急的事情——你自己默默处理掉，绝对不要向我弹消息打扰。* Cora 在后台默默梳理上千封邮件，只在关键事项时才进行升级汇报。
+3. **信任 Agent 的纵深层级（Agents all the way down）。** 让 Agent 去做管理者，让 Agent 去协调和监督云端 Agent。千万不要觉得自己必须肉身充当全系统唯一的核心枢纽。
 
-Also from Q&A: each bot has its **own memory pool**, plus a **shared memory
-pool** bots write to when something is worth the whole team remembering. The
-role-based split gives you strong memories per role ("how to be a really
-good engineer over time"); group chats bring them together when needed. And
-the goal is that you stop doing the "what does this agent know, do I need to
-compact" mental work entirely.
+在问答环节补充：每个 Bot 都拥有**独立的私有记忆池**，外加一个**全团队共享记忆池**（当某项知识值得全员知晓时才写入）。按角色拆分赋予了每个角色极为扎实的岗位专业沉淀（“如何随着时间推移成为一名顶级工程师”）；而群聊则在需要集体决策时将它们凝聚在一起。终极目标是**让人类彻底从‘这个 Agent 到底知道什么、我是不是该帮它压缩上下文’的精神内耗中彻底解脱出来**。
 
 ---
 
-## Copy this
+## 一键抄作业（落地实施清单）
 
-1. A data bot on your warehouse. Ask it questions in plain English; make the
-   good ones morning routines.
-2. A spec bot with one skill: crisp P0/P1/P2, short, optimised for getting to
-   code.
-3. A designer bot loaded with your design system and your accumulated
-   no-no's.
-4. An EM bot that does not code. It decomposes, delegates, and verifies.
-5. Thread your feedback: reply to the data message with the ask, tag the
-   next bot, let them talk.
-6. Tell every routine what to do on a no-op: nothing.
-
-Related: [`founders.md`](founders.md) for the founder's version of ProdBot
-and feedback → PR; [`engineering.md`](engineering.md) for the other end of
-the same pipeline.
+1. [ ] 为你的底层数据仓库配置一个数据分析 Bot。用普通大白话向它提问；将高频有价值的查询固化为清晨自动例行报告；
+2. [ ] 设立一个产品规范 Bot，只需掌握一项核心技能：输出干练利落、严格区分 P0/P1/P2、专为快速转为代码而优化的紧凑 PRD；
+3. [ ] 设立一个设计师 Bot，深度挂载团队的设计规范库与历史积累的禁忌清单；
+4. [ ] 设立一个研发主管（EM）Bot，明确禁止其亲自写代码，专职负责任务拆解、分派调度与交叉自检；
+5. [ ] 善用会话线程与跨 Bot 协作：在数据分析结果后直接回复需求，@ 下一个专业 Bot 进场，让它们自主衔接；
+6. [ ] 严格告诫每一个 Routine：当无事发生时，保持绝对静默。

@@ -1,209 +1,107 @@
-# Marketing
+# 市场营销剧本 (Marketing Playbook)
 
-**Session:** GrokBot for Marketing — day 3
-**Ran by:** Josh Kim, xAI marketing.
+**实战专场：** 面向市场营销 (Marketing) 的 GrokBot 实战 —— 第 3 天  
+**主讲人：** Josh Kim，xAI 市场团队。
 
-One campaign, from market research to a landing page in production to an
-ads readout, run across six bots — and then a seventh bot told to study how
-the human orchestrated it and take over the orchestration. "The context
-management, the coordination, the trafficking of a campaign — that's truly
-where the craft of the work happens, and it's the crux of our job." So that's
-what gets delegated last.
+全流程呈现了一场完整的营销战役（Campaign）：从前期的市场调研、产出定位规范、全自动构建落地页并推送到生产环境、搭建投放 Campaign 骨架，直到最终的广告效果分析报告。全链路由六个专业 Bot 协同推进——随后引入第七个项目经理 Bot，由它自主研读人类在全流程中的统筹与干预点，并全面接管后续所有营销战役的自动化统筹。“**对上下文的把控、跨角色的协调、以及营销战役的全局调度——这才是市场营销工作中最核心的手艺与灵魂所在，也是我们工作的真正命脉。**”因此，这一层正是最后被委托交付给 AI 的。
 
-His mental-model correction for marketers: chatbots are **thought partners**;
-these are **doing partners**. "They'll do it the way that you do it."
+Josh 给市场营销人员的心智模型纠偏：传统的聊天机器人仅仅是**思维脑力伙伴（Thought Partners）**；而这一套 Agent 是**真切替你干活的执行伙伴（Doing Partners）**。“它们会完全按照你做事的方式去执行。”
 
 ---
 
-## The team
+## 团队架构
 
-Crowdsourced across the xAI team and the marketplace ("who has the best
-positioning bot, who has the best ads bot"), then consolidated. Demo product:
-**XAir**, a fictional airline with a landing page, route search, and some
-existing positioning.
+博采众长整合自 xAI 内部及官方模板市场（“看谁调教的定位 Bot 最好用，谁搭建的广告投放 Bot 最老练”），随后沉淀成型。演示背景产品：**XAir**，一家虚构的精品航空公司，拥有已上线的官方主页、航线搜索功能与初步的品牌定位。
 
-| Bot | Job | Access |
+| Bot 角色 | 核心职责 | 挂载权限与系统工具 |
 |---|---|---|
-| **Market researcher** | Studies the product and market, finds competitors, reads their sites, names the gaps | Web / own browser |
-| **Product marketer** | Positioning brief, one-liners, packaging, value statements, landing-page outline, ad copy variants | Google Docs, Google Sheets (MCP) |
-| **Website ops** | Ships the landing page as a PR and pushes to prod | The marketing-site repo (write access); Cursor cloud agents underneath |
-| **Performance marketer** | Builds the campaign shell and traffics copy | Google Ads account |
-| **Marketing analyst** | Pulls results, analyses, recommends | Google Ads API |
-| **Project manager** | Studies the other five and the human's interventions, then runs campaigns end to end as the only point of contact | Everything, via the others |
+| **Market researcher（市场调研员）** | 深度分析产品与市场赛道、搜寻竞品、研读竞品落地页、挖掘差异化机会空白点 | 公网检索、独立内置浏览器 |
+| **Product marketer（产品营销专员）** | 撰写定位简报、提炼一句话卖点、设计包装策略、提炼价值主张、规划落地页大纲、产出广告文案测试多变体 | Google Docs、Google Sheets (MCP 插件) |
+| **Website ops（网站运维工程师）** | 将落地页制作成 PR 并一键直接发布部署至生产环境上线 | 营销主站代码仓库（写权限）；底层由 Cursor 云端 Agent 承接 |
+| **Performance marketer（效果投放专员）** | 搭建广告投放 Campaign 骨架、配置广告受众与文案组 | Google Ads 账户 |
+| **Marketing analyst（营销数据分析师）** | 抓取全渠道投放数据、深度归因分析、提出优化建议 | Google Ads 官方 API |
+| **Project manager（项目经理统筹）** | 深入研读上述五个 Bot 的协同脉络以及人类在各阶段的人工干预痕迹，随后作为**全团队唯一接口人**，全自主端到端统筹后续所有 Campaign | 统领全盘，通过其他 Bot 调度全系统 |
 
 ---
 
-## The campaign, step by step
+## 营销战役七步实操全链路
 
-**1. Market research** (dictated):
+### 1. 启动深度市场调研 (Market Research)
 
-> Hey, market researcher. Study the XAir website, get a deeper understanding
-> of what the product is and what market we're operating in. Then go do a
-> competitive analysis: identify and deeply understand our competitors, look
-> at their marketing websites, understand their positioning, and —
-> importantly — identify the gaps and opportunities we have to strategically
-> position against them within our marketing strategy.
+Josh 口述下达指令：
 
-It scraped the site (showing a screenshot from its own browser as a progress
-update), found the competitors (real airlines), and returned the gaps:
-**useful time, day design, long hauls** — and a recommendation to lead
-every message with *useful time.*
+> 市场调研员：深入研究 XAir 官方网站，透彻理解我们的产品究竟是什么以及我们所处的市场赛道。随后开展全面的竞品对抗分析：识别并透彻理解我们的核心竞品，研读他们的营销落地页，把握他们的市场定位——**最重要的是，明确指出我们在营销战略上能够对他们进行差异化定位的差距与潜在战略机会点。**
 
-**2. Positioning brief — with a handoff.**
+Bot 自动爬取官网页面（在小窗中通过回传自身浏览器的实时截图作为进度更新），准确定位真实航空公司竞品，并梳理出三大核心突破口：**高效可用时间（Useful time）、白天日程设计（Day design）、以及超长航线体验（Long hauls）**——并给出极高价值的建议：在未来所有的对外营销文案中，统一以*“把可用时间还给旅客（Useful time）”*作为绝对主打卖点。
 
-> Product marketer: go to the market researcher bot and do a handoff of the
-> analysis it just performed. Draft a positioning brief: how we should go to
-> market, our one-liners, positioning and packaging, value statements, and
-> examples of how this comes to life across two or three marketing surfaces.
+### 2. 产出产品定位简报（跨 Bot 业务交接）
 
-The bot messaged the researcher for the context ("I exchanged a few
-messages with the market researcher"), then wrote the brief in a **Google
-Doc**: research handoff, target audience (*long-haul travellers who want
-useful time back*), positioning, GTM notes, one-liners by angle, value
-statements, a drafted paid landing page. Over time, he says, bots start doing
-this handoff proactively; early on, you tell them to.
+> 产品营销专员：去找到市场调研 Bot，完成刚才那份调研成果的业务交接（Handoff）。起草一份产品定位简报：我们应当如何切入市场、我们的一句话核心卖点、产品包装与价值主张，并提供两到三个在不同营销物料触点落地的具体示例。
 
-**3. Feedback the way you'd give it to a person.** He left comments in the
-doc (*"this is great, lean into this"*) and then:
+产品营销 Bot 私信联系调研 Bot 索取全套背景（“我刚才已经与市场调研员进行了多轮消息交流与确认”），随后在 **Google Docs** 中生成了一份严密完整的定位简报：调研交接摘要、目标受众画像（*渴望在长途旅行中抢回有效工作时间的商旅人群*）、市场定位主线、GTM 推进手记、按不同角度拆解的一句话卖点、核心价值主张列表、以及一份付费广告落地页的线框文案。Josh 表示：随着时间推移，Bot 们会自动且主动完成此类跨角色的业务交接；但在初期，需要人类在指令中予以显式指引。
 
-> I've just left some comments inside the Google Doc. Go through them, take
-> the feedback, incorporate it into an updated draft. While you're at it,
-> build out a full outline of the landing page. And ideate and draft some
-> Google search campaigns to do variant testing between the copy angles you
-> drafted.
+### 3. 像指导真人实习生一样批注反馈
 
-Result: comments resolved, fuller landing-page outline, and a **sheet of ad
-variants** — variant name, hypothesis, ad group, URLs, copy — "because
-that's how performance marketers work."
+Josh 打开生成的 Google Doc 文档，像对待真人下属一样在段落旁划线留下批注评论（*“这句写得非常出彩，顺着这个方向继续深挖”*），随后回到对话框：
 
-**4. Campaign shell, in parallel.**
+> 我刚刚在 Google Doc 里面留了几条修改批注。仔细研读这些评论，消化这些反馈建议，将其融入到最新修改稿中。同时，基于此梳理出一份详尽的落地页结构大纲。另外，构思并草拟几组 Google 搜索广告测试方案，针对你提炼出的文案角度进行 A/B 变体测试。
 
-> Performance marketer: start creating a shell campaign inside Google Ads.
-> Build it to optimise for clicks, because we're going to do copy and
-> messaging testing that the product marketer is drafting right now.
+最终交付结果：文档中的所有批注均被吸收并标记为已解决、补齐了完整的落地页架构大纲，并输出了一张**结构工整的广告测试矩阵表格（Google Sheets）**——变体代号、测试假设、广告组划分、目标落地 URL、文案切片——“因为真实的效果投放专家就是这样工作的。”
 
-Bot had been connected to the Google Ads account beforehand. It found the
-drafted copy and built the shell, sending screenshots of the platform as it
-clicked.
+### 4. 并发推进：同步搭建广告投放骨架
 
-**5. Ship the landing page.**
+> 效果投放专员：在 Google Ads 后台开始搭建一个测试 Campaign 的基础骨架。将其配置为‘点击量最大化’优化目标，因为我们要针对产品营销专员刚才起草的不同文案切片开展 A/B 测试。
 
-> Website ops: take the landing page from the latest brief the product
-> marketer drafted and spin up a PR to push it as a new landing page on the
-> website. Send me screenshots as you're working so I can monitor progress.
+该 Bot 预先接入了 Google Ads 账户权限。它自动读取刚才由产品营销 Bot 整理在表格里的文案素材，在后台一步步完成配置搭建，并实时发送其操作平台的后台截图以供确认。
 
-Pulled the brief, opened the PR, showed progress screenshots, then the
-preview, then **pushed to prod** and returned the URL. "All from the one
-place where all the work is happening."
+### 5. 落地页直接打包上线至生产环境 (Push to Prod)
 
-**6. Analysis.** He didn't launch the new campaign live (that needs budget
-and a card); he'd run one earlier in the week.
+> 网站运维工程师：根据产品营销专员最新简报中的落地页方案，提交代码 PR，将其作为一个全新的营销落地页正式部署推送到官方网站上。在推进过程中随时给我发送截图，方便我把控进度。
 
-> Marketing analyst: go into Google Ads, pull down the data from our last
-> messaging experiment, analyse it, tell me the TL;DR of the insights, and
-> give me recommendations on how to incorporate it into our marketing
-> strategy and update the other assets you've seen.
+提取文案简报 → 编写前端代码 → 提交 PR → 展示部署进度截图与预览链接 → **确认无误后直接合入代码推向生产环境** → 回传正式线上 URL。“全链路都在这一个协同中心内部丝滑闭环完成。”
 
-Returned: a clear winner across variants (brand, customer promise, hours in
-between, cost per day…), the key metrics (spend, CTR, CVR), and
-recommendations. "There's some debate about how much liberty you give the
-agent to make those decisions. In this case it recommends; the team
-discusses."
+### 6. 投放效果归因与反哺分析
 
-**7. Hand over the orchestration.** "You might have noticed that during
-this entire demo, I've been the one orchestrating. That's the tax."
+为了现场演示完整闭环，Josh 调用了前一周真实跑过的数据：
 
-> Project manager: study and talk to each of the bots on my team and
-> understand each of their roles in bringing a campaign to life. Look at our
-> conversations and see where I had to interject, give guidance, or give
-> feedback, and weave that into how you work with them. Then kick this off
-> and automate it completely with three new campaigns. Send me screenshots
-> and progress updates so I can stay in the loop. And most importantly: be
-> my point of contact. I don't want to talk to any of the other bots. I only
-> want to talk to you, to save myself the context switching.
+> 营销分析师：进入 Google Ads，拉取我们上一次文案测试实验的真实投放数据，进行归因分析，告诉我结论的 TL;DR 精炼摘要，并针对如何将这些发现融入我们未来的营销战略以及更新你所见过的相关资产给出明确建议。
 
-It studied the five specialists, listed the three campaigns (research →
-positioning → landing page → …) and queued them. "You no longer have to be
-bombarded with five different messages from five bots."
+分析师 Bot 迅速回传报表：清晰指出了不同变体间的胜出者（品牌向 vs 客户承诺向 vs 飞行时刻向……）、各项核心指标数据（投放消耗、点击率 CTR、转化率 CVR），并给出了下阶段明确的优化建议。“关于到底赋予 Agent 多大自主权去直接调整预算决策，业界各执一词。在我们的团队中，它负责给出严密的建议，由人类团队在碰头会上最终敲定。”
+
+### 7. 终极跃迁：将全局编排权彻底交付给项目经理 Bot
+
+> “大家可能已经注意到：在刚才这整个演示过程中，其实是我个人在各个 Bot 之间穿梭充当编排协调者。这就是所谓的人工协调税（The tax）。”
+
+Josh 随后下达了全场最为震撼的终极指令：
+
+> 项目经理（PM Bot）：请深入研读并与我团队中的每一个 Bot 逐一交流，透彻理解它们在落实一场完整营销战役中所扮演的角色。仔细审查我和它们之间的所有历史沟通记录，准确找出**我在哪些环节不得不临时插话介入、在哪些地方给出了方向性指引、或者在哪里给出了修正反馈**，并将这些宝贵经验彻底融入到你与它们的协同机制中。随后，全权由你自主统筹启动三场全新的营销战役，实现全链路的彻底全自动化。推进中随时发我截图和阶段汇报让我知晓进展。**最重要的是：请充当我的唯一直接对接人。我不想再单独跟其他任何一个 Bot 打字了。我只想对你一人负责，以此彻底消除我的上下文切换心智负担。**
+
+项目经理 Bot 迅速对另外五个垂直专家的能力与历史记录展开调研，梳理出了即将推进的三场新战役的排期规划并推入执行队列。“你再也不用被五个不同的 Bot 同时用五条消息轮番狂轰滥炸了。”
 
 ---
 
-## Share as a template
+## 共享为标准化模板 (Share as Template)
 
-> Create a template of yourself that I can share with someone else.
+> 帮我为你自己生成一份标准模板，方便我共享给团队其他同事。
 
-Snapshots the bot — context, memory, routines — into something a teammate
-(or anyone) pastes into their own instance. "They have access to literally
-the way you work." This is how the six bots were assembled in the first
-place, and he said the refined versions would go to the marketplace.
+系统会将该 Bot 沉淀的所有关键要素——精细调教的上下文、核心长期记忆、例行定时任务——完整封装为一个便携快照，供任何队友一键导入并开箱即用。“他们得到的不仅是一个 Bot，而是完全继承了你最高效的做事手法。” Josh 表示这一整套打磨成熟的六 Bot 营销团队，后续会全面上架至官方市场供全行业复用。
 
 ---
 
-## Composing a bot from several sources (Q&A)
+## 现场实战心得
 
-How he built the product-positioning bot, "a product of being lazy":
-
-1. Dictated a couple of minutes of how he wants it to think.
-2. Had it pull tone and voice from the existing website.
-3. Found two or three marketplace bots he liked, **gave it their URLs**, and
-   said: *scrape all that context and memory and replicate it into how you
-   work.*
-4. Connected it to **SuperMe** (an expert marketplace with a plugin) and
-   said: *in lieu of scaled qualitative research, vet everything you do with
-   experts there.*
+1. **极其严谨地划定 Bot 的职责边界。** 就像给人类写岗位职责说明书一样：明确其专属泳道，范围切分得越狭窄精准，其垂直专业度就越高。“这是从多 Bot 协同中压榨出极致效率的唯一秘诀。”
+2. **给予你的 Bot 充分的信任。** 它们极具主动性与攻坚野心。大胆赋予它们必要的系统访问权限：先把 Slack 和工作邮箱接进来，反问它：*“通读所有的业务上下文，告诉我你能替我分担什么？主动从我肩上把一项繁重的工作彻底卸下来。”*
+3. **把精力当作长线投资注入 Bot。** Bot 之间的跨角色协同会随着你的日常引导而变得越来越自然顺畅；你给予的每一条纠偏反馈、补充的每一段业务背景，都在产生惊人的复利。
 
 ---
 
-## What we learned (his three)
+## 一键抄作业（落地实施清单）
 
-1. **Scope your bots properly.** It's like writing a job description: a new
-   teammate, clear swim lanes, tightly scoped so they're specialised. "That's
-   how you squeeze the most efficiency out of a team of bots."
-2. **Trust your bots.** They're ambitious, proactive, hungry. Give them
-   access: hook up Slack and email first and ask, *study all the context and
-   tell me what you can do for me. Take a job off my plate.*
-3. **Invest in your bots.** Bot-to-bot collaboration gets more organic as you
-   prompt it; feedback, context and memory compound.
-
----
-
-## Q&A worth keeping
-
-- **Where to keep a human in the loop?** Same as onboarding a junior: don't
-  hand over the keys on day one. One simple task, one or two tools, watch it
-  deliver, expand. You can tell it "always allow" for a permission once
-  you're comfortable. End state exists: xAI engineers with "armies of bots
-  pushing code to prod." Start small and low-risk.
-- **Biggest blocker for marketers?** The mental model. If you treat it like
-  search or another LLM you get nothing. Hook it to Slack and let it be the
-  first line of triage: *message Josh when it's important, reply to the
-  person otherwise.*
-- **Roles or initiatives?** Roles are always-on and keep learning;
-  initiatives start and stop. Put role bots in a **group chat per
-  initiative** — a "tiger team" on website conversion.
-- **Personality?** Each bot has its own memory: tell the PM bot to talk like
-  Harry Potter and call you a wizard if you want. Avatars can be regenerated
-  and animated from a word. You can point a bot at an agent you built
-  elsewhere and say *replicate this.*
-- **EU data / training?** Opt-in/opt-out data-privacy modes; enterprise
-  security case by case with a dedicated team.
-- **Existing coding-tool context?** Point the bot at your existing work; it
-  uses it as the harness. Website ops is Cursor cloud agents underneath.
-
----
-
-## Copy this
-
-1. Six roles: research, positioning, web, performance, analysis, PM. Borrow
-   the ones that exist.
-2. Chain them by telling each to go get the handoff from the previous one.
-3. Give feedback in the document, then tell the bot to go read it.
-4. Parallelise: campaign shell while copy is still being written.
-5. Screenshots as progress updates for anything that touches a live system.
-6. When the loop works, ask a PM bot to learn where you intervened and take
-   over.
-7. Share the result as a template.
-
-Related: [`post-sales.md`](post-sales.md) and [`sdr.md`](sdr.md) for the
-other single-point-of-contact setups; [`product-management.md`](product-management.md)
-for the same data → spec → design → ship chain on the product side.
+1. [ ] 设立六大核心营销角色：市场调研、产品定位、网站前端、效果投放、数据分析、统筹 PM；
+2. [ ] 建立标准交接链路：命令每个下游 Bot 主动向上游索取上下文交接（Handoff）；
+3. [ ] 善用文档批注反馈：直接在产出的在线文档中划线批注，随后命令 Bot 统一研读修改；
+4. [ ] 极力并发推进：在文案起草的同时，效果投放人员同步在后台搭建广告 Campaign 骨架；
+5. [ ] 任何涉及线上真实环境的操作，强制要求回传实时截图作为进度证明；
+6. [ ] 当全套流水线跑通后，引入一位 PM 幕僚长 Bot，命令其学习人类的历史干预痕迹，由其接管全局统筹，成为人类的唯一对接人；
+7. [ ] 将打磨成熟的整套 Bot 体系导出为可复用模板。
