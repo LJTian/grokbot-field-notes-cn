@@ -1,77 +1,51 @@
-# Agent Pack
+# Agent 工具包 (Agent Pack)
 
-Drop-in rules for coding and orchestration agents, distilled from three days of
-the xAI Grok Bot team building and launching a product live on stream.
+可直接注入你的编码与编排 Agent 的行为守则，精炼自 xAI Grok Bot 团队在 72 小时直播中从零构建并发布产品的实战经验。
 
-Not product documentation. These are the working practices — what they actually
-did under time pressure, including the parts that broke.
+这里不是官方产品使用文档，而是最真实的工程实践总结——记录了他们在极限时间压力下的真实操作，包括那些遭遇严重故障翻车的教训。
 
 ---
 
-## What's in here
+## 目录索引
 
-| File | Use it when |
+| 文件 | 适用场景 |
 |---|---|
-| **`../AGENTS.md`** | Always. The core rules for an agent working in a repo. Start here. It lives in the repo root so agents pick it up automatically. |
-| **`VERIFICATION.md`** | Setting up a project so agents can check their own work. The highest-leverage file in the pack. |
-| **`ORCHESTRATION.md`** | You're designing a *team* of agents, not prompting one. |
-| **`SKILLS-AND-ROUTINES.md`** | You want an agent to stop needing the same instruction twice. |
-| **`PROMPTS.md`** | You want the phrasing that actually worked. Patterns plus a copy-paste library. |
+| **[`../AGENTS.md`](../AGENTS.md)** | **任何时候**。代码仓库中 Agent 的核心行为准则。建议从这里开始。放置在仓库根目录，Agent 会自动加载。 |
+| **[`VERIFICATION.md`](VERIFICATION.md)** | 搭建工程项目，使 Agent 能够**自主验证自己的工作**。本工具包中杠杆率最高的文件。 |
+| **[`ORCHESTRATION.md`](ORCHESTRATION.md)** | 当你在设计一个 **Agent 协同团队**，而非仅仅编写单个 Prompt 时。 |
+| **[`SKILLS-AND-ROUTINES.md`](SKILLS-AND-ROUTINES.md)** | 当你想让 Agent 彻底记住某项能力，不必每次都重复下达相同的指令。 |
+| **[`PROMPTS.md`](PROMPTS.md)** | 想要拿来即用的实战高效 Prompt：包含设计模式与可直接复制的 Prompt 库。 |
 
-Pick what you need. `AGENTS.md` stands alone; the files in this folder are the
-references it points at.
-
----
-
-## Install
-
-**Claude Code** — drop `AGENTS.md` (or `CLAUDE.md`) in your repo root. Put this
-folder in `.claude/` or `docs/agents/` and reference it from the core file.
-
-**Cursor** — `AGENTS.md` in the repo root, or split the sections into
-`.cursor/rules/*.mdc`.
-
-**Codex / Copilot / Windsurf / Cline** — `AGENTS.md` in the repo root is read by
-most of them. Check your tool's docs for the exact filename it expects.
-
-**Any agent with a system prompt** — paste `AGENTS.md` in. It's written to be
-read cold, with no other context.
+各取所需即可。[`../AGENTS.md`](../AGENTS.md) 可独立生效，而本目录下的其他文档则是其引用的深度参考资料。
 
 ---
 
-## Adapt before you ship it
+## 接入方式
 
-This pack is opinionated on purpose. Two things to change for your own setup:
-
-1. **Set the autonomy level from your blast radius.** The throughput numbers
-   behind these practices came from a 72-hour throwaway project where nobody
-   read the code. The same team reads every PR on their real product. Read
-   `VERIFICATION.md` → *The caveat, stated honestly* before granting
-   auto-merge.
-
-2. **Fill in your own verification commands.** `VERIFICATION.md` describes the
-   shape of the loop, not your specific CLI. Nothing else in the pack works
-   properly until that exists.
+- **Claude Code**：将 `AGENTS.md`（或 `CLAUDE.md`）放在仓库根目录。将本目录放入 `.claude/` 或 `docs/agents/` 并在核心规则文件中引用它。
+- **Cursor**：将 `AGENTS.md` 放在仓库根目录，或将其分拆放入 `.cursor/rules/*.mdc`。
+- **Codex / Copilot / Windsurf / Cline**：大多数工具均原生支持读取根目录下的 `AGENTS.md`。请查阅具体工具文档确认其识别的文件名。
+- **任何支持 System Prompt 的 Agent**：直接将 `AGENTS.md` 的内容粘贴进 System Prompt。它专为冷启动设计，无需任何额外前置上下文即可生效。
 
 ---
 
-## The one-paragraph version
+## 落地前根据自身场景调整
 
-Give each agent one narrow job and a name. Build a verification loop before you
-build the second agent. Make the agent reproduce a bug before it fixes one, and
-attach proof to everything. When it's wrong, write down the general principle —
-never the specific story. Audit your routines weekly, because frequency is where
-the money goes. Keep a human gate on migrations, deploys, money and permissions,
-however well the loop has been working.
+本工具包的规则设计带有鲜明的态度与立场。在引入你的实际项目前，有两点务必根据自身情况进行调整：
+
+1. **根据“爆炸半径（Blast Radius）”调整自主权级别**。直播中展示的极高代码吞吐量来自一个为期 72 小时的短期原型项目，当时甚至无人通读代码。而同一支团队在他们正式的核心商业产品上，依然会逐行审阅每一个 PR。在开启自动合并（Auto-merge）权限前，请务必仔细阅读 [`VERIFICATION.md`](VERIFICATION.md) 中的 *“客观坦率的技术前提与注意事项”*。
+2. **填充适合你自己技术栈的验证命令**。[`VERIFICATION.md`](VERIFICATION.md) 规定的是验证闭环的结构与契约，而非你具体的 CLI 命令。在此验证闭环正式跑通前，本工具包的许多高级规则将无法发挥其全部威力。
 
 ---
 
-## Provenance
+## 一句话精要
 
-Assembled from transcripts of three consecutive livestreams (~24 hours of
-material) in which three people built and shipped a product from an empty repo
-using their own agent platform. Quotes are theirs. Figures were stated live and
-were moving targets on the day.
+为每个 Agent 分配单一且狭窄的职责，并赋予一个名字。在构建第二个 Agent 之前，必须先搭建好确定性验证循环。让 Agent 在修复 Bug 之前必须先精准复现，无论交付什么成果都必须附带证据。被纠正时，记下通用原则——绝不纠缠于具体的偶发故事。每周审计你的定时例行任务，因为频率才是产生账单的根源。无论自动化运转得多好，在涉及数据迁移、线上部署、资金与权限时，务必保留人类最后一道防线。
 
-The companion PDF in `../guide/` covers the same material as narrative,
-including the case study, the failure log and the economics. Structured extraction notes are in `../notes/`.
+---
+
+## 内容出处
+
+整理自连续三天直播（约 24 小时素材）的完整记录。文中所有引用均来自团队嘉宾的原话口述。各项数据均由主持人在直播中当场测算与报出。
+
+配套的 PDF 完整指南见 [`../guide/`](../guide/)，以叙事方式完整呈现了心智模型、软件工厂、案例推演与故障日志。原始逐字提取笔记见 [`../notes/`](../notes/)。

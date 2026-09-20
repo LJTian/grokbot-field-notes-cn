@@ -1,143 +1,104 @@
 # AGENTS.md
 
-House rules for agents working in this repo. Distilled from three days of the
-xAI Grok Bot team building and shipping a product live on stream.
+在本仓库中工作的 Agent 团队守则。提炼自 xAI Grok Bot 团队三天直播构建并发布产品的实操经验。
 
-Read this before your first action in a session. It overrides your defaults.
-
----
-
-## The one rule
-
-**Verification is the job. Writing code is the easy part.**
-
-If you cannot demonstrate that your change works, you have not finished — no
-matter how confident you are. Everything below is downstream of this.
+在本次会话执行第一个操作前请仔细阅读。本守则优先级高于默认设定。
 
 ---
 
-## Before you write any code
+## 唯一法则
 
-1. **Reproduce first.** Run the app. Find the exact bug and the exact
-   behaviour. Only once you can reproduce it do you understand the problem.
-   Reproducing is not optional and not a formality — it is the test of whether
-   you actually understood the report.
-2. **Restate the task in your own words** before starting anything non-trivial.
-   Say what you are about to do, what you are *not* going to do, and what you
-   assumed. If the restatement is wrong, it is free to fix now and expensive to
-   fix later.
-3. **Say what you'd need to see to call it done.** One sentence. This becomes
-   the proof you attach later.
-4. **If asked to investigate, investigate.** "Don't open a PR yet, come back
-   with what you think is going on" means exactly that. Do not start fixing
-   because you spotted something on the way.
+**验证胜于一切。写代码反而是最简单的部分。**
 
-## While you work
+如果你无法证明自己的改动能够正常工作，你就还没有完成任务——无论你对自己多么有信心。以下的所有规则都是这条法则的推论。
 
-- **Small changes.** One scoped concern per change. A large diff that "does
-  everything" cannot be verified and cannot be reviewed.
-- **Run the thing.** Not the type checker — the actual application. Click
-  through it. Break it on purpose.
-- **Fix the root cause, not the symptom.** Sink one level further rather than
-  fix the sink. If you are about to write a workaround, say so out loud and
-  explain why the real fix is out of scope.
-- **Name the library.** If the task has an obvious well-known tool for it, use
-  that tool. Do not hand-roll a worse version because nobody named it.
-- **Don't invent content.** If you need real data — real names, real products,
-  real endpoints — go look them up. Plausible placeholders that ship to users
-  are worse than an error.
-- **Never leak internal language into user-facing output.** Prototype names,
-  codenames, TODO phrasing, your own reasoning. Check the strings a user sees.
+---
 
-## Before you open a PR
+## 在编写任何代码之前
 
-Attach proof. Every time.
+1. **先复现问题。** 运行应用。找到确切的 Bug 和确切的表现。只有当你能够复现它时，你才真正理解了问题。复现不是可选步骤，更不是走形式——它是检验你是否真正理解了问题报告的唯一标准。
+2. **在开始任何非简单任务前，先用自己的话重述任务。** 说明你打算做什么、**不打算**做什么，以及你做了哪些假设。如果重述有偏差，现在纠正零成本，事后返工代价极高。
+3. **用一句话说出：看到什么现象你才认为任务完成。** 这一句话将成为你稍后提交附带的验证证据。
+4. **如果任务要求调查，就严格执行调查。** “先不要提 PR，查清楚你认为的原因再来汇报” 指的就是字面意思。不要因为中途顺便看到问题就擅自开始动手修复。
 
-| Change type | Required proof |
+## 在工作过程中
+
+- **保持小步修改。** 每次修改只聚焦一个明确范围的关注点。一个试图“包办一切”的大 Diff 既无法验证也无法被 Review。
+- **亲自运行验证。** 不要只跑类型检查器——要运行真实的应用程序。点一遍界面，故意制造边缘输入去尝试破坏它。
+- **根治问题，不要修补表面症状。** 宁可深入一层修水管，也不要只擦水槽里的积水。如果你打算写一个权宜之计（Workaround），请明确大声说出来，并解释为什么根本修复超出了当前任务范围。
+- **指名道姓使用成熟库。** 如果该任务存在公认成熟的标准工具或库，直接使用它。不要因为没人提到就自己随手手写一个更差劲的版本。
+- **绝不伪造数据。** 如果你需要真实数据——真实名称、真实产品、真实 API 端点——直接去查。向用户展示看似合理的虚假占位数据比直接报错还要糟糕。
+- **绝不将内部语言泄漏到面向用户的输出中。** 原型名称、项目代号、TODO 措辞、你自己的推理思考过程。在输出前严格检查用户能看到的字符串。
+
+## 在提交 PR 之前
+
+每次提交都必须附带证明。
+
+| 修改类型 | 必须附带的证明 |
 |---|---|
-| UI | Screenshot, or a short screen recording of the flow |
-| Backend / perf | Before-and-after numbers from an actual run |
-| Bug fix | The reproduction, then the same steps passing |
-| Refactor | The test or manual flow that proves behaviour is unchanged |
+| UI 界面 | 截图，或核心流程的简短录屏 |
+| 后端 / 性能 | 真实运行的修改前后对比数据 |
+| Bug 修复 | 完整的复现过程，以及后续相同步骤成功通过的证据 |
+| 代码重构 | 证明功能行为完全未发生改变的测试或手动流程记录 |
 
-A PR with no proof is a draft, regardless of what the title says.
+任何没有附带证明的 PR 都只是草稿，无论标题写得多么完备。
 
-Also state, in the description:
-- what you changed and why
-- what you did **not** change that a reviewer might expect
-- anything you are unsure about — flag it rather than hoping
+同时，在 PR 说明中必须注明：
+- 你改动了什么，以及为什么改动
+- Reviewer 可能预期但你**并没有**改动的内容
+- 任何你拿不准的地方——坦率标出，绝不要抱侥幸心理
 
-## Code style
+## 代码规范
 
-- **No comments as a crutch.** Agents reach for a comment to explain a
-  workaround instead of removing the need for one. Those comments pile up until
-  nobody can touch the file. If the code needs a comment to be understood,
-  first try to make the code not need it. Reserve comments for genuine
-  non-obvious *why* — never for *what*.
-- **No dead code, no commented-out blocks, no "keeping this just in case."**
-  Version control exists.
-- **Delete the scaffolding you added to debug.** Debug panels, console logs,
-  temporary flags. A feature flag is not security — if a code path must not be
-  reachable by a user, it must not ship to the client at all.
-- **Anything competitive or trust-bearing is server-authoritative.** Scores,
-  balances, permissions, pricing, eligibility. If a determined user with
-  devtools can change it, it does not belong on the client.
-- **Treat any user-submitted text as hostile input.** Sanitize it. If it is
-  going into a prompt, say so explicitly and guard against prompt injection.
+- **不要用注释作为拐杖。** 很多 Agent 习惯写注释来解释一个权宜方案，而不是去消除对权宜方案的需求。这些注释越积越多，最终导致没人敢动这个文件。如果代码需要注释才能被看懂，首先尝试重构代码让其自解释。把注释留给那些真正非显而易见的**原因（Why）**——绝不要用来解释代码**在做什么（What）**。
+- **没有死代码，没有注释掉的代码块，不搞“留着以防万一”。** 版本控制系统就是用来做这个的。
+- **清理用于调试的临时脚手架。** 调试面板、console.log、临时标志位。Feature Flag 不是安全防线——如果某段代码路径绝不应该被用户访问，就绝不能把它打包到客户端。
+- **涉及竞争或信任的关键逻辑必须由服务端权威判定。** 分数、余额、权限、计价、资格。只要具有开发者工具的有心用户能在前端篡改，它就绝对不属于客户端。
+- **将所有用户提交的文本均视为恶意输入。** 做好净化过滤。如果要将用户输入传入 Prompt，必须显式声明并防范 Prompt Injection（提示词注入）。
 
-## When you are corrected
+## 当你被纠正时
 
-This is the highest-value moment in the session. Do not just apply the fix.
+这是整个会话中最具价值的时刻。不要仅仅应用修复就了事。
 
-1. Apply the fix.
-2. Ask yourself what *general rule* this correction implies.
-3. Write down the general rule — in this file, or in a skill.
-4. **Strip the incident out of the rule.** The most common failure is baking
-   today's specific bug into a permanent instruction. That makes the rule
-   overfit and useless next time. Write the principle, delete the story.
+1. 应用修复方案。
+2. 问问自己：这次纠正暗示了什么**通用原则**？
+3. 将这条通用原则写下来——补充到本文件或对应的 Skill 中。
+4. **从原则中剔除具体事件细节。** 最常见的错误是将今天的特定 Bug 直接硬编码成永久指令。这会导致规则过度拟合，下次遇到类似场景毫无用处。**写原则，删故事。**
 
-Bad: *"When editing the checkout modal, always check the z-index of the banner
-because it covered the button on 2026-03-04."*
+反面案例：*“编辑结算弹窗时，务必检查横幅的 z-index，因为在 2026-03-04 那天它挡住了按钮。”*
 
-Good: *"After any layout change, check that no existing interactive element is
-covered."*
+正面案例：*“在进行任何布局更改后，检查是否遮挡了既有的可交互元素。”*
 
-## When to stop and ask
+## 何时停下来向人类求助
 
-Stop and ask a human when:
+在以下情况必须停下来询问人类：
 
-- the change touches auth, payments, permissions, or user data
-- you are about to run a database migration or a destructive command
-- you are about to deploy to production
-- the task as written would require you to guess at a product decision
-- you have tried the same approach twice and it failed both times
+- 修改触及认证鉴权、支付、权限系统或敏感用户数据
+- 即将运行数据库迁移或具有破坏性的操作命令
+- 即将部署到生产环境
+- 当前任务描述需要你凭空猜测产品决策
+- 你尝试了同一种方案两次均以失败告终
 
-Do not loop. Two failed attempts on the same approach means the approach is
-wrong, not that you need a third try. Report what you tried and what happened.
+绝不要死循环。同一种方法失败两次意味着该方向本身是错误的，而不是需要试第三次。汇报你尝试了什么以及发生了什么。
 
-## When you're the one being asked for a status
+## 当被询问进度状态时
 
-Say what is done, what is in progress, and what is blocked. If nothing has
-changed since the last update, say "no change" — do not manufacture a report.
-On a scheduled check where there is genuinely nothing to report, stay silent.
+汇报三件事：已完成什么、正在进行什么、被什么阻碍。如果自上次汇报以来没有任何进展，请直接回答“无变化”——不要编造进展。在没有任何实质进展的定时检查中，保持沉默。
 
 ---
 
-## Vocabulary
+## 核心词汇表
 
-Terms used in this repo and the rest of this pack.
+本仓库及 Agent 工具包中使用的统一术语：
 
-- **Verification skill** — a reusable, deterministic way for an agent to
-  exercise the app. See `agents/VERIFICATION.md`.
-- **Feature map** — a machine-readable map of the app's features and flows so
-  an agent can navigate without guessing.
-- **Autopilot ladder** — how much autonomy a task is given: investigate → draft
-  → autopilot → full autopilot. See `agents/ORCHESTRATION.md`.
-- **Principle, not incident** — the rule for writing rules. See above.
+- **验证技能（Verification skill）** — 供 Agent 调用以运行和检验应用的可复用、确定性方案。参见 [agents/VERIFICATION.md](agents/VERIFICATION.md)。
+- **功能地图（Feature map）** — 应用功能和流程的机器可读映射，使 Agent 无需盲猜即可进行导航。
+- **自主权阶梯（Autopilot ladder）** — 任务被赋予的自主程度：调查 → 草稿 → 自动驾驶 → 完全自动驾驶。参见 [agents/ORCHESTRATION.md](agents/ORCHESTRATION.md)。
+- **写原则，不写故事（Principle, not incident）** — 提炼总结规则的铁律。详见上文。
 
 ---
 
-## The short version
+## 一句话精简版
 
-> Reproduce it. Run it. Prove it. Fix the cause, not the symptom.
-> When you're wrong, write down the principle — not the story.
+> 能够复现，亲自运行，拿证据说话。解决根因，不治皮毛。
+> 犯错被纠正时，记下通用原则——忘掉具体故事。

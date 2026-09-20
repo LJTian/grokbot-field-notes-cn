@@ -1,100 +1,68 @@
-# PRODUCT.md
+# 产品机制参考 (PRODUCT.md)
 
-The parts of Grok Bot that change how you design a bot. Not a feature list;
-the marketplace and xAI's own docs are the source of truth for those. This is
-a snapshot of what was said on stream in September 2026, kept to the things
-that affect memory, isolation, sharing and permissions. Where speakers
-contradicted each other, the resolution is noted.
+影响 Bot 架构设计的 Grok Bot 底层产品特性。本文档并非产品功能清单（功能详情请以插件市场与 xAI 官方文档为准），而是基于 2026 年 9 月直播口述提炼的特性切片，专注于**记忆、隔离、共享与权限**等直接影响 Bot 设计的底层机制。对于直播中嘉宾口径不一致处，已予以明确澄清。
 
 ---
 
-## The model
+## 核心模型（The Model）
 
-A bot is a named colleague with one job, not a chat thread. You come back to
-the same bot. It has its own memory, its own context limit, and its own
-computer. Every design rule in this repo follows from those three facts.
+Bot 是一个**具有独立名称、职责单一的数字同事**，而不是一个普通的聊天会话（Chat Thread）。你可以反复回到同一个 Bot 的界面中。它拥有自己独立的记忆系统、独立的上下文窗口（Context Limit）以及独立的虚拟计算环境（VM）。本仓库中的每一条设计原则，都是从这三个底层事实推导而来的。
 
 ---
 
-## Memory
+## 记忆机制（Memory）
 
-- Per-bot, long-lived, editable. Stored in S3. Nothing is shared between bots
-  unless one messages another.
-- Steering sticks. "Never use my last name" said once is kept forever.
-- You can tell a bot to forget something and it does. Do it: memory it no
-  longer needs costs tokens on every turn.
-- Each bot has its own context limit. That is the reason to split roles rather
-  than grow one bot: a bot switching between too many tasks runs out of
-  context, a narrow one doesn't.
-- Multitasking inside one thread works; a bot holds two asks at once without
-  dropping the first.
+- **单 Bot 独立、长期持久化、支持人工编辑**。底层存储在 S3 中。除非一个 Bot 显式给另一个 Bot 发消息，否则 Bot 之间绝不共享记忆。
+- **行为引导（Steering）永久有效**。比如对它说过一次“永远不要直呼我的姓氏”，它会永久记住并贯彻。
+- **支持显式遗忘**。你可以直接命令 Bot 遗忘某些过时信息。建议定期清理：不再需要的无效记忆在后续每一轮对话中都会白白消耗 Token。
+- **每个 Bot 拥有独立的上下文窗口限制**。这是“宁可拆分多个专业角色也不要堆砌一个全能 Bot”的核心技术原因：频繁在多个任务间切换的 Bot 极易耗尽上下文，而职责垂直单一的 Bot 则永远从容。
+- **支持单会话内多任务并行**：Bot 可以同时接纳并处理两个并发请求，而不会丢失前一个任务的上下文。
 
 ---
 
-## What transfers, and what doesn't
+## 复制、共享与技能继承差异
 
-Three operations sound similar and behave differently.
+三种操作看似相近，底层行为截然不同：
 
-| Operation | Instructions | Memory | Skills | Credentials, chat history |
+| 操作 | 指令（Instructions） | 记忆（Memory） | 技能（Skills） | 凭据密钥与聊天历史 |
 |---|---|---|---|---|
-| **Duplicate** a bot | copied | **empty** | shared anyway | no |
-| **Share as template** (team or public) | copied | core memory copied, workspace-specific data stripped | copied with first-party plugins | no |
-| **Teach a skill** in any bot | — | — | **available to every bot in the org** | — |
+| **复制 Bot（Duplicate）** | 完整复制 | **清空为全新** | 仍然共享 | 否（不复制） |
+| **共享为模板（Share as template）**（团队内或公开） | 完整复制 | 复制核心岗位记忆，剥离工作区私有数据 | 连同第一方插件一同复制 | 否（不复制） |
+| **在任一 Bot 中教学新技能（Teach a skill）** | — | — | **组织内所有 Bot 均立即可用** | — |
 
-Day 1 said sharing copies "memories, context, instructions, first-party
-plugins"; day 3 said it "strips sensitive and workspace-specific info, keeps
-core memory." Both hold: the template carries what the bot knows about its
-job, not what it knows about you.
-
-Consequence: put job knowledge in the description and skills, not in memory
-accumulated through chat. Memory is what you lose on duplicate and what gets
-filtered on share.
+> **关键推论**：请务必将岗位通用知识写进**角色描述（Description）与技能（Skills）**中，而不要依赖在日常对话中漫漫积累的聊天记忆。因为记忆在 Duplicate 时会丢失，在 Share 时会被脱敏过滤。
 
 ---
 
-## Isolation
+## 运行隔离（Isolation）
 
-- Each bot runs on its own Linux VM. One bot cannot touch another bot's
-  computer. Two bots editing different slides of the same deck don't collide.
-- Bots on one account share a file system but not memory or context.
-- Cross-account bot-to-bot messaging did not exist as of the stream.
-- Local execution is a per-account toggle. The team's bias is the cloud VM:
-  parallelism, nothing stealing focus on your laptop, keeps running when the
-  lid is closed.
+- **每个 Bot 运行在独立的 Linux 虚拟机（VM）中**。一个 Bot 无法侵入或篡改另一个 Bot 的计算环境。两个 Bot 哪怕同时编辑同一个演示文稿的不同页面，也不会产生运行冲突。
+- **同一账户下的多个 Bot 共享底层文件系统，但不共享内存状态或对话上下文。**
+- **跨账户 Bot 间直接通信**在本次直播期间尚未开放。
+- **本地运行（Local Execution）属于按账户维度的可切换开关**。官方团队更推崇云端 VM 方案：天然支持高并发、不抢占笔记本电脑的焦点与资源、即使合上电脑屏幕任务依然在云端后台平稳运行。
 
 ---
 
-## Permissions
+## 权限控制（Permissions）
 
-- A built-in classifier rates each action and asks before risky ones. On
-  stream it refused to build a form until it had checked the form wasn't
-  collecting PII.
-- You layer explicit rules on top, per action type: "never send email without
-  asking", "create slides freely", "deploy to production: always ask first."
-- Enterprise admins can whitelist and blacklist sites and MCPs per bot.
-- Credentials go through a secure form or 1Password. The bot never sees the
-  password; neither does xAI. A demoed competitor printed passwords in plain
-  text.
-- You can take over a bot's screen for logins and CAPTCHAs. The recommended
-  answer to CAPTCHAs is to block the site, not to evade the check.
+- **内置行为安全分类器**：自动评估每个操作的风险等级，并在执行高危操作前主动向人类请求确认。在直播中，当发现某个表单未确认是否采集 PII（个人敏感信息）时，Bot 主动拒绝构建该表单。
+- **支持叠加显式动作规则**：可按操作类型分层设定，例如：“发送邮件必须每次经人类批准”、“制作幻灯片可完全自由执行”、“部署至生产环境必须次次人工审批”。
+- **企业管理员可对每个 Bot 配置网站与 MCP 工具的黑白名单**。
+- **凭据通过安全表单或 1Password 托管**：Bot 本身绝不直接接触明文密码，xAI 平台亦然。（相比之下，直播中对比的某竞品曾直接在终端明文打印密码）。
+- **支持人工接管屏幕**：用于处理账号首次登录或人机验证（CAPTCHA）。对于 CAPTCHA，推荐做法是直接拉黑绕不过去的站点，而非尝试暴力破解验证码。
 
 ---
 
-## Description is the system prompt
+## 角色描述即 System Prompt
 
-The description field is the bot's persona and instructions in one. A
-bot-factory bot writes it for new bots and tends to overfit it to the one
-scenario it was created for; correct that early. Labels are cosmetic tags for
-remembering what "Tater" does.
+在 Grok Bot 中，Description 字段直接充当 Bot 的 Persona（角色人设）与指令集。通过“Bot 工厂”自动生成新 Bot 时，它往往会过度拟合到当时触发创建的具体场景；请务必及早进行人工修剪。标签（Labels）则仅用于在界面上标识该 Bot 的职能归属。
 
 ---
 
-## Limits that bit on stream
+## 直播中遭遇的平台局限
 
-- Linux only. A tool that is neither Linux-compatible nor exposed as an MCP
-  cannot be used at all.
-- Multi-machine bots got confused, acknowledged as being fixed.
-- Voice was transcribe-only on day 1, two-way by day 3.
-- No migration path from other agent tools beyond importing templates and
-  pointing a bot at an existing context.
-- Group chats work but every bot answers every message. See `ECONOMICS.md`.
+- **仅限 Linux 环境**：任何既不兼容 Linux 也未封装为 MCP 协议的工具，在平台上均完全无法运行。
+- **跨机器调度混乱**：调度到多台机器时 Bot 会产生认知混淆（官方团队已确认正在修复）。
+- **语音交互演进**：第 1 天时仅支持语音转文字单向输入，到第 3 天已支持双向语音实时互动。
+- **缺乏其他 Agent 工具的平滑迁移方案**：目前除了导入模板和将 Bot 挂载到现有上下文之外，尚无一键迁移工具。
+- **群聊消息风暴**：多 Bot 处于同一群聊时，每一个 Bot 都会响应群里的每一条消息，极易导致 Token 账单激增。治理规则详见 [ECONOMICS.md](ECONOMICS.md)。

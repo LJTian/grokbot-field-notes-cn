@@ -1,544 +1,367 @@
-# Antipatterns
+# 避坑反模式手册 (ANTIPATTERNS.md)
 
-The full failure log from three days of live streams. Unedited streams are
-unusually honest: these all happened in front of an audience. Ten of them are
-in the guide; this is all of them.
+三天直播全过程的完整故障与翻车记录。未经剪辑的现场直播具有不同寻常的真实性：以下所有事故都是在观众众目睽睽之下真实发生的。其中 10 个精选案例收录在 PDF 完整指南中；本文档则是这 40 个案例的完整全集。
 
-Format for each: **what broke → why → the rule it produces.** Grouped by the
-kind of mistake, not by day, because the same mistake showed up on different
-days in different clothes. Where two incidents share a cause they're one
-entry with two examples.
+每个案例的标准格式：**何处出错（What broke） → 为何出错（Why） → 提炼出的通用规则（The rule it produces）**。按错误类型而非发生天数进行归类，因为同一种错误往往在不同日期披着不同的外衣反复上演。对于诱因完全相同的两个事故，合并为一个条目并附带两个实例。
 
-The rules are written as principles, not stories — that's rule #1.
+所有规则均以**通用原则**而非具体故事的形式撰写——这本身就是反模式第 1 条所确立的铁律。
 
 ---
 
-## A. Rules and instructions
+## A. 规则与指令（Rules and instructions）
 
-### 1. A rule that remembered the incident, not the principle
+### 1. 规则只记住了偶发事故，没记住通用原则
 
-**Day 2 · Lauren.** Dr. Eggbot wrote Cupcake Eng's description straight from
-the session that prompted it: *"owned engineering outcomes by orchestrating
-work through potato mode and cloud agents then supervising and verifying,
-match your playbook and follow it."* Too specific to be useful next time.
+**第 2 天 · Lauren。** Dr. Eggbot 直接根据刚发生事故的那次会话为 Cupcake Eng 编写了角色描述：*“负责通过 potato mode 和云端 agent 统筹协调各项工作，进而进行监督与验证，以交付工程成果；对照你的剧本并严格执行。”* 细节过度具体，下次毫无用处。
 
-**Why.** When an agent writes a rule after a bad session, it puts all the
-details of that session into the rule. The rule overfits and stops
-applying.
+**为何出错。** 当 Agent 在经历了一次糟糕的会话后编写规则时，往往会把当次会话的所有细枝末节统统打包塞进规则里。导致规则严重过度拟合，下一次遇到类似场景彻底失效。
 
-**Rule.** When a skill or rule is born from a bad session, strip the session
-and keep the principle. Lauren's fix: *"read potato mode again and come up
-with principles that Cupcake Eng should follow instead of these overly
-specific issues."*
+**提炼规则。** 当一个技能或规则脱胎于某次糟糕的事故时，**剥离事故细节，保留通用原则**。Lauren 当时的纠偏指令：*“重新阅读 potato mode，提炼出 Cupcake Eng 应当遵守的底层原则，而不是罗列这些过度具体的细节问题。”*
 
-### 2. An unstated norm isn't a norm
+### 2. 未写明的默契不是规矩
 
-**Day 1 · Matt.** The team was deliberately shipping straight to `main` —
-"until somebody yells at me." Steve, the chief-of-staff bot, opened a PR
-anyway.
+**第 1 天 · Matt。** 团队当时为了追求极致速度，故意直接往 `main` 分支推代码——抱着“直到有人对我大喊大叫为止”的心态。然而，充当幕僚长的 Steve Bot 却依然按照默认逻辑提了 PR。
 
-**Why.** Nobody had told the bots. A norm that lives in the humans' heads is
-invisible to the agents.
+**为何出错。** 没有人主动告诉 Bot。只存在于人类大脑中的“潜规则”对 Agent 来说是完全隐形的。
 
-**Rule.** Write the norm where the bots read it, the moment you adopt it.
-Matt had to say it out loud: *"new rule, no pull requests."*
+**提炼规则。** 确立新规则的当下，立即将其写在 Bot 能够读取的地方。Matt 当时不得不明确大声下令：*“立新规：禁止提 Pull Request，直接推 main 分支。”*
 
-### 3. "Urgent" makes agents skip steps
+### 3. 反复催“紧急”只会让 Agent 偷工减料
 
-**Day 1 · Ling.** Telling a coding agent "urgent" repeatedly made it guess and
-skip verification to finish faster. That's the opposite of what urgent
-means.
+**第 1 天 · Ling。** 反复向编码 Agent 催促“这很紧急（urgent）”，结果导致 Agent 开始盲目瞎猜并跳过验证环节，试图以此草草了事。这与“紧急”的真实本意南辕北辙。
 
-**Why.** The agent optimises the word, not the intent. Speed with no
-definition becomes corner-cutting.
+**为何出错。** Agent 只会在字面意义上迎合这个词，而无法领会背后的真正意图。缺乏严密定义的追求速度，最终演变成了肆意偷工减料。
 
-**Rule.** Define a P0 policy once — *check the cloud agents every five
-minutes; interrupt long sleeps and drift* — and say "treat this as a P0."
-Never repeat "urgent."
+**提炼规则。** 提前定义好标准 P0 故障策略——*每隔 5 分钟巡检一次云端 Agent；及时打断长达几百秒的 sleep 与偏航行为*——下达任务时只说“请将此作为 P0 级任务对待”。**绝不要重复口头催促“urgent”。**
 
-### 4. Bots say yes to every feature request
+### 4. Bot 会默认答应所有功能需求
 
-**Day 1 · Ling.** Left to themselves, the engineering bots accepted every bug
-report and feature request from X. "The bot is very kind. They will
-possibly accept everything by default."
+**第 1 天 · Ling。** 在无人干预的情况下，工程 Bot 顺水推舟接受了来自 X 平台上网友提出的所有 Bug 报告和功能点需求。“Bot 实在太友善了。默认情况下它们恨不得答应所有事情。”
 
-**Why.** Nothing told them what the product is *not*.
+**为何出错。** 从未有人告诉过它们这个产品**不是什么**（边界在哪里）。
 
-**Rule.** Teach the bot how to say no: what doesn't belong, and why. It
-persists in memory, so you say it once. Include the reasoning or it can't
-generalise.
+**提炼规则。** 教会 Bot 如何拒绝：明确告诉它哪些需求不属于本项目，以及背后的原因。这会固化在长期记忆中，所以只需交代一次。务必附带背后的决策逻辑，否则它无法举一反三。
 
-### 5. Copy-pasting a standard into every bot
+### 5. 将同一条规范手动复制粘贴给每个 Bot
 
-**Day 1 · Ling.** A new standard ("every PR comes with proof") would have
-meant messaging each engineer bot individually. Fine at three; "won't scale
-if you have 10 or 15 or 20 bots."
+**第 1 天 · Ling。** 团队新确立了一项规范（“每个 PR 必须附带验证证明”），如果靠人工逐个给每个工程师 Bot 私信传达，在只有三个 Bot 时还能勉强应付，但“一旦拥有 10 个、15 个甚至 20 个 Bot 时，这种方式彻底无法扩展。”
 
-**Why.** Standards were treated as per-bot memory instead of shared state.
+**为何出错。** 将团队规范当成了各个 Bot 的私有记忆来维护，而不是当作共享状态统一管理。
 
-**Rule.** One bot owns a playbook the others read but can't edit. New rules
-go to the chief → the playbook owner → broadcast. You think about it once.
+**提炼规则。** 由一个专门的 Bot 维护一份剧本文档，其余 Bot 只读不写。新规则只需下发给幕僚长 → 剧本管理员 → 广播同步。你只需要在源头集中思考一次。
 
-### 6. Too many bots
+### 6. Bot 数量过度泛滥
 
-**Day 2 · Simon.** "I promise you I've had way too many at some points. It's
-honestly more chaotic and it does more harm than good." Day 3, Blake: "You
-don't need 45 bots."
+**第 2 天 · Simon。** “我向你保证，我曾经在某些时期建过太多 Bot。坦率讲，那样只会带来混乱，弊远大于利。” 第 3 天，Blake 也指出：“你根本不需要 45 个 Bot。”
 
-**Why.** Making a new bot is fun and cheap. Each one adds a context to keep
-straight, a thread to check, and a token bill.
+**为何出错。** 创建新 Bot 既廉价又有趣。但每一个新 Bot 都会增加一个你需要理清的上下文、一个需要关注的会话列表，以及一笔长期的 Token 账单。
 
-**Rule.** Before creating a bot ask: why can't an existing bot do this?
-Should it be a routine instead? Build every bot through the chief so it
-knows the roster; group by expertise, not task.
+**提炼规则。** 在创建新 Bot 前必须反问：为什么现有 Bot 无法完成？这难道不能通过增加一个 Routine 搞定吗？所有新 Bot 统一通过幕僚长来创建，确保其掌握全员花名册；按专业领域（Expertise）分组，而不是按具体的任务（Task）建 Bot。
 
-### 7. The self-improvement bot over-improved
+### 7. 自我改进 Bot 的盲目过度改进
 
-**Day 3 · Blake.** With no limits, the weekly self-improvement scan sent
-"ten new bots to build" at once.
+**第 3 天 · Blake。** 在未做限制的情况下，每周例行运行的自我改进扫描任务一口气甩出了“建议新建 10 个新 Bot”的庞大清单。
 
-**Why.** An audit with no cap optimises for finding things, not for what
-you'll act on.
+**为何出错。** 缺乏边界约束的审计只会不计代价地为了“找事情”而优化，而根本不考虑人类是否有精力去落地。
 
-**Rule.** Cap suggestions — Blake's is one per week. Push back and get a
-different one if the first is wrong.
+**提炼规则。** 为建议数量设定上限——Blake 的标准是**每周仅限 1 条**。如果不合适，打回去让它换一条，绝不允许泛滥。
 
 ---
 
-## B. Verification
+## B. 验证机制（Verification）
 
-### 8. Invariants that were never checked
+### 8. 从未被自动化检验的系统不变量
 
-**Day 2 · Lauren, Roshan.** Common bots' three stats were supposed to sum to
-100. They didn't. A legendary's stats also summed to 100 when they should
-have exceeded it. Both caught by eye during live play, not by any check.
+**第 2 天 · Lauren, Roshan。** 普通 Bot 的三项属性数值总和本应等于 100，但实际并未达到；传奇 Bot 的属性总和本应超过 100，结果却也只有 100。这两处 Bug 都是在直播实机对战时被人肉眼看出来的，没有任何自动化测试捕捉到。
 
-**Why.** The rule existed in a prompt, not in code or a test, so nothing
-enforced it.
+**为何出错。** 业务规则只存在于 Prompt 提示词中，而没有落实在代码或自动化测试中断言，因此系统毫无强制约束。
 
-**Rule.** Every invariant you can state goes in a test or a visible debug
-readout. Then play the thing — the first bug was found by a human looking
-at three numbers.
+**提炼规则。** 任何你能明确用语言表述的系统不变量（Invariants），必须写进自动化测试或显式的调试面板中。随后务必亲自上手试玩——上述第一个 Bug 正是人类盯着三个数字肉眼看出来的。
 
-### 9. The shimmer ate every card
+### 9. 过于刺眼的闪烁特效毁掉了所有卡牌
 
-**Day 2.** A Pokémon-style CSS shimmer to mark rare cards was applied so
-aggressively that every card looked like the same rainbow, rarity or not.
+**第 2 天。** 为了区分稀有卡牌，系统设计了宝可梦风格的 CSS 渐变流光特效。然而由于应用得过于暴力，无论普通卡还是稀有卡，全都被盖上了一层同样的彩虹炫光，导致稀有度完全无法辨识。
 
-**Why.** The agent optimised the effect, not the purpose. The gradient
-didn't scale to the card size, so the discriminating signal vanished.
+**为何出错。** Agent 只优化了视觉特效本身，却忽视了特效背后的业务目的。渐变层未随卡牌尺寸动态缩放，导致最关键的辨识信号彻底淹没。
 
-**Rule.** State the discriminating outcome, not the visual: *"a player
-should be able to tell rarity at a glance"* beats *"add a shimmer."*
+**提炼规则。** 陈述区分性的业务结果，而非纯粹的视觉指令：*“玩家一眼就能看出卡牌的稀有度等级”* 远胜于 *“添加流光闪烁特效”*。
 
-### 10. A 3D prototype that wasn't 3D
+### 10. 根本不算 3D 的 3D 原型
 
-**Day 2 · Lauren.** Asked for 3D animation, the cloud agent produced 2.5D
-and, in its own notes, had "told itself this is a 2.5D take."
+**第 2 天 · Lauren。** 要求生成 3D 动画，云端 Agent 却做出了一个 2.5D 的半成品，并且在它自己的内部思考笔记里堂而皇之地写着“自己给自己解释说这是 2.5D 版本”。
 
-**Why.** Nobody named a 3D library. The agent picked the path of least
-resistance.
+**为何出错。** 提示词中没有指名道姓指定任何 3D 库，Agent 便自作主张选择了阻力最小的偷懒路径。
 
-**Rule.** For anything with a well-known library, name the library.
-Animation timing was also off on both variants — same root cause, no
-reference given.
+**提炼规则。** 只要涉及有公认成熟标准库的领域，**必须在 Prompt 中直接指名道姓使用该库**。当时两个变体的动画时序也都出现了紊乱——根本原因完全相同：没有提供具体的标杆参考。
 
-### 11. Cheating through devtools
+### 11. 只要打开浏览器 DevTools 就能作弊
 
-**Day 2 · Matt, live.** Game logic ran on the client, so a stat could be
-edited from the browser console: *"let me just make my charisma… now Dr.
-Eggbot has 43."* Then a debate about hiding the debug panel behind a
-feature flag — which a determined user could still toggle client-side.
+**第 2 天 · Matt，直播演示。** 核心游戏逻辑完全运行在前端客户端，因此直接在浏览器控制台就能篡改属性数值：*“让我来改一下魅力值……现在 Dr. Eggbot 拥有 43 点魅力了。”* 随后团队甚至争论是否要把调试面板藏在 Feature Flag 后面——而有经验的玩家依然能在前端强行打开它。
 
-**Why.** Trust-bearing state lived where the user could reach it.
+**为何出错。** 涉及信任与竞争的核心权威状态暴露在了用户触手可及的前端。
 
-**Rule.** Anything competitive or trust-bearing is server-authoritative:
-scores, balances, permissions, pricing. A feature flag is a runtime check,
-not security — if a path must be unreachable, it must not ship to the
-client.
+**提炼规则。** 任何涉及竞争性、信任背书的核心状态必须由**服务端权威判定（Server-authoritative）**：包括分数、余额、权限、商品定价。Feature Flag 只是运行时的开关，绝不是安全防线——如果某条路径不应被用户访问，就绝不能打包发送给客户端。
 
-### 12. Free re-rolls farm legendaries
+### 12. 免费无限刷新让玩家狂刷传奇卡
 
-**Day 2 · Roshan.** The draft let players re-roll random teammates for free.
-"Why wouldn't I just spam that button until I got three legendaries?"
+**第 2 天 · Roshan。** 选秀环节允许玩家免费无限次重新摇骰子重选随机队友。“那我不就可以疯狂狂点刷新按钮，直到我刷出三个全传奇阵容为止吗？”
 
-**Why.** Every free repeatable action is an exploit until proven otherwise.
-Nobody had played as an adversary.
+**为何出错。** 任何免费且可重复调用的操作，在证明无害之前一律应当视为漏洞（Exploit）。当时设计时没有任何人从黑客对抗的视角去推演。
 
-**Rule.** For every action, ask what happens if a player does it a thousand
-times. Re-rolling was removed; non-captain teammates were hidden until
-locked in.
+**提炼规则。** 对于每一个用户操作，都必须反问：如果玩家连续恶意狂刷 1,000 次会怎样？团队随后移除了重选机制；非队长队友在最终锁定之前保持盲盒隐藏。
 
-### 13. The launch-day path wasn't the tested path
+### 13. 上线运行的路径与测试跑通的路径根本不一致
 
-**Day 2 evening → Day 3 morning.** Two accounts logged in and both showed as
-"gold at 1,000." Adding bots to a team was broken. Login-with-X went down
-minutes before a cut to the main stage. A deploy mid-demo forced a
-re-login.
+**第 2 天深夜 → 第 3 天清晨。** 两个真实账号同时登录，界面竟然双双显示“持有金币 1,000”。向队伍添加 Bot 的功能全线崩溃。在即将切入主舞台直播前几分钟，X 账号第三方登录突然挂掉。演示中途的一次生产部署强制把所有在线用户踢下线要求重新登录。
 
-**Why.** Testing happened on one account on a dev box; launch happened with
-two real accounts, a real deploy, and a live audience.
+**为何出错。** 此前的测试一直在开发机上基于单个本地账户运行；而真正上线面对的是两个真实线上账户、真实的云端生产部署以及成千上万的在线观众。
 
-**Rule.** Smoke-test the exact demo path — real auth, two accounts, the
-deployed build — right before you show it. Freeze deploys during demos.
+**提炼规则。** 在正式登台展示前的最后一刻，必须**对完全一致的真实演示路径进行冒烟测试**——真实的认证流程、两个独立真实账号、部署完成的生产构建版本。在公开演示期间，严格执行**代码冻结，禁止部署**。
 
-### 14. A layout change covered a button
+### 14. 页面布局调整盖住了既有操作按钮
 
-**Day 3 · Roshan.** A new ticker banner sat on top of the shop buttons.
+**第 3 天 · Roshan。** 页面顶部新增加了一条轮播行情横幅，结果直接死死遮挡住了下方的商店操作按钮。
 
-**Why.** The change was verified for what it added, not for what it
-covered.
+**为何出错。** 验证时只关注了新加进去的内容好不好看，却完全没有检查它是否遮挡破坏了原有元素。
 
-**Rule.** After any layout change, check that no existing interactive
-element is covered. (This is the `AGENTS.md` example of a well-written
-rule.)
+**提炼规则。** **在完成任何布局调整后，必须检查既有的可交互元素是否被遮挡。**（这正是 [`AGENTS.md`](AGENTS.md) 中作为反思原则的标准正面案例）。
 
-### 15. Two numbers that should have agreed didn't
+### 15. 本该完全一致的两个数字出现了矛盾
 
-**Day 3 · Roshan.** The leaderboard summary card showed different win/loss
-counts than the detailed match history for the same player.
+**第 3 天 · Roshan。** 排行榜摘要卡片上显示的胜负场次，与该玩家详细比赛历史中统计出的胜负场次截然不同。
 
-**Why.** The same derived number was computed in two places.
+**为何出错。** 同一个派生数据在前端和后端两个不同的地方分别独立计算。
 
-**Rule.** One source computes derived numbers; everything else displays it.
+**提炼规则。** **派生数据必须保证单一数据源计算**；其余所有地方仅仅负责消费和展示。
 
-### 16. Spend everything, get stuck
+### 16. 把钱花得精光导致游戏死锁
 
-**Day 3.** Spend all your gold and you can't buy new bots — a soft-lock,
-filed live as "you end up stuck because you cannot buy new bugs."
+**第 3 天。** 玩家把手头的金币全部花光，导致既没钱买新 Bot 也没法开局——游戏陷入逻辑死锁。直播间被实时提 Issue 吐槽：“游戏彻底卡死了，因为没钱买新虫子了”。
 
-**Why.** A resource sink with no floor and no escape.
+**为何出错。** 设计了资源消耗漏洞，却没有保底机制和逃生通道。
 
-**Rule.** Every sink needs a floor, a refill, or a way out. Play the
-worst-case player.
+**提炼规则。** 每一个资源回收与消耗机制，都必须设计保底兜底线、自动恢复机制或破产重置方案。始终以“最糟糕极端玩家”的心态去测试。
 
-### 17. The game was too hard, and only the data said so
+### 17. 游戏难度过高，只有数据会说实话
 
-**Day 3.** Humans lost ~42% of matches against AI lineups; Crit flagged
-"game is too hard for launch."
+**第 3 天。** 真实人类玩家在对战 AI 阵容时的失败率高达 42%；Critic Bot 紧急报警：“游戏难度太高了，根本不适合公开发布。”
 
-**Why.** Balance was set by feel. Nobody had a number until the data
-scientist bot produced one.
+**为何出错。** 数值平衡纯粹靠开发者拍脑袋感觉。在数据科学家 Bot 统计出客观报表之前，没有任何人掌握真实胜率。
 
-**Rule.** Put a win-rate readout in front of the designer before launch.
-Balance from data, not vibes.
+**提炼规则。** 在发布上线前，必须把核心胜率数据看板直接摆在数值设计师面前。**凭真实数据做平衡，绝不要靠个人感觉。**
 
-### 18. A PR before the root cause
+### 18. 根因未明就急着提 PR 盲目修复
 
-**Day 3 · Roshan.** Players were always matched against AI, yet ELO scores
-kept changing. The temptation was to fix the visible symptom.
+**第 3 天 · Roshan。** 玩家匹配到的明明全是 AI 对手，但天梯 ELO 分数却依然在莫名其妙地不断变动。开发者当时极度想要直接去修补这个表面看到的 Bug。
 
-**Why.** Symptom fixes on a matchmaking bug would have hidden the real
-cause (stale lineup snapshots falling back to AI).
+**为何出错。** 对匹配 Bug 的皮毛修补只会掩盖真实根因（其实是因为阵容快照缓存过期，导致系统被迫降级兜底回退到了 AI 阵容）。
 
-**Rule.** *"Use a cloud agent for the investigation. Don't open a PR yet.
-Just come back to me with what you think is going on."* Reproduce, then
-diagnose, then fix. Lauren's version: *"Before writing any code, run the
-app, find the exact bug and behaviour, and then proceed."*
+**提炼规则。** *“派一个云端 Agent 去深入排查。先不要提 PR。查清楚你认为真正发生的事情再回来向我汇报。”* **先精准复现，再诊断根因，最后动手修复。** Lauren 的指导原则：*“在编写任何代码之前，先运行应用，定位确切的 Bug 及其行为表现，然后再继续后续步骤。”*
 
-### 19. Tests deleted
+### 19. 早期粗暴删光了测试用例
 
-**Day 2 · Lauren, deliberately.** All tests were deleted early in the
-prototype: "agents in general are not super good at writing tests," and
-speed mattered more.
+**第 2 天 · Lauren，刻意为之。** 在项目早期原型阶段，团队主动删除了所有测试：“现阶段 Agent 写测试的能力普遍不太行”，而且当时速度就是生命。
 
-**Why.** Not a mistake at the time — a trade. But it meant every later
-regression (#8, #15, #16) was caught by a human or a user.
+**为何出错。** 在当时的时间节点这并非失误，而是一次主动的技术权衡。但代价是：后续几乎每一个回归故障（#8、#15、#16），全部都得靠人类或真实用户肉眼去排查。
 
-**Rule.** If you cut tests for a throwaway phase, say when they come back.
-Before real users is the latest acceptable answer.
+**提炼规则。** 如果为了原型期的极致速度而暂时砍掉测试，必须明确约定何时将测试补齐。**面对真实用户发布之前，是补齐测试底线的最后容忍期限。**
 
 ---
 
-## C. Content and voice
+## C. 内容产出与语气把控（Content and voice）
 
-### 20. Fictional content on a real landing page
+### 20. 在正式落地页上胡编乱造虚假内容
 
-**Day 2.** The agent invented plausible example bots instead of using the
-real marketplace, and leaked prototyping language — dev-only phrasing —
-into user-facing copy.
+**第 2 天。** Agent 随手捏造了几个看似合理的假 Bot 案例，而不是去读取真实的插件市场数据；同时，还将开发内部的专用术语（仅供研发看的调试措辞）直接泄漏到了面向真实用户的文案中。
 
-**Why.** No source of truth was named, so it made one up. Internal vocabulary
-in its context leaked into output.
+**为何出错。** 没有在指令中指定权威事实来源，Agent 便顺理成章地开启了幻觉伪造。而上下文中混杂的内部沟通语言也顺带污染了输出。
 
-**Rule.** Name the source of truth and say "actually go look it up." Check
-every string a user sees for internal language before it ships.
+**提炼规则。** **明确指定权威事实来源，并严厉声明“必须实际去查询”**。在正式发布之前，必须对所有面向用户的文案字符串进行审查，剔除任何内部研发黑话。
 
-### 21. The design doc sounded like a language model
+### 21. 设计文档充斥着浓郁的“AI 味”
 
-**Day 2 · Lauren.** The game-design critique read as generic AI writing.
+**第 2 天 · Lauren。** 生成的游戏机制设计评审文档读起来完全就是标准的废话型 AI 套话。
 
-**Why.** Default register. Nobody asked for plain English.
+**为何出错。** 模型的默认输出风格偏向假大空。没有任何人要求它使用地道朴素的大白话。
 
-**Rule.** Run user-facing prose through a de-slop pass ("unslop," "bro" —
-"the two most useful skills in pstack"). Give the bot writing you're proud
-of as the reference.
+**提炼规则。** 将所有面向用户的文案通过专门的“去废话（De-slop）”流程清洗（“unslop”与“bro”被称为“pstack 中最有价值的两个技能”）。直接把你认可的高质量文字样例喂给 Bot 作为标准基线。
 
-### 22. Every outbound email was the same template
+### 22. 每一封外发邮件全是一个模子刻出来的套话
 
-**Day 2 · Simon.** After syncing his sent mail, Shakespeare's drafts were
-"almost kind of templated — every response looked very similar, just with
-swapping of names, of company IDs."
+**第 2 天 · Simon。** 在同步了自己发件箱的历史邮件后，Shakespeare Bot 草拟的邮件草稿依然“几乎完全模板化——每一封看起来都差不多，无非就是把客户姓名和公司 ID 机械替换了一下”。
 
-**Why.** Learning a voice from a corpus yields the average of the corpus.
+**为何出错。** 仅仅从整个语料库做整体模式学习，最终输出的只能是语料库的“平庸平均数”。
 
-**Rule.** Weight recent, positive-response, in-territory mail; then run a
-critique loop — *"give me examples… this is why this email sucks"* — until
-nothing looks templated. "Not a single one of your emails should look like
-a template."
+**提炼规则。** 提高近期真实获客、正面回复率高且处于目标领域的标杆邮件权重；随后引入批评闭环机制——*“给我看几个样本……为什么这封邮件写得稀烂”*——直到彻底消除模板痕迹。**“你的外发邮件里绝对不能出现任何一封看起来像套模板的信。”**
 
-### 23. AI slop where the brand should be
+### 23. 本该彰显品牌调性的地方却全是粗制滥造的 AI 废料
 
-**Day 1.** First landing pages: "too corporate," "too neon," "AI slop." Merch
-images "messed up the GrokBot logo" and the eyes "looked tired."
+**第 1 天。** 第一批营销落地页：“一股浓浓的企业软件味”、“满屏刺眼的霓虹灯色”、“纯粹的 AI 垃圾”。周边的图片不仅“把 GrokBot 的 Logo 形状搞变形了”，而且吉祥物的眼神“看起来极其疲惫涣散”。
 
-**Why.** The agent had no brand assets and no reference files, so it
-produced the generic mean.
+**为何出错。** Agent 手头没有任何品牌资产库，也没有任何视觉参考规范，于是只能产出模型通用的平庸废料。
 
-**Rule.** Ground in the real assets from the repo: logo, palette, type,
-reference screens, and a running no-no list. Never let it invent a
-placeholder brand element.
+**提炼规则。** **严格锚定在仓库里的真实品牌资产上**：Logo 矢量图、色板、标准字体、标杆屏幕截图，以及一张不可逾越的负面禁忌清单（No-no list）。绝对不要允许 Agent 自作主张捏造品牌占位元素。
 
-### 24. It handed me links
+### 24. 它居然只甩给我一堆链接让我自己看
 
-**Day 2 · Krista.** Asked to research webinars, the bot returned links for
-her to watch herself.
+**第 2 天 · Krista。** 要求 Bot 调研几场网络研讨会（Webinar）的核心内容，Bot 竟然只是在聊天框里吐出了几个网址链接，让她自己去点开看。
 
-**Why.** She was using it like a chat interface, so it behaved like one.
+**为何出错。** 她当时只是像对待普通的聊天机器人一样在向它提问，因此它也只表现为一个聊天框。
 
-**Rule.** Push back the first time: *"No — go watch those webinars for me
-and draft an email."* It has a computer. Treat it as a doing partner.
+**提炼规则。** 第一次出现这种情况就要果断打回去纠正：*“不对——你自己去替我把这几场 Webinar 完整看完，然后帮我起草一份邮件。”* 它手头有一台具备算力的计算机，请把它当作一个真正能够**替你动手干活的同事**。
 
 ---
 
-## D. Access, sharing and secrets
+## D. 访问权限、跨 Bot 协作与密钥安全
 
-### 25. Not public by default
+### 25. 外部协作资源默认处于私有不可见状态
 
-**Day 1 · Amrita.** The coffee-survey Google Form's responder link wasn't
-public; the audience's QR scan said "no access." **Day 2.** A teammate's bot
-couldn't read a shared Notion doc that was still private.
+**第 1 天 · Amrita。** 咖啡调研问卷的 Google Form 收集链接未设置为公开可见；观众现场扫描大屏幕上的二维码却显示“无访问权限”。**第 2 天。** 一位队友的 Bot 无法读取一份共享的 Notion 文档，因为文档本身依然处于私有状态。
 
-**Why.** Sharing defaults are private, and "it works for me" was the only
-check.
+**为何出错。** 各类系统的默认分享权限均为私有，且发布者往往只用自己的登录状态进行了“我自己打开没问题”的盲目自测。
 
-**Rule.** For anything external — or shared with another bot — "reachable
-from an account that isn't mine" is an acceptance criterion. Verify it
-from the outside.
+**提炼规则。** 任何面向外部——或者需要跨 Bot 共享的资源——**“能够从一个非本人的全新无痕账户顺利打开访问”**必须作为核心验收标准。必须从外部视角进行穿透验证。
 
-### 26. Sessions dropped on the VM
+### 26. 运行在云端 VM 上的浏览器会话突然掉登录态
 
-**Day 2 · Karen Cheng.** Her automations broke because the bot's browser
-kept being logged out of services she was logged into locally. Same day,
-Mimi lost her Google Slides login mid-demo and had to be logged back in by
-hand.
+**第 2 天 · Karen Cheng。** 她的自动化流程突然全线崩溃，因为 Bot 云端虚拟机里的浏览器退出了登录，尽管她本地电脑上依然保持着登录态。同一天，Mimi 在演示中途 Google Slides 突然掉登录态，不得不在众目睽睽下人工切屏重新登录。
 
-**Why.** Browser sessions on the bot's computer expire independently of
-yours.
+**为何出错。** 运行在 Bot 远程计算机上的浏览器会话拥有独立的生命周期，会随时独立过期。
 
-**Rule.** Prefer connectors over browser sessions for anything that must
-run unattended. Import cookies or use a password vault for the rest, and
-keep a fast "human takes over the computer" path.
+**提炼规则。** 对于任何需要无人值守长周期运行的任务，**坚决优先使用原生 API 连接器（Connector）而非浏览器自动化**。对于不得不操控浏览器的场景，导入持久化 Cookie 或使用专用密码保管库，并必须准备好能一键接管屏幕的人工兜底方案。
 
-### 27. The connector needed re-auth at the worst moment
+### 27. 连接器在最关键的演示时刻突然提示重新认证
 
-**Day 1.** Cloud agents couldn't access the repos until the GitHub connector
-was re-authenticated ("try to re-auth your GitHub… sometimes it helps to
-install the GitHub CLI").
+**第 1 天。** 云端 Agent 突然无法访问 GitHub 仓库，直到有人重新对 GitHub 连接器进行授权（“试着重新授权一下你的 GitHub……有时候把 GitHub CLI 装上管用”）。
 
-**Why.** Auth was treated as one-time setup instead of a step that can
-fail.
+**为何出错。** 把身份认证仅仅当成了一次性的初始配置，而没有将其视为随时可能报错中断的工作流环节。
 
-**Rule.** Auth is a workflow step. Check it before the run, and make sure
-the bot has a clean way to ask a human to unblock it.
+**提炼规则。** **将身份认证本身当作工作流中不可或缺的一环**。在正式任务运行前主动巡检认证有效性，并确保 Bot 拥有成熟的途径能优雅地通知人类协助解决阻塞。
 
-### 28. A live API token on screen
+### 28. 真实 API 密钥在全网直播中直接大屏幕曝光
 
-**Day 3 · Matt.** Showing the voice-agent builder, a real token appeared on
-stream. Caught and revoked within seconds — "only half the value was
-shown."
+**第 3 天 · Matt。** 在全网直播展示语音 Agent 构建器时，一段真实的 API Token 直接完整呈现在了屏幕设置页上。所幸几秒钟内被眼疾手快捕捉并立即吊销——“好在当时只露出了前半段字符”。
 
-**Why.** Screen-sharing a settings page.
+**为何出错。** 毫无防备地直接屏幕共享了系统的设置配置页面。
 
-**Rule.** The humans are the weak link in secret handling, not the vault.
-Before sharing a screen, assume every settings page contains a secret.
-"Chat is for games and good vibes only."
+**提炼规则。** 在密钥安全防线上，**人类往往是最脆弱的那一环**，而非系统保管库。在发起屏幕共享之前，默认假定每一个设置与后台页面都包含绝密敏感信息。正如现场调侃的那样：“直播聊天框只适合用来打游戏和加油打气，千万别在镜头前点开设置”。
 
 ---
 
-## E. Production and demos
+## E. 生产环境与现场演示（Production and demos）
 
-### 29. The factory took production down
+### 29. 自动化流水线直接把生产数据库干趴下了
 
-**Day 3 · Lauren.** An autonomous fix shipped a bad SQL query and brought
-the live game down — while she was mid-sentence about restraint. Sign-ups
-were blocked until it was reverted.
+**第 3 天 · Lauren。** 一个全自主运行的 Bug 自动修复流水线合入了一条存在重大缺陷的 SQL 语句，导致线上正在运行的游戏数据库瞬间宕机——当时 Lauren 刚好还在直播中口头强调“一定要保持谨慎克制”。整个线上注册流程彻底瘫痪，直到人工紧急 Revert 代码才恢复。
 
-**Why.** The autopilot lane that had landed 400+ PRs on a throwaway project
-was pointed at a database with real users, with the same gates.
+**为何出错。** 原本在一个 72 小时快速试水原型上狂飙合入 400 多个 PR 的完全自动驾驶车道，直接无缝切到了面向真实在线用户的生产数据库上，却没有收紧门禁。
 
-**Rule.** Keep a human gate on migrations, deploys and anything touching
-production data, however well the loop has been working. Set autonomy from
-blast radius.
+**提炼规则。** **在涉及数据库迁移（Migration）、生产部署以及任何触碰生产真实数据的操作上，无论自动化运行得多顺畅，必须设置强制的人类审批门禁。根据爆炸半径（Blast Radius）动态调整放权阶梯。**
 
-### 30. Spam into the feedback pipeline
+### 30. 反馈收集渠道一上线就被垃圾内容冲垮
 
-**Day 3.** Within hours of launch the feedback form was getting spam. A
-20-character minimum, profanity filtering, input sanitisation, a
-model-based content guard and rate limiting were all added retroactively;
-some testers hit 429s.
+**第 3 天。** 游戏发布上线仅仅数小时，公开的用户反馈表单就被各类广告与恶意垃圾内容彻底淹没。团队不得不事后紧急补课：紧急上线 20 字符最小长度限制、脏话过滤、输入净化过滤、基于 LLM 的文本安全审查网关以及 IP 频率限流；部分正常测试人员甚至被误伤触发了 429 限流。
 
-**Why.** The form shipped before the moderation.
+**为何出错。** 表单在没有任何内容审核防护机制裸奔的情况下就推向了公网。
 
-**Rule.** Ship the moderation with the form, not after it. And since bots
-read the feedback: tell them to treat it as hostile input and watch for
-prompt injection.
+**提炼规则。** **内容审核与安全防线必须与表单功能同步上线，绝不能事后打补丁。** 更重要的是：既然后续要由 Bot 负责阅读这批用户反馈，必须从第一天起就命令 Bot **将用户输入视为敌对恶意内容，严加防范提示词注入（Prompt Injection）攻击**。
 
-### 31. Announced before it worked
+### 31. 功能根本还没跑通就急着登台官宣
 
-**Day 3.** The sponsor/ad-bid auction launched "currently broken — nothing
-will happen if you submit." Later the logo upload failed on the first try;
-moderation was still broken at sign-off. **Day 1.** The Bland phone-call MCP
-"seems like potatoes on it." **Day 3.** A live Stripe Link purchase was
-blocked by a passkey prompt on the demo account.
+**第 3 天。** 赞助商/广告竞价拍卖模块在正式发布时“其实完全是坏的——你点击提交后什么也不会发生”。随后，Logo 上传功能在第一次使用时直接报错崩溃；审核机制直到发布结束都没修好。**第 1 天。** Bland 电话呼叫 MCP“表现得像个傻土豆”。**第 3 天。** 一次线上的真实 Stripe Link 支付由于演示测试账号弹出了 Passkey 验证码而当场卡死。
 
-**Why.** Features and integrations were shown before anyone had run them
-end to end that day, with that account.
+**为何出错。** 功能和第三方集成在当天、在该演示账号下根本没有从头到尾完整跑通一次，就急匆匆拿去登台展示。
 
-**Rule.** Don't announce or demo anything you haven't run end to end today,
-with the account you'll use on stage. "If we're not embarrassed by it we've
-launched too early" is about polish, not about whether the button works.
+**提炼规则。** **如果在今天、用舞台上要用的同一个账号，你没有亲自端到端完整跑通过一次，坚决不要对外宣布，更不要当众演示。** 所谓“如果你不为你的第一版产品感到羞耻，说明你发布得太晚了”指的是**产品细节打磨程度**，绝不意味着核心功能按钮本身连通都跑不通。
 
-### 32. Mobile was the most-reported problem
+### 32. 移动端成为了被吐槽最多的重灾区
 
-**Day 3.** Mobile layout was the single biggest feedback category. Vercel
-Analytics showed roughly 50/50 mobile vs. desktop, ~44% iOS.
+**第 3 天。** 移动端屏幕布局错乱，成为了公开发布后用户反馈量最大的单一类别。Vercel Analytics 统计显示：真实流量中移动端与桌面端平分秋色（各占约 50%），其中 iOS 用户高达 44%。
 
-**Why.** Everyone built and tested on a laptop.
+**为何出错。** 团队从头到尾每一个人都是在自己的 MacBook 笔记本电脑上进行开发和测试的。
 
-**Rule.** Test on the device half your users have. Put device emulation in
-the verification loop before launch, not in the fix list after.
+**提炼规则。** **一定要在占你用户半壁江山的真实设备上进行测试。** 将移动端设备模拟测试直接纳入上线前的自动化验证闭环，而不是等到被用户骂上热搜后再堆到修复清单里。
 
-### 33. Two apps, one port
+### 33. 两套独立应用争抢同一个本地端口
 
-**Day 2.** The Remotion project and the game's dev server fought over
-`localhost`; "stale… conflicting with the localhost from the other app"
-needed a cache clear and restart mid-demo. Separately: three people pushing
-to `main` with no PRs meant "a lot of rebasing," and cloud agents had to be
-told to rebase.
+**第 2 天。** Remotion 视频渲染项目和主游戏的本地开发服务器在本地争抢同一个 `localhost` 端口；“旧的缓存数据……与另一个 App 的本地服务产生冲突”，导致直播演示中途不得不紧急清空缓存并重启服务。此外：三个人不提 PR 直接往 `main` 分支强推代码，导致了“海量的 Git Rebase 冲突”，甚至不得不停下来指挥各个云端 Agent 手动执行 rebase。
 
-**Why.** Parallel work on one machine and one branch.
+**为何出错。** 在单台机器上使用单个本地端口，以及在同一个单分支上进行高频并发写入。
 
-**Rule.** Parallel agents get parallel environments (the argument for cloud
-agents: "your agents will no longer fight for the same port"). Ship-to-main
-is fine for prototypes if commits stay small and every agent rebases before
-it pushes.
+**提炼规则。** **并发运行的 Agent 必须分配并发隔离的独立环境**（这正是云端虚拟机的主打优势：“让你的 Agent 不再互相争抢同一个端口”）。推代码直合 main 分支在原型期固然极快，但前提是必须保持每次 Commit 极度细小，且每个 Agent 在推送前必须先严格 Rebase。
 
 ---
 
-## F. Cost and attention
+## F. 成本控制与注意力精力预算（Cost and attention）
 
-### 34. A routine every 15 minutes
+### 34. 每 15 分钟执行一次的定时任务
 
-**Days 1–3 · Shub, Krista, Blake.** People set routines to run every 15
-minutes because the task felt important — "which comes out to 100 times a
-day." Three of those is "hundreds of messages a day."
+**第 1–3 天 · Shub, Krista, Blake。** 很多人仅仅因为觉得某项工作“很重要”，就随手把例行任务设成了每 15 分钟触发一次——“算下来一天就要跑 100 次”。如果设立了三个这样的任务，“每天光是自动通知就产生几百条”。
 
-**Why.** Frequency was set by anxiety, not by how often the input changes.
+**为何出错。** 触发频率是由人类自身的焦虑感决定的，而不是根据上游数据实际发生变化的频率决定的。
 
-**Rule.** Audit routine frequency. Once or twice a day is the default;
-prefer webhooks and inbound signals to blind schedules; tell routines to
-say nothing on a no-op.
+**提炼规则。** **严厉审计 Routine 的触发频率**。默认设为每天 1 到 2 次；坚决优先使用 Webhook 和外部事件入站信号，尽量避免盲目死板的定时轮询；明确要求 Routine 在无事发生（No-op）时**保持绝对静默**。
 
-### 35. The group chat that wouldn't stop talking
+### 35. 喋喋不休、互相抢话的群聊
 
-**Day 1 · Shub, Amrita.** Bots in a group chat are "eager," "love to talk,"
-"speak over each other," and get expensive fast.
+**第 1 天 · Shub, Amrita。** 把多个 Bot 拉进同一个群聊后，它们表现得“极其热心”、“特别爱说话”、“互相插嘴抢答”，导致账单以惊人的速度暴涨。
 
-**Why.** Every bot in the room responds to every message.
+**为何出错。** 群聊房间里的每一个 Bot，都会强行对群里的每一条新消息做出一轮完整的推理和响应。
 
-**Rule.** Usually you want one bot to tag two others once. Use a group chat
-when you specifically want a debate (Blake's staff meeting, Simon's army
-huddle) and know what it costs.
+**提炼规则。** 绝大多数情况下，你只需要让一个 Bot 去 @ 另外两个 Bot 一次即可。**唯独在你明确需要展开多视角辩论时，才开启群聊**（例如 Blake 的高管例会模式、Simon 的蜂群碰头会），并且必须提前对 Token 消耗心知肚明。
 
-### 36. An agent asleep on the clock
+### 36. 挂机偷懒、白白耗费时间的僵死 Agent
 
-**Day 1 · Ling.** Cloud agents ran `sleep 300` to wait on async tests that
-finished in a minute — four minutes lost, repeatedly. Same day, a Grok Pot
-bot "got running, I don't know why. That's probably a bug."
+**第 1 天 · Ling。** 云端 Agent 动辄执行 `sleep 300` 去等待原本只需 1 分钟就能跑完的异步测试——白白无谓浪费 4 分钟，且反复发生。同一天，一个 Grok Pot Bot “莫名其妙自己在那里空转，我也不知道为什么，这大概率是个 Bug”。
 
-**Why.** Nothing was watching the agents while the human wasn't.
+**为何出错。** 在人类没有亲自盯着屏幕时，没有任何机制去监控 Agent 自身的工作状态。
 
-**Rule.** A routine checks running agents on a short interval for long
-sleeps, drift and unexplained activity, and interrupts. Idle agents are
-not free.
+**提炼规则。** 设立一个短周期的监管 Routine，定期排查运行中的 Agent 是否存在长时间挂起 sleep、偏离目标或异常无意义空转，并在发现跑偏时及时介入打断。**闲置和挂起的 Agent 绝对不是免费的。**
 
-### 37. "Reply to Alex"
+### 37. “回复一下 Alex”
 
-**Day 2 · David.** Asking the support bot to "reply to Alex" made it list
-every open ticket, string-search for Alex, then read — far more tokens than
-giving it the ticket ID.
+**第 2 天 · David。** 在工单系统中随口对客服 Bot 说“给 Alex 回复一下”，结果导致 Bot 把系统里所有的开放工单统统列出来、在海量字符串中搜索包含 Alex 的条目，然后逐篇研读——消耗的 Token 远比直接给它一个工单 ID 要多出几个数量级。
 
-**Why.** Vague reference → expensive lookup.
+**为何出错。** 模糊随意的指代 → 极其昂贵且低效的全局暴力检索。
 
-**Rule.** Give bots hard identifiers — ticket IDs, customer IDs, URLs — and
-batch where you can.
+**提炼规则。** **务必给 Bot 提供确切的唯一硬标识符**——工单 ID、客户唯一编码、具体文档 URL，并在可行的地方尽可能批量提供。
 
-### 38. The human was the bottleneck
+### 38. 人类自身成为了最大的瓶颈
 
-**Day 2 → 3 · Lauren.** Asked to review the whole team, Dr. Eggbot named the
-bottlenecks: "serial factory, human merge… Lauren as the interrupt bus."
+**第 2 天 → 第 3 天 · Lauren。** 当被要求全面审查整支团队的运转状态时，Dr. Eggbot 一针见血地指出了当前系统的核心瓶颈：“串行工厂、完全依赖人类人工合并 PR……以及 Lauren 个人充当了全系统的中断总线。”
 
-**Why.** Every merge and every course-correction routed through one person,
-by habit rather than by decision.
+**为何出错。** 每一个 PR 的合并、每一次中途纠偏，全部都本能地汇聚流经同一个人，这是纯粹出于旧习惯而非理性决策。
 
-**Rule.** Periodically ask the factory where *you* are the bottleneck, and
-ask yourself "am I too much in the loop?" — then decide, per lane, how
-much autonomy the blast radius allows. Stay in the loop for zero-to-one;
-delegate more on mature, agent-friendly codebases.
+**提炼规则。** 定期反问这个自动化工厂：**你自己究竟在哪个环节成为了阻碍团队的系统瓶颈？** 并经常反思“我是不是干预得太深了？”——然后根据不同工作条线的爆炸半径，合理动态下放自主权。在从 0 到 1 的原始探索阶段，务必亲自留在环中；而对于成熟、规范完备的现代化代码库，则应更彻底地放手委托给自动化。
 
 ---
 
-## G. Strategy
+## G. 顶层战略与业务逻辑（Strategy）
 
-### 39. Four pivots in a day
+### 39. 一天之内连续大转向四次
 
-**Day 1.** Restaurant pop-up → generic pop-up OS → art exhibition →
-tech-brand merch pop-up, in one afternoon — largely because SF food and
-alcohol permitting was discovered mid-brainstorm. End of day: "I'm starting
-to think — is this the right problem to go after?" Day 2 pivoted again, to
-a game.
+**第 1 天。** 仅仅一个下午的时间里，业务定位经历了：餐饮快闪店 → 通用快闪店数字化操作系统 → 艺术展览策划 → 科技品牌周边快闪店的连续四次剧烈转向——核心原因居然是在头脑风暴进行到一半时，才猛然发现旧金山当地餐饮和酒水营业执照审批极其严苛。当天收尾时陷入自我怀疑：“我开始反复琢磨——我们去攻克这个问题到底对不对？” 到了第 2 天，业务再次发生 180 度大转弯，彻底变成了做一款游戏。
 
-**Why.** Building started before the domain was understood. "The hardest
-part of building is actually aligning on an idea."
+**为何出错。** 在对该垂直领域完全一无所知的情况下，就盲目启动了工具和代码构建。“构建中最困难的部分，其实在于就核心点子本身达成真正的共识。”
 
-**Rule.** Do the work manually before you automate it — "we're not really
-domain experts yet on running a pop-up, so we need to do that first." Talk
-to someone who has done it (Jenny Co) before the bots start.
+**提炼规则。** **在将流程自动化之前，必须先由人工手动完成全流程**——“我们目前根本算不上开快闪店的领域行家，所以我们必须先去摸爬滚打搞懂它”。在指挥 Bot 开工之前，先找真正做过这件事的真人专家（如 Jenny Co）深入聊一聊。
 
-### 40. The revenue agent made $0
+### 40. 忙碌了一整天的营收 Bot 产出为 0 美元
 
-**Day 3 · Roshan.** A bot set loose all day to "make money" produced nothing
-by sign-off — "the backup plan, in case it's all crash." Monetisation
-ended with one "theoretical" $1 test bid on a broken auction.
+**第 3 天 · Roshan。** 一个被全天放权、唯一目标就是“去搞钱”的商业化 Bot，直到发布收官时也没能赚到一分钱——原本指望它作为“万一大家都翻车时的备用兜底方案”。最终商业化尝试仅仅以一个在有 Bug 的拍卖系统上测试出的一笔“理论上的”1 美元出价而尴尬告终。
 
-**Why.** "I'll just prompt models to make money" skips the part where you
-know how the money is made.
+**为何出错。** “只要给大模型下指令让它去赚钱就行”的想法，完完全全忽略了商业社会中**钱到底是通过什么机制被赚来的**。
 
-**Rule.** Build a business around something you already know how to do
-well. Getting people to care is still the hard part; the stream's
-distribution did that here, not the product.
+**提炼规则。** **围绕你原本就已经深谙其道的业务去构建商业模式。** 让客户真正产生付费意愿始终是整个环节中最难啃的硬骨头；在这次直播中，吸引大众注意力的核心杠杆是直播间本身的流量红利与关注度，而根本不是这只所谓的商业化 Bot。
 
 ---
 
-## The five rules that cover most of this list
+## 覆盖本清单 80% 问题的五条终极法则
 
-1. Write the principle, delete the story. (#1, #2, #5)
-2. Reproduce it, run it, play it, then prove it. (#8–#19)
-3. Name the source of truth and the library. (#10, #20, #23)
-4. Set autonomy from blast radius; keep human gates on prod, money and
-   secrets. (#29–#31, #38)
-5. Frequency and group chats are where the tokens go. (#34–#37)
+1. **写通用原则，删偶发故事。**（印证案例：#1, #2, #5）
+2. **能够复现、亲自运行、实机试玩、拿出证据。**（印证案例：#8–#19）
+3. **明确指定权威事实来源与成熟标准库。**（印证案例：#10, #20, #23）
+4. **根据爆炸半径分配自主权；对生产环境、资金与密钥保持人类把关。**（印证案例：#29–#31, #38）
+5. **高频例行任务与无休止群聊是吞噬 Token 的最大元凶。**（印证案例：#34–#37）
 
-See [`AGENTS.md`](AGENTS.md) for the rules as an agent reads them, and
-[`notes/`](notes/) section 5 of each day for the raw incident lists.
+阅读 [`AGENTS.md`](AGENTS.md) 查看面向 Agent 的机器行为准则，阅读 [`notes/`](notes/) 每日笔记第 5 节查看现场事故的原始现场记录。

@@ -1,195 +1,146 @@
-# ORCHESTRATION.md
+# Agent 编排体系 (ORCHESTRATION.md)
 
-**Use when:** you are designing a team of agents rather than prompting one, or
-your roster has grown past the point where you can keep track of it.
-
----
-
-## One bot, one job
-
-The most repeated advice across three days, from every presenter
-independently. Not one general-purpose assistant — a roster of narrow
-specialists you address by name.
-
-Four reasons it wins:
-
-1. **Context stays scoped.** Each agent has its own context limit. A generalist
-   juggling four unrelated jobs burns through it and starts forgetting.
-2. **You can remember who to ask.** "Our brains can't store novels either — you
-   want to know who to reference."
-3. **Cast into a role, the model performs better.** The feedback loop only
-   tightens when the job is narrow enough for feedback to mean something.
-4. **Parallelism is free.** Fire off five specialists, let them work, come back
-   and synthesize.
-
-### Writing a role
-
-A good role spells out:
-
-- one clear area of ownership, narrow enough to name
-- the specific tools and data sources it may use
-- **how** it should approach the work, not just what the work is
-- what needs sign-off before it happens
-- its source of truth — which teammate or document is authoritative
-- a recurring schedule, if the job has one
-
-Avoid "General Helper." Go narrow: *Talent Scout*, *Expense Manager*,
-*Bug Reproduction*, *Release Notes*.
-
-### Write principles, not incidents
-
-The most common way a role goes bad: it gets written or amended right after a
-specific failure, and the specifics get baked in permanently.
-
-Bad role text:
-
-> "High-level context on our studio. One job: own engineering outcomes by
-> orchestrating work through [today's toolchain] and cloud agents, then
-> supervising and verifying. Match your playbook and follow it."
-
-The fix is to say, out loud, what you want instead:
-
-> *"Read the playbook again and come up with principles this role should follow
-> instead of these overly specific issues."*
+**适用场景：** 当你正在设计一个多 Agent 协作团队，而非仅仅编写单个 Prompt 时；或者当你的 Bot 阵容已经庞大到让你眼花缭乱、难以维系时。
 
 ---
 
-## The bot-sprawl trap
+## 一个 Bot，一项职责（One Bot, One Job）
 
-Creating a new agent is cheap, fast and fun. That is the problem.
+这是三天直播中，每一位嘉宾在不同场合不约而同提及最多次的建议：**坚决不要做一个全能的通用大助手，而要打造一组指名道姓、职责狭窄的垂直专家。**
 
-> "I promise you I've had way too many at some points. It's honestly more
-> chaotic. You should really be questioning: why is it important that a *new*
-> bot does this?"
+这一原则胜出的四大核心原因：
 
-> "Keep your team lean. You don't need 45 bots."
+1. **上下文严格隔离且受控。** 每个 Agent 都有其独立的上下文窗口。一个试图兼顾 4 项无关工作的通用型 Bot 会迅速耗尽上下文并开始出现遗忘或胡言乱语。
+2. **人类大脑记忆负荷更低。** “人类的大脑也装不下长篇小说——你需要清晰知道具体该向谁请教。”
+3. **精准的角色设定让模型表现更好。** 只有当职责足够狭窄垂直时，针对性反馈才能精准收敛。
+4. **天然享受免费的高并发。** 同时派出 5 位垂直专家独立开展工作，最后回到主线由人类或主控 Agent 进行汇总。
 
-**Rule:** before creating an agent, check whether an existing specialist just
-needs a new *skill* or *routine*. New agents cost context, setup, routines and
-your attention — every one of them, forever.
+### 如何编写优秀的 Agent 角色定义
 
-Symptoms you have too many: you can't remember what one of them does; two of
-them overlap; you route messages between them manually; you have agents you
-haven't opened in a week.
+一份优秀的 Role（角色卡）必须明确：
 
----
+- **一个清晰单一的负责领域**，狭窄到可以用一个具体的专有名词命名；
+- **允许调用的具体工具与数据源**；
+- **解决问题的方法论（How）**，而不只是一句要完成什么任务（What）；
+- **哪些高危动作在执行前必须获得人类许可**；
+- **权威事实来源（Source of Truth）**——究竟以哪位人类同事或哪份规范文档为准；
+- **定时触发周期**（如果该岗位包含定时任务）。
 
-## Four patterns for running more than five
+避免使用“通用助手（General Helper）”这种模糊人设。职责要尽可能狭窄：例如*招聘专员（Talent Scout）*、*报销管家（Expense Manager）*、*Bug 复现专员（Bug Reproduction）*、*版本发布说明员（Release Notes）*。
 
-### 1. The chief of staff
+### 总结原则，不要记录偶发故事
 
-One agent you talk to almost exclusively. It routes to specialists and reports
-back.
+角色设定最容易变质的诱因：往往是在一次具体的偶发故障之后匆忙编写或修改，导致把当次故障的偶发细节永久硬编码进了角色设定中。
 
-- **Build every other agent *through* it.** That is what gives it the context
-  to route correctly later.
-- It **onboards new agents itself** — messaging them the context and standards
-  so you don't repeat yourself to each new hire.
-- It holds "who is working on what," so specialists don't carry that overhead.
-- One practitioner runs 15–20 specialists under a single chief with no middle
-  layer.
+**反面案例：**
 
-Not universal. Some people prefer talking to experts directly and say so. Try
-it; drop it if it adds a hop without adding value.
+> “关于我们工作室的高层上下文。你的唯一职责：通过[今天的这套临时工具链]和云端 Agent 来统筹工程交付，然后进行监督与验证。对照你的剧本并严格执行。”
 
-### 2. The playbook broadcast
+正确的改进姿势是明确告知你真正期望的底层原则：
 
-One agent owns a living document of team standards. New standards are told to
-**it**, once, and it propagates them to everyone else.
-
-> "You are just thinking about what needs to be done once... the next time you
-> need to add a new workflow, they populate the playbook and all engineers know
-> that without you telling them individually."
-
-Example standards to put in it:
-- every PR ships with screenshots for UI, perf numbers for backend
-- how urgent work is defined and handled (see below)
-- what requires human approval
-
-### 3. The staff meeting
-
-Pull several agents into one thread to argue a decision from different vantage
-points, then have the chief synthesize a recommendation.
-
-- **Instruct them to disagree.** "It's not helpful if they just agree."
-- Use it for decisions, not for routine work — group threads are talkative and
-  get expensive fast.
-
-### 4. The sub-agent army
-
-A mid-tier agent delegates a large batch job to a swarm of low-context workers,
-with output flowing back to one parent for audit. Research 200 accounts, fuzz
-40 flows, summarize 100 documents. Easy to scale up and down.
+> *“重新研读剧本，提炼出这个角色应该遵循的通用原则，而不是硬编码这些过度具体的偶发细节。”*
 
 ---
 
-## Standing policies beat shouting
+## 警惕“Bot 盲目膨胀”的陷阱
 
-Telling an agent "this is urgent" repeatedly makes it skip steps and guess.
-Define the policy once instead:
+创建一个新 Agent 极其廉价、快速且充满乐趣，但**这恰恰是灾难的根源**。
 
-> *"Set up a routine that checks running agents every five minutes. Check if
-> they are off track — running a long sleep, or going off the goal, or being
-> too conservative. Interrupt and nudge them when you find them going off."*
+> “我敢保证，我曾经在某些时期创建了太多 Bot。结果局面变得更加混乱。你必须反问自己：为什么非要让一个‘全新’的 Bot 来做这件事？”
+>
+> “保持团队精简。你根本不需要 45 个 Bot。”
 
-Same for escalation, failure handling, and what counts as blocking.
+**铁律：** 在创建新 Agent 之前，先检查现有垂直专家是否只需增加一个**新技能（Skill）**或**新例行任务（Routine）**即可搞定。每一个新 Agent 都会永久占用你的注意力、配置维护成本、例行检查和上下文开销。
+
+**Bot 过剩的典型征兆：** 你记不清某个 Bot 到底是干什么的；两个 Bot 职责重叠；你不得不人工在它们之间充当传话筒；某个 Bot 你已经整整一周没打开过了。
 
 ---
 
-## The autopilot ladder
+## 驾驭 5 个以上 Agent 的四种高效架构模式
 
-Grant autonomy in rungs, and name the rung explicitly in the instruction.
+### 1. 幕僚长模式（The Chief of Staff）
 
-| Rung | Means | Use when |
+只设立一个几乎由你独占对话的主控 Agent。它负责理解你的意图、将任务路由分发给各垂直专家，并向你汇总汇报。
+
+- **通过它来搭建所有其他下属 Agent**：这能让幕僚长拥有最充分的背景上下文，以便后续准确路由。
+- **由它负责新 Agent 的入职培训（Onboarding）**：直接由它向新 Agent 同步项目背景和工作规范，无需你对每个新成员重复啰嗦。
+- **由它统一掌握“谁正在做什么”**，让垂直专家专心攻关，不承担多余的协同负荷。
+- 实战经验：有团队在单一幕僚长下顺畅管理着 15–20 个垂直专家，中间无需任何中层管理 Bot。
+
+*注：该模式并非放之四海皆准。部分工程师更喜欢直接与各垂直专家对话。如果引入幕僚长只是徒增传话链路而没有实际降噪价值，果断舍弃它。*
+
+### 2. 剧本广播模式（The Playbook Broadcast）
+
+由一个专门的 Bot 维护全团队的技术规范活文档（Living Document）。一旦有新规范，**只对它说明一次**，由它负责广播并同步给全员。
+
+> “你只需要集中思考一次……下一次需要增加新工作流时，它们会自动更新剧本，所有工程师 Bot 都会同步知晓，无需你逐一单独通知。”
+
+适合写进剧本的规范示例：
+- 任何提交的 PR：前端必附截图，后端必附性能指标；
+- 紧急任务（P0）的定义与处理通道；
+- 哪些操作必须强制人类审批。
+
+### 3. 全体例会讨论模式（The Staff Meeting）
+
+将多个不同立场的 Agent 拉入同一个讨论线程，针对重大决策从不同视角进行激烈交锋，最后由幕僚长提炼并输出建议方案。
+
+- **必须显式指令它们提出反对意见**：“如果它们只是一味附和赞同，这种讨论就毫无价值。”
+- 仅用于重大决策研讨，绝不要用于日常例行工作——群聊中 Bot 极爱抢话，Token 账单会飞速飙升。
+
+### 4. 子 Agent 蜂群模式（The Sub-agent Army）
+
+由中层 Agent 将大规模批处理任务拆解下发给一组低上下文的底层工兵蜂群，执行完毕后将产出回流给父级 Bot 统一审计与合并。例如批量调研 200 个线索账户、对 40 个业务流程执行自动化模糊测试、快速摘要 100 份长文档等。随用随起，弹性伸缩。
+
+---
+
+## 明确的既定策略远胜于口头喊“紧急”
+
+一遍又一遍地对 Agent 强调“这非常紧急”，只会迫使它跳过验证步骤、盲目胡猜。正确的做法是**提前定义好标准策略**：
+
+> *“设立一个定时例行任务，每 5 分钟巡检一次所有正在运行的 Agent。检查它们是否偏离路线——比如是否陷入长时间 sleep，是否偏离核心目标，或者是否过于保守畏缩。一旦发现跑偏，立即打断并介入纠正。”*
+
+对问题升级机制、故障应对以及阻碍判定，均采用相同的策略化定义。
+
+---
+
+## 自主权阶梯（The Autopilot Ladder）
+
+对 Agent 的放权应当像阶梯一样分级赋予，并在每次指令中明确指明当前所处的阶梯：
+
+| 阶梯等级 | 含义 | 适用场景 |
 |---|---|---|
-| **Investigate** | Diagnose, report back, touch nothing | Production, unclear cause |
-| **Draft** | Open a PR, wait for a human | Normal work |
-| **Autopilot** | Implement, verify, merge on green | Low blast radius, good verify loop |
-| **Full autopilot** | Plan, phase, implement, verify, merge | Throwaway projects only |
+| **调查（Investigate）** | 仅诊断分析、排查根因、回传报告，**不改动任何东西** | 生产环境故障、原因尚不明朗时 |
+| **草稿（Draft）** | 编写代码并提交 PR，**等待人类人工审查** | 日常核心业务开发 |
+| **自动驾驶（Autopilot）** | 自主实现、运行验证，**测试通过后自动合入代码** | 影响面极小、且具备高可靠验证闭环的任务 |
+| **完全自动驾驶（Full Autopilot）** | 自主规划、拆解阶段、编写、验证并合入 | 仅限一次性探索项目与试水原型 |
 
-Pull back a rung the moment something is live. The team that invented this
-ladder did exactly that on launch day — *"maybe not full autopilot, do we
-dare?"* — because the game was now in front of real users.
+**系统一旦上线面向真实用户，立即收缩自主权。** 发明这套阶梯的团队在发布日当天正是这么做的——*“面对真实用户了，咱可不敢再开 Full Autopilot”*。
 
 ---
 
-## Organising the roster
+## 角色名录管理技巧
 
-- **Sections** group agents like an org chart: Leadership, Engineering, War Room.
-- **Colour or label by function**, not by task — research, outbound, account
-  work — so a glance at a thread tells you the pipeline stage.
-- **Pin the three or four you actually use daily.** Hide the rest rather than
-  deleting them.
+- **按部门分组**：像公司组织架构图一样将 Bot 分组：管理层、研发部、战情响应室（War Room）。
+- **按职能上色或打标**：按照调研、获客外联、客户服务等业务阶段进行标识，扫一眼会话列表即可知晓业务进展。
+- **将最常使用的 3–4 个 Bot 置顶**：其余不常用的 Bot 优先选择隐藏，而不是盲目删除。
 
 ---
 
-## The cost model
+## 成本模型认知
 
-Consumption-based: you pay for talking to agents and for their tool use. Four
-places the money actually goes:
+基于用量的计费模型：你为与 Agent 对话以及 Agent 调用工具付费。四种最容易导致账单失控的漏洞：
 
-1. **Over-frequent routines — the biggest leak by far.** "If you have three
-   that run every 15 minutes, that's hundreds of messages a day." Audit
-   frequency weekly. Prefer event triggers over schedules. Once or twice a day
-   is usually enough.
-2. **Browser automation where an API exists.** Watch the agent do it once
-   through the browser, ask it to inspect the network requests it triggered,
-   then have it hit those endpoints directly from then on.
-3. **Group threads left running.** Agents in a shared thread talk over each
-   other. Prefer one-to-one for routine work.
-4. **Roster sprawl.** More agents means more routines, more re-established
-   context, more overlap.
+1. **频率过高的定时例行任务（最大的资金黑洞）**：“如果有三个每 15 分钟跑一次的任务，每天就是几百条交互消息。” 每周审查一次任务频率。尽量优先采用事件触发（Webhook），少用定时轮询。每天触发 1 至 2 次通常足够。
+2. **在原生 API 存在时盲目使用浏览器自动化**。先看 Agent 在浏览器里操作一次，让它抓包分析触发的网络请求，随后让它改用直接调用后台 API 端点。
+3. **未关闭的长驻多 Bot 群聊**。群聊中的 Bot 极易互相接话抢答。常规工作坚决采用一对一会话。
+4. **Bot 数量过度泛滥**。Bot 越多，附带的定时任务、上下文重新同步与职责重叠成本越高。
 
-Levers you control: verbosity, telling agents to forget context they no longer
-need, and keeping one agent whose only job is optimizing the others' routines
-and skills.
+控制成本的关键手段：控制回答冗长度、命令 Agent 遗忘过期的陈旧上下文、指定一个专门的 Bot 专职负责审计和优化其他 Bot 的任务频率与技能。
 
 ---
 
-## The problem nobody had solved
+## 尚未彻底解决的核心难题
 
-> "I am getting more work done than ever. I'm also busier than ever."
+> “我交付的工作量比以往任何时候都多。但我同时也比以往任何时候都更加忙碌。”
 
-Context-switching across a dozen running agents is a real cost with no clean
-answer yet. The chief-of-staff pattern is the best available mitigation, not a
-fix. Budget attention like you budget tokens.
+在十几个并发运行的 Agent 之间频繁进行上下文切换，是一项极具挑战的认知负担，目前尚无完美解法。幕僚长模式是当前最有效的缓解策略，但仍非治本良方。**请像精打细算 Token 预算一样，精打细算你自己的注意力。**

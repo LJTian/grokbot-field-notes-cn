@@ -1,140 +1,112 @@
-# VERIFICATION.md
+# 验证机制 (VERIFICATION.md)
 
-**Use when:** setting up a project so agents can check their own work, or when
-an agent keeps finishing tasks with "you can run it and tell me if it works."
+**适用场景：** 为项目搭建脚手架使 Agent 能够**自主检验自己的工作**；或者当 Agent 总是在任务末尾抛出一句：“你可以跑一下看看，然后告诉我行不行”。
 
-That sentence is the symptom. This file is the cure.
-
----
-
-## Why this is the first thing to build
-
-Without a verification loop, every task ends in a round trip through you. You
-become the test suite. With one, the agent closes its own loop and you only see
-finished work.
-
-The general test for whether a job is safe to hand to an agent at all:
-
-> **Is the loop verifiable?** Is there a signal, readable by a machine, that
-> says this succeeded or failed?
-
-Coding is the easy case — tests, builds and a running app all produce that
-signal. Anything without one needs a signal invented before autonomy is safe.
+上面那句话是表面症状，而本文档则是根治药方。
 
 ---
 
-## What a verification skill actually contains
+## 为什么这是首先要构建的机制
 
-### 1. A CLI the agents can drive
+如果没有可闭环的验证机制，每一个任务最终都会变成你和 Agent 之间漫长的人工拉锯。**你沦为了它的测试套件**。一旦拥有了验证闭环，Agent 就能在它自己的沙箱中完成自检与修正，交付到你面前的直接就是经过验证的可用成果。
 
-Not ad-hoc scripts written fresh each time. Those cost tokens, differ between
-runs, and cannot be reasoned about.
+判断一项任务是否适合彻底交给 Agent 托管的通用准则：
 
-> "You want a CLI, or a script, or some tool that allows the bots to reliably
-> and deterministically interact with your application. I'd rather it just have
-> a standard set of tools."
+> **闭环是否可被机器验证？** 是否存在一种机器可读取的明确信号，能清晰断定此任务成功还是失败？
 
-Build one command per meaningful action, with stable names and stable output:
+编码开发是最容易产生这种信号的场景——单元测试、构建产物和运行中的 App 都会输出明确信号。对于任何缺乏现成信号的领域，在赋予 Agent 自主权之前，必须先为其构建出可观测的信号机制。
 
+---
+
+## 一个标准的“验证技能（Verification Skill）”包含什么
+
+### 1. Agent 可调用的确定性 CLI 工具
+
+坚决不要让 Agent 每次都临时现场手写一次性验证脚本。那种脚本极其浪费 Token，每次运行逻辑各异，而且无法被系统性复用和推理。
+
+> “你需要一个 CLI、一段脚本或某种标准工具，让 Bot 能够可靠、确定性地与你的应用交互。我更希望它拥有一套标准化的工具集。”
+
+为每一个关键动作构建一条命令，保证命令名称与输出格式的高度稳定：
+
+```bash
+./verify seed              # 将应用置于已知的基准测试状态
+./verify run <flow>        # 端到端运行指定的业务流程
+./verify screenshot <page> # 截取屏幕以附带验证证据
+./verify check             # 断言系统不变量，若失败则以非零状态码退出
 ```
-./verify seed              # put the app in a known state
-./verify run <flow>        # exercise a named flow end to end
-./verify screenshot <page> # capture proof
-./verify check             # assert invariants, exit non-zero on failure
-```
 
-Rules for the CLI:
-- deterministic — same input, same result
-- exits non-zero on failure, always
-- prints what it did, not just whether it passed
-- safe to run repeatedly
+对该 CLI 的设计准则：
+- **具备确定性**：相同的输入必然产生相同的结果。
+- **失败时严格退出非零状态码（exit non-zero）**：这是机器判断通过与否的核心契约。
+- **清晰打印执行过程**：不仅打印是否通过，还要输出它做了什么。
+- **幂等安全**：多次重复执行不会损坏环境。
 
-### 2. A feature map
+### 2. 功能地图（Feature Map）
 
-A machine-readable description of what the app has and how to get there, so an
-agent navigating it doesn't guess.
+一份机器可读的结构化描述，明确说明应用有哪些功能以及如何到达，使 Agent 在操作时无需盲猜。
 
 ```yaml
 # feature-map.yaml
 checkout:
   path: /checkout
   requires_auth: true
-  entry: click "Buy" on any product page
+  entry: 点击任何商品详情页的 "立即购买"
   flows:
-    - happy_path: add item -> checkout -> pay -> confirmation
-    - declined_card: add item -> checkout -> pay(declined) -> error state
+    - happy_path: 添加商品 -> 进入结算 -> 支付 -> 显示订单确认页
+    - declined_card: 添加商品 -> 进入结算 -> 支付(卡被拒) -> 停留并显示错误状态
   invariants:
-    - order total always equals sum of line items
-    - no order is created before payment succeeds
+    - 订单总金额必须严格等于各商品明细总和
+    - 在支付成功之前绝对不能创建正式订单
 ```
 
-Consider also shipping an agent-readable version of your product's own rules —
-a `/rules` page, or an `llms.txt`-style endpoint. If agents are going to use
-your product, document it for them the way you document it for humans.
+建议同时向 Agent 提供产品本身的业务规则说明——例如设立 `/rules` 页面，或类似 `llms.txt` 的标准接口。既然 Agent 要在你的产品中工作，就应当像对人类同事一样为它们提供清晰文档。
 
-### 3. Named invocation
+### 3. 指名道姓的命令调用
 
-Give it a name and use the name. Something like `/verify <project>`. Once it
-exists, cite it in every instruction that grants autonomy:
+为该技能赋予一个明确的名称并在指令中直呼其名。例如 `/verify <project>`。一旦建立，在每一次赋予 Agent 自主权的 Prompt 中都明确引用它：
 
-> "...using autopilot. Since we are now live in production, it is critical that
-> we do not break this for everyone. So always rigorously verify with
-> `/verify <project>` before merging."
+> “……使用 autopilot 模式执行。鉴于我们现在已经在生产环境中上线，绝对不能给线上用户搞出故障。因此在 Merge 之前，必须先严格使用 `/verify <project>` 运行验证。”
 
 ---
 
-## The three rules to enforce
+## 必须严格执行的三大铁律
 
-1. **Reproduce before you fix.** Only once the agent can reproduce the bug can
-   you trust that it understood the problem. Standing instruction:
+1. **先复现，后修复。** 只有当 Agent 能够独立复现 Bug 时，你才能确信它真正理解了问题。长期通用指令：
 
-   > *"Before writing any code, run the app, find the exact bug and behaviour,
-   > and then proceed."*
+   > *“在编写任何代码之前，先运行应用，定位确切的 Bug 及其行为表现，然后再继续后续步骤。”*
 
-2. **Proof goes in the PR.** Screenshots or video for UI. Numbers for backend.
-   The reproduction, then the same steps passing, for bug fixes. Agents that
-   can record their own runs should attach the recording.
+2. **所有 PR 必须附带证据。** UI 界面附截图或录屏；后端逻辑附测试指标对比；Bug 修复附带复现过程以及应用修复后同一流程顺利通过的对比。支持自动录屏的 Agent 应当直接附上操作录像。
 
-3. **Verification is the merge gate.** Not a human reading the diff. That is
-   what makes throughput possible — but see the caveat below.
+3. **验证结果是唯一的合并门禁（Merge Gate）。** 而不是等待人类去肉眼审阅 Diff。这正是高吞吐量成为可能的核心秘诀——但请仔细阅读下文的注意事项。
 
 ---
 
-## Fuzzing and swarms
+## 模糊测试（Fuzzing）与并发集群（Swarms）
 
-Once the CLI exists, you can point many agents at it in parallel: each runs the
-app, clicks around, and tries to break it. This finds a different class of bug
-than a human does, and costs you nothing but tokens.
+一旦 CLI 验证工具准备就绪，你就可以并发启动多个 Agent：每个 Agent 启动应用，在界面上四处点击，并尝试用各种异常手段去破坏系统。这能找出与人类测试完全不同层面的边缘 Bug，而你只需付出 Token 成本。
 
-Two things to know:
-- humans still find bugs the swarm misses, and vice versa — run both
-- a fuzzing run does **real work** against whatever it is pointed at. Point it
-  at a disposable environment, never production
+需注意的两点：
+- 人类依然能发现集群漏掉的 Bug，反之亦然——**两者应结合使用**。
+- 模糊测试集群对其目标执行的是**真实操作**。务必将其指向一次性沙箱环境，**绝对不能指向生产环境**。
 
 ---
 
-## The caveat, stated honestly
+## 客观坦率的技术前提与注意事项
 
-Auto-merge on green is appropriate in proportion to blast radius.
+测试全绿自动合并（Auto-merge on green）的可行性，**严格取决于你的错误爆炸半径（Blast Radius）**。
 
-The team that shipped 433 PRs this way said plainly: *"To be entirely honest, I
-didn't look at the code at all."* That was a 72-hour throwaway game. On the
-actual product, the same team reads every PR and enforces anti-pattern rules by
-hand.
+在直播中实现 433 个 PR 自动合入的团队坦言：*“说句大实话，我当时压根没看代码。”* 但那是一个为期 72 小时的快速试水小游戏。在团队真正的核心产品中，他们依然会逐行细致审阅每一个 PR，并严格手工执行反模式检查。
 
-Set the autonomy level from the cost of being wrong, not from how well the loop
-has been working lately. And keep a human gate on migrations and deploys
-regardless — an autonomous fix took their production down with a bad SQL query
-mid-stream.
+**根据犯错代价的大小来设定 Agent 的自主权阶梯**，而不是根据自动化循环最近几次是否顺利。无论如何，数据库迁移与核心生产发布必须保留人工把关——在直播中途，一个自主运行的修复就曾因生成了错误的高危 SQL 导致生产数据库直接挂掉。
 
 ---
 
-## Checklist
+## 落地检查清单（Checklist）
 
-- [ ] There is one command that puts the app in a known state
-- [ ] There is one command that exercises each critical flow
-- [ ] Every command exits non-zero on failure
-- [ ] There is a feature map, and it is current
-- [ ] The skill has a name, and instructions cite it by name
-- [ ] Fuzzing runs against a disposable environment
-- [ ] Migrations and deploys still require a human
+- [ ] 拥有一个能将应用置于已知基准状态的命令
+- [ ] 拥有能端到端运行各个关键业务流的命令
+- [ ] 任何命令在执行失败时均以非零状态码（exit non-zero）退出
+- [ ] 拥有结构化的功能地图（Feature Map）且与当前代码保持同步
+- [ ] 验证技能具有明确名称，且指令中指名道姓调用
+- [ ] 模糊测试仅运行在一次性隔离沙箱中
+- [ ] 数据库迁移与生产部署依然必须经人类确认

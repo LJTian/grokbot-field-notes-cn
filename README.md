@@ -1,44 +1,48 @@
-[![Grok Bot Guide by SpaceX Engineers](guide/cover.png)](guide/grok-bot-guide-by-spacex-engineers.pdf)
+[![SpaceX 工程师撰写的 Grok Bot 指南](guide/cover.png)](guide/grok-bot-guide-by-spacex-engineers.pdf)
 
-# Grok Bot Field Notes
+# Grok Bot 实战笔记 (Grok Bot Field Notes - 中文版)
 
-Three engineers from the xAI Grok Bot team built and launched a product from an empty repo in 72 hours, live on stream, using their own agent platform: [Roshan Sadanani](https://www.linkedin.com/in/roshansadanani) (product), [Lauren Tan](https://www.linkedin.com/in/laurenelizabethtan) (engineering, author of PStack), and [Matt Palmer](https://www.linkedin.com/in/matt-palmer) (developer experience). This repo is what I pulled out of those three days: a designed guide, rules you can drop into your own agents, nine role playbooks, a catalogue of bot roles, and a log of everything that broke.
+> 本仓库是 [grokbot-field-notes](https://github.com/unicodef1wn/grokbot-field-notes) 的中文翻译与本地化版本。
 
-## What's here
+来自 xAI Grok Bot 团队的三位工程师在直播中用时 72 小时，利用自研的 Agent 平台从一个空仓库构建并发布了一款完整产品。团队成员包括：[Roshan Sadanani](https://www.linkedin.com/in/roshansadanani)（产品负责人）、[Lauren Tan](https://www.linkedin.com/in/laurenelizabethtan)（工程负责人，PStack 作者）以及 [Matt Palmer](https://www.linkedin.com/in/matt-palmer)（开发者体验）。
 
-| Path | What it is |
+本仓库是对这三天高强度实战的全面提炼：一份精心排版的完整指南、一套可直接注入你的 Agent 的行为守则、九套业务职能剧本、包含 69 个 Bot 设定的角色名录，以及全程所有踩坑与翻车故障的完整日志。
+
+## 内容导航
+
+| 路径 | 内容简介 |
 |---|---|
-| `AGENTS.md` | House rules for a coding agent. Put it in your repo root and your agent reads it. |
-| `ANTIPATTERNS.md` | Forty things that broke on air. Each one: what broke, why, and the rule that came out of it. |
-| `agents/` | The longer references `AGENTS.md` points at: verification, orchestration, skills and routines, prompts. |
-| `roster/` | Sixty-nine agent roles, one file each. What the role owns, what it doesn't, where it gets its facts, what needs approval, and a description you can paste. |
-| `playbooks/` | Nine role workshops: engineering, PM, founders, sales engineering, sales, SDR, support, post-sales, marketing. Each has the team of bots, the workflow as it ran, the prompts, the routines and the numbers. |
-| `guide/` | [*Grok Bot Guide by SpaceX Engineers*](guide/grok-bot-guide-by-spacex-engineers.pdf), a 24-page PDF that tells the three days as a story: mental model, software factory, case study, failure log, economics. |
-| `reference/` | Two short files: `ECONOMICS.md`, every cost and metric quoted with the rule it supports; `PRODUCT.md`, the parts of Grok Bot that change how you design a bot: memory, what transfers on duplicate and share, isolation, permissions. |
-| `notes/` | Structured notes, one per day. Product facts, workflows, prompts, failures, numbers, who was who. Everything else was built from these. |
+| [AGENTS.md](AGENTS.md) | 编码 Agent 的核心行为守则。放置在仓库根目录，Agent 会自动读取并遵守。 |
+| [ANTIPATTERNS.md](ANTIPATTERNS.md) | 直播中发生的 40 个真实翻车案例。记录：何处出错 → 为何出错 → 提炼出的通用准则。 |
+| [agents/](agents/) | `AGENTS.md` 所引用的深度指导：验证机制、多 Agent 编排、技能与定时任务、Prompt 库。 |
+| [roster/](roster/) | 69 个具体的 Agent 角色卡，每角色独立一文。涵盖职责边界、数据来源、人工审批权限及可直接复制的 Prompt 设定。 |
+| [playbooks/](playbooks/) | 九大职能工坊剧本：研发、产品经理、创始人、销售工程、销售、SDR、客户支持、售后实施、市场营销。包含 Bot 团队架构、实际运行工作流、Prompt、定时例行任务与关键指标。 |
+| [guide/](guide/) | [《SpaceX 工程师撰写的 Grok Bot 指南》](guide/grok-bot-guide-by-spacex-engineers.pdf)（24 页排版 PDF），以故事形式讲述三天全过程：心智模型、软件工厂、实战案例、故障日志与经济学核算。 |
+| [reference/](reference/) | 两份简明参考：[ECONOMICS.md](reference/ECONOMICS.md) 记录直播提及的所有成本与指标及背后规则；[PRODUCT.md](reference/PRODUCT.md) 梳理影响 Bot 设计的 Grok Bot 底层产品机制（记忆、复制/共享继承、隔离与权限）。 |
+| [notes/](notes/) | 结构化实战笔记，按天记录。包含产品细节、工作流、Prompt、故障现场、量化数据及人员分工。所有材料均基于此整理。 |
 
-## Where to start
+## 从哪里开始
 
-- You want rules for your agent now: copy `AGENTS.md` into your repo root.
-- Your agents keep asking you to test their work: `agents/VERIFICATION.md`.
-- You are designing a team of agents rather than prompting one: `agents/ORCHESTRATION.md`.
-- You want the wording that worked: `agents/PROMPTS.md`.
-- You want a bot's job description to paste: `roster/`, starting with `roster/README.md`.
-- You want a setup for your own role, say support or sales: `playbooks/`, starting with `playbooks/README.md`.
-- You want to know what goes wrong: `ANTIPATTERNS.md`.
-- You want to know what it costs and where the tokens go: `reference/ECONOMICS.md`.
-- You are deciding what goes in memory versus the description: `reference/PRODUCT.md`.
-- You want the whole story: [the PDF guide](guide/grok-bot-guide-by-spacex-engineers.pdf).
-- You want to check a claim: `notes/`.
+- **立刻给你的 Agent 注入行为守则**：直接复制 [AGENTS.md](AGENTS.md) 到你的仓库根目录。
+- **Agent 总让你帮忙测试代码？**：阅读 [agents/VERIFICATION.md](agents/VERIFICATION.md)。
+- **正在设计多 Agent 团队而非单个 Prompt**：阅读 [agents/ORCHESTRATION.md](agents/ORCHESTRATION.md)。
+- **想要经过实战检验的高效 Prompt**：阅读 [agents/PROMPTS.md](agents/PROMPTS.md)。
+- **寻找开箱即用的 Bot 职责设定**：查看 [roster/](roster/)，先读 [roster/README.md](roster/README.md)。
+- **为特定职能（如客户支持、销售）搭建 Agent 体系**：查看 [playbooks/](playbooks/)，先读 [playbooks/README.md](playbooks/README.md)。
+- **想知道踩过哪些坑**：阅读 [ANTIPATTERNS.md](ANTIPATTERNS.md)。
+- **了解 Token 消耗与成本构成**：阅读 [reference/ECONOMICS.md](reference/ECONOMICS.md)。
+- **决定哪些内容进记忆系统、哪些进角色描述**：阅读 [reference/PRODUCT.md](reference/PRODUCT.md)。
+- **想了解完整经过与心路历程**：阅读 [PDF 完整指南](guide/grok-bot-guide-by-spacex-engineers.pdf)。
+- **核实某个具体事实或数据**：查阅 [notes/](notes/) 原始笔记。
 
-## In one paragraph
+## 一句话精髓
 
-Give each agent one narrow job and a name. Build a verification loop before you build the second agent.
+为每个 Agent 分配单一且明确的职责，并赋予一个名字。在构建第二个 Agent 之前，必须先搭建好确定性验证循环。
 
-Make the agent reproduce a bug before it fixes one, and attach proof to everything. When it's wrong, write down the general principle, never the specific story.
+让 Agent 在着手修复 Bug 之前必须先精准复现，提交任何工作成果都必须附带证据。每当出现错误，提炼通用的底层原则，绝不要拘泥于具体的偶发故事。
 
-Audit your routines weekly, because frequency is where the money goes. Keep a human gate on migrations, deploys, money and permissions, no matter how well the loop has been working.
+每周审计你的定时例行任务（Routines），因为执行频率才是产生大额账单的根源。无论自动化循环运转得多么顺畅，在涉及数据库迁移、线上部署、资金与权限变更时，务必保留人类最后把关。
 
-## License
+## 开源协议
 
-MIT. Copy anything here into your own repo.
+MIT 协议。欢迎自由复制本仓库内容至你自己的项目中。

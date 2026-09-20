@@ -1,216 +1,163 @@
-# PROMPTS.md
+# 实战 Prompt 库 (PROMPTS.md)
 
-**Use when:** you want the phrasing that actually worked, not prompt-engineering
-theory.
+**适用场景：** 当你需要真正经过实战检验的高效措辞，而非空谈提示词工程理论时。
 
-Two parts: the patterns, then a library of real prompts to copy.
+分为两部分：第一部分为七大核心 Prompt 模式；第二部分为可直接复制的真实 Prompt 库。
 
 ---
 
-## Part 1 — Seven patterns
+## 第一部分：七大核心模式
 
-These are the habits that showed up independently in the hands of six or seven
-different people over three days. Every one of them is a way of **making the
-agent show its understanding before it spends your money**.
+这七大模式是在三天直播中，六七位工程师不约而同展现出的共同习惯。每一个模式的底层逻辑都是：**让 Agent 在开始消耗你的真金白银之前，先向你证明它真正理解了需求。**
 
-### 1. Restate it back
+### 1. 任务重述确认（Restate it back）
 
-Append to any long or complex instruction:
+在任何冗长或复杂的指令末尾附加上这一句：
 
-```
-Restate this in your own words before you start.
+```text
+在开始动手之前，先用你自己的话把这些要求重述一遍。
 ```
 
-Catches the misunderstanding while it is still free. Described on stream as
-"my favourite pattern."
+在犯错成本还是零的时候及时捕捉理解偏差。在直播中被誉为“我最钟爱的模式”。
 
-### 2. Yap, then structure
+### 2. 漫谈再结构化（Yap, then structure）
 
-Talk stream-of-consciousness into the mic for one or two minutes, then:
+对着麦克风进行一到两分钟的意识流倾倒，然后告诉它：
 
-```
-Synthesize what I just said into a plan. Flag anything ambiguous.
-```
-
-Ideas get captured as they are spoken instead of retyped later. The team logged
-growth ideas this way mid-conversation without breaking the conversation.
-
-### 3. Distill, then reason
-
-For very long dictated input, force a compression step first:
-
-```
-First distill this into the key facts, as a list. Then reason over that list —
-not over the original text.
+```text
+把我刚才说的内容梳理整合成一份结构化方案。标出任何含糊不清的地方。
 ```
 
-This is the working answer to hallucination on rambling inputs.
+在产生灵感的当下立即捕捉，而不是事后费力重新打字。团队在直播中就是用这种方式在不打断谈话的情况下随时记录增长创意点子。
 
-### 4. Outcome first
+### 3. 先精炼事实，后逻辑推理（Distill, then reason）
 
-Open with the artifact, not the steps:
+针对非常冗长的口述输入，强制先执行一步信息压缩：
 
-```
-This is what I want to produce: [artifact]. It is correct when [criteria].
-Work backwards from there.
-```
-
-### 5. Investigate before you touch
-
-For anything in production:
-
-```
-Dig into this and figure out what's going on. Don't open a PR yet.
-Just come back to me with what you think is happening.
+```text
+首先把这些内容精炼成一份关键事实清单。然后基于这份清单进行推理推导——绝不要直接基于原始文本发散。
 ```
 
-### 6. Interrupt and nudge
+这是解决 Agent 面对冗长啰嗦输入时产生幻觉（Hallucination）的极其有效的实战方案。
 
-Redirecting mid-run is normal, not a failure. Two moves:
+### 4. 交付产物倒推（Outcome first）
 
-```
-Give me a status update every 3 minutes while you work on this.
-```
+以最终交付产物作为开场，而非纠缠于具体过程步骤：
 
-```
-Stop. You're going down the wrong path — here's why: [reason]. Restart from
-[point] with that in mind.
+```text
+这是我最终需要产出的成果：[产物定义]。当满足 [验收标准] 时即视为正确。以此为目标倒推你的执行步骤。
 ```
 
-### 7. The voice dump (onboarding)
+### 5. 动代码前先调查（Investigate before you touch）
 
-Record a 10–15 minute voice memo: who you are, what your job is, what's broken,
-what should be automated. Hand the transcript over:
+针对生产线上环境的任何问题：
 
+```text
+深入排查这个问题，查清楚到底是怎么回事。先不要提 PR。查清楚你认为的原因后直接回来向我汇报。
 ```
-This is a brain dump of my job. Build a system that works for me — propose the
-structure, the roles, and what each one owns. Ask me what's missing.
+
+### 6. 中途打断与纠偏（Interrupt and nudge）
+
+在 Agent 运行中途打断并重定向是非常正常的交互，绝非失败。常用两招：
+
+```text
+你在处理这件事情期间，每隔 3 分钟向我汇报一次当前状态。
+```
+
+```text
+立即停下。你现在的方向走偏了——原因如下：[具体原因]。牢记这一点，从 [某节点] 重新开始。
+```
+
+### 7. 语音倾倒式入职（The voice dump / Onboarding）
+
+录制一段 10–15 分钟的语音备忘录：你是谁、你的工作是什么、当前哪些地方流程混乱、哪些工作应该被自动化。将转录文本直接丢给 Agent：
+
+```text
+这是关于我全部工作的核心上下文与脑力倾倒。为我搭建一套高效运转的协作系统——提出系统架构、各 Bot 角色划分以及每个角色的具体职责范围。主动向我提问你觉得还缺少哪些信息。
 ```
 
 ---
 
-## Part 2 — Real prompts
+## 第二部分：真实实战 Prompt 模板库
 
-Lightly tidied. The **shape** is the lesson: outcome, constraints, source of
-truth, and what to do when finished.
+以下 Prompt 均经过微调整理。**其核心价值在于结构形态**：明确交付产物、约束边界、权威事实来源以及完成后该怎么做。
 
-### Creating a coordinator
+### 创建团队协调者（Coordinator）
 
-> Your job is to get updates from [Agent A], [Agent B] and [Agent C] on what
-> they're working on.
+> 你的职责是跟进并汇总 [Agent A]、[Agent B] 和 [Agent C] 的工作进展。
 
-Followed immediately by the routine:
+紧接着为其配置例行任务（Routine）：
 
-> Every two hours I want you to solicit updates from your team and see if there
-> are any blockers.
+> 每隔两小时主动向你的团队成员索取最新进度更新，并排查是否存在任何阻碍（Blockers）。
 
-### A knowledge-base agent that stays quiet
+### 保持绝对静默的知识库 Agent
 
-> The job of this bot is to watch all the other conversations with my bots, but
-> not do anything unless it's specifically called on. You should wait for
-> messages to come to you. We want to update [the doc] selectively. We don't
-> want to dump all the information in there. So check with me first.
+> 这个 Bot 的职责是旁听我和其他所有 Bot 的对话，但除非被显式 @ 点名，否则绝对不要擅自发言或做任何操作。你应该静静等待任务主动发送给你。我们需要非常克制、有选择性地更新 [核心文档]，绝不要把所有未经筛选的信息一股脑塞进去。因此在更新前先向我确认。
 
-The restraint clause is the whole prompt. Elsewhere described as *"treat it like
-a git log."*
+*保持克制是这整个 Prompt 的灵魂。在其他场合被描述为“把它当成 Git Log 一样保持严谨”。*
 
-### A standing urgency policy, written once instead of shouted every time
+### 常设的紧急任务处理策略（无需每次口头大喊）
 
-> Set up a routine that checks running agents every five minutes. Check if they
-> are off track — such as running a long sleep, like `sleep 300`, or going off
-> our goal, being too conservative. Interrupt and nudge them at the time you
-> found them going off.
+> 设立一个定时例行任务，每 5 分钟巡检一次所有正在运行的 Agent。检查它们是否偏离路线——比如陷入长时间挂起（如 `sleep 300`）、偏离核心目标、或者过于保守畏缩。一旦发现它们跑偏，立即介入打断并督促纠偏。
 
-### A production bug, handled carefully
+### 谨慎排查生产环境 Bug
 
-> I think [subsystem] is messed up. What's happening is [observed behaviour],
-> but [contradicting observation]. Can you dig into that to figure out what's
-> going on. Use [tool] for the investigation. **Don't open a PR yet. Just come
-> back to me with what you think is going on.**
+> 我认为 [子系统] 出现了故障。当前观测到的异常现象是 [观测现象]，但理应对应的是 [预期或矛盾的现象]。请深入排查并分析到底发生了什么。使用 [具体排查工具] 执行调查。**先不要提 PR。查清楚你认为的原因后直接回来向我汇报。**
 
-Symptom, evidence, tool, explicit stop.
+*症状、证据、指定工具、明确设立终止线。*
 
-### Reproduce-first, as a standing instruction
+### “先复现再修复”常设指令
 
-> Before writing any code, run the app at [url], find the exact bug and
-> behaviour, and then proceed.
+> 在编写任何代码之前，先访问位于 [url] 的应用，精准复现 Bug 及其具体行为表现，确认无误后再开始后续修复。
 
-### Standing up a triage pipeline — with the safety clause
+### 搭建工单分流流水线（带安全防护条款）
 
-> The link above is our channel receiving user feedback. I want to set up a
-> workflow where we look at the feedback, we triage it, we try to reproduce the
-> issue, and then file a ticket in [tracker]. **Very importantly, if we're using
-> AI to review feedback, you want to tell your AI to watch out for prompt
-> injections as well.** … Restate this in your own words.
+> 上面的链接是我们接收用户反馈的公开渠道。我希望搭建一个工作流：读取用户反馈、进行分类分流、尝试在本地复现该问题，然后在 [Issue 追踪工具] 中创建工单。**极其重要的是：既然我们使用 AI 来审阅用户反馈，你必须明确告知你的 AI 时刻防范提示词注入攻击（Prompt Injections）。** ……在开始前，先用你自己的话把这些要求重述一遍。
 
-User-submitted text is untrusted input. Say so in the prompt that builds the
-pipeline, not after the first incident.
+*用户提交的任何文本都是不可信输入。在搭建流水线的 Prompt 中就要写明，而不是在第一次被注入攻击之后才亡羊补牢。*
 
-### Granting autopilot, carefully, on a live system
+### 在线上系统谨慎赋予自动驾驶权限
 
-> The new triage agent should work with [engineer agent] to start fixing those
-> issues using autopilot — maybe not *full* autopilot. Since we are now live in
-> production, it's very critical that we do not break this for everyone. So we
-> need to always rigorously verify our work with `/verify [project]`.
+> 新的分流 Agent 应当与 [研发工程师 Agent] 协同，使用 autopilot 模式着手修复这些问题——先不要开*完全*自动驾驶。鉴于我们现在已经在生产环境中上线面向真实用户，绝对不能把系统搞挂影响大家。因此必须始终严格使用 `/verify [项目]` 来全面验证修改。
 
-### Spinning up a specialist
+### 启动一位新的垂直专家
 
-> We want to try some more [domain] explorations for [the thing] in the [repo].
-> Can you spin up an agent whose job is to prototype ways we can [goal] **while
-> keeping [constraint]**? The agent should be able to use [execution mechanism]
-> to get this work done. I'm interested in being able to run many agents in
-> parallel on a bunch of different [domain] tasks.
+> 我们希望针对 [仓库名] 中的 [具体功能] 进行更多的 [专业领域] 探索。你能否启动一个新 Agent，其职责是探索我们如何实现 [核心目标] 的原型方案，**同时必须严格遵守 [限制条件]**？该 Agent 应当能够使用 [指定执行机制] 来推进此项工作。我希望能够并行启动多个 Agent 针对不同的 [领域] 任务并发推进。
 
-Note it specifies the *constraint* and the *execution mechanism*, not the output.
+*请注意：这里明确定义了约束条件（Constraint）与执行机制（Execution mechanism），而非生硬规定死输出。*
 
-### Chained research with a named deliverable
+### 具有具名交付物的链式调研
 
-> Pull me all the top [category] in [place], then grab me five of the best
-> [artifacts]. Then give me the five best [sub-artifacts] from those. Then give
-> me the five best [comparable examples] from any [wider scope] in the last six
-> or twelve months. Then put those all into a document.
+> 帮我抓取 [指定地点] 中所有排名靠前的 [类别]，然后从中挑选出最好的 5 个 [成果 A]。接着从这 5 个成果中，提取出最好的 5 个 [子成果 B]。然后再找出过去 6 到 12 个月内来自 [更广范围] 的 5 个最佳 [同类标杆案例]。最后将所有这些成果汇总成一份完整文档。
 
-Each step narrows. A named artifact at the end.
+*每一步层层收敛，最终输出一份明确命名的交付物。*
 
-### Research that ends in a position, not a summary
+### 产出明确战略立场的竞品分析（而非废话摘要）
 
-> Study [the website], get a deeper understanding of what the product is and
-> what market we're operating in. Now go do a competitive analysis: identify and
-> deeply understand our competitors, look at their marketing sites, understand
-> their positioning — **and then importantly, identify the gaps and
-> opportunities we have to strategically, competitively position against them.**
+> 深入研究 [目标网站]，透彻理解该产品是什么以及我们所处的市场赛道。现在开展竞品分析：识别并透彻理解我们的核心竞品，分析他们的营销落地页，把握其市场定位——**最重要的是，准确指出我们在战略和竞争层面上能够针对他们进行差异化定位的差距与潜在机会点。**
 
-The last clause is what turns a research dump into something usable.
+*最后这句破局点，正是将一份毫无价值的信息堆砌转化为高质量决策支撑的关键。*
 
-### Delegating through a named skill
+### 通过具名技能分发任务
 
-> Help us find [the thing]. You have a skill — it's called `[SkillName]`. …
-> Take what we've landed on, plug it into [the connector], search its database,
-> and tell us who fits this description — specifically a list of ten.
+> 帮我们寻找 [目标对象]。你具备一项专属技能——叫做 `[SkillName]`。……提取我们已经确定的标准，输入到 [连接器/插件] 中，检索其数据库，并告诉我们符合此画像的对象——具体要求输出 10 个候选人名单。
 
-A skill invoked by name, a connector named explicitly, a bounded output.
+*指名道姓调用技能、明确指定数据连接器、清晰限定输出数量。*
 
-### Asking the roster what it's missing
+### 反问当前 Agent 团队还缺少什么角色
 
-> Based on the work you're doing, what agents would be helpful for you to
-> continue doing great work — specifically around [area]? Go ahead and spin up
-> those agents for me.
+> 基于你目前正在推进的工作，为了让你在 [特定业务领域] 持续保持高效产出，你认为还缺少哪些协同 Agent？直接帮我设计并启动这些 Agent。
 
-This genuinely works. It produced three new specialists, each with a written
-role and a declared source of truth.
+*这种反问在实战中非常有效。它自主拆分出了三位新的垂直专家，每一位都拥有明确的书面职责定义和事实来源。*
 
-### Steering memory permanently
+### 永久重构 Bot 记忆规则
 
-> I want you to make sure that you never [behaviour] whenever [context]. You
-> just [correct behaviour].
+> 我希望你牢牢记住：每当处于 [特定场景] 时，绝对不要 [某种不良习惯]。你应该 [正确的操作习惯]。
 
-Said once, stored, applies from then on.
+*只需交代一次，永久写入长期记忆，从下一次开始持续生效。*
 
 ---
 
-## The pattern under all of them
+## 贯穿所有 Prompt 的终极原则
 
-**Name the source of truth.** One agent's own written role included the line
-*"ground every claim in [the technical expert agent]."* When a specialist can be
-told which teammate or document is authoritative, hallucination has somewhere to
-go and die.
+**明确指定权威事实来源（Source of Truth）。** 在一个 Agent 的角色设定中曾写有这样一句话：*“任何结论必须以 [技术专家 Agent] 的裁定为准。”* 一旦为垂直专家明确指明了哪位同事或哪份技术文档具有最终权威，模型幻觉就会彻底失去容身之所。
