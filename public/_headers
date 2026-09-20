@@ -1,0 +1,14 @@
+# Cloudflare Pages Caching and Security Headers
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/*.pdf
+  Cache-Control: public, max-age=604800, immutable
+
+/*.png
+  Cache-Control: public, max-age=2592000, immutable
+
+/index.html
+  Cache-Control: public, max-age=3600, must-revalidate
