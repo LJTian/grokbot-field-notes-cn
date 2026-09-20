@@ -1,208 +1,132 @@
-# Grok Bot "Build a Company in 3 Days" — Day 1 Field Notes
+# Grok Bot “72 小时从零创立一家公司” —— 第 1 天实战笔记
 
-Livestream from a studio near Moscone Center (Dreamforce), SF. Hosts: **Matt Palmer** (dev rel/dev experience, handle @MattyP), **Roshan** (@roshan_s, product, "CPO" — Chief Product Officer), **Lauren** ("Potato" on X, engineering/perf, creator of **P-Stack**, becomes "CTO"/"Chief Potato Officer"). Goal: build a company from zero in 72 hours, live, using GrokBot + Cursor. Note: transcript auto-caption renders the product name inconsistently as "GrokBot," "Rockbot," "Brockbot," "Crockbot" — all the same product (Grok's agentic-bot platform, "grok bot").
-
----
-
-## 1. PRODUCT FACTS — features, limits, platforms, integrations, numbers
-
-- **Core concept**: GrokBot = persistent, named AI "teammates"/"colleagues" (not task-scoped chat threads). You create a bot per role/job responsibility and return to it repeatedly; it has memory and learns over time.
-- **Three foundational product bets** (from Roman, co-creator, in GrokBot 101):
-  1. Teammate paradigm, not task paradigm — chat-like (iMessage-style) UI, bots on a sidebar.
-  2. Each bot gets **its own computer** (Linux VM) — can do anything a human can do with a computer (watch videos, click through legacy/government software, log into services with no API/MCP). Not just MCP/API integrations.
-  3. **Everything runs in the cloud** — not tied to your laptop; keeps working when laptop is closed/asleep.
-- **Platforms**: iOS, Android, iPad, Windows, Linux, macOS — "recently shipped iPad and Android." Works anywhere ("lie on the grass in Golden Gate Park while your bot works").
-- **Bot computer**: isolated per-bot Linux VM; **one bot cannot access another bot's computer** (isolation prevents conflicts when two bots work in parallel, e.g., two bots editing different slides in the same deck simultaneously).
-- **Bots share the same file system** but do **not** share memory/context window — "one VM with a bunch of different instances for each bot, the same way you'd have different desktops."
-- **You can take control of a bot's computer** when needed (e.g., login walls, human verification, CAPTCHAs, or you don't want to hand over a password) — via mobile/desktop client, click through directly.
-- **"Teach a task"** feature: you record yourself performing an action on the bot's computer (e.g., adding a PowerPoint animation) via screen recording; GrokBot converts the demonstration into a reusable **skill**. Confirmed mechanism: the bot "watches the video" and learns "select an object, pick the type, look at options," saved as a skill you invoke later ("remember that animation I showed you earlier").
-- **Approvals / Auto Review**: a built-in classifier ("auto review tool") decides riskiness of actions and asks for human approval accordingly. Users can layer **explicit rules** on top (granular, e.g., "never reply to emails without asking me first," "you can create slides without asking"). Settings page has a rules list. Quote: "It was even overly prescriptive here... it wanted to make sure the form it was creating wasn't asking for any PHI or PII."
-- **Memory**: stored in **S3 buckets**, long-lived/persistent, editable. Guidance/steering you give ("never use my first and last name, just first name") is stored in memory permanently. You can explicitly tell a bot to forget things ("forget all things about how we generated your profile picture... don't ever think about that again") — improves token efficiency too.
-- **Duplicating a bot**: starts with the same persona/instructions but **fresh memory/context** — "like starting a brand new human/robot with zero memory but the workings and understanding of how to go forward."
-- **Templates / Marketplace**: bots can be shared as templates (org-internal or public marketplace). Sharing copies memories/context/instructions/first-party plugins but **not** sensitive data, passwords, or chat history — passwords are stored via secure entry forms, never exposed to the bot itself or to SpaceX/xAI staff. Public marketplace bots mentioned: Dr. EggBot (Lauren's — creates/improves other bots, install PStack), StockBot (competitor teardown bot, shared via QR at end of PM founders talk), a "nightly audit engineer" bot, various featured bots from Cursor team members (Lauren, Clairvaux, Lenny, Eric).
-- **Group chats**: you can put multiple bots into one chat to see their inter-agent communication directly, rather than clicking into 1:1 threads. Warned: bots in a group chat are "eager," "love to talk," "speak over each other," and get **expensive** fast — use sparingly; prefer 1:1 tagging for most cases.
-- **Agent-to-agent messaging**: bots can `@mention`/message each other directly ("message Slide Sonia and ask her for details..."); or you can instruct a bot's persona to always delegate to subordinates (chief-of-staff pattern).
-- **Routines**: schedulable recurring tasks ("every morning at 9am, summarize changes"; "every 2 hours check for blockers"). Can span multiple bots. Can be set on cron-like schedules **or webhooks/signals** — team explicitly recommends webhook/signal-triggered routines over blind fixed-interval polling to save tokens (see Tips section).
-- **Bot self-monitoring**: you can ask a bot for regular status updates ("give me a status update every 3 minutes") — useful vs. waiting silently; "interrupting bots a lot" and redirecting mid-task is considered good practice, more fun than waiting on one LLM response.
-- **Modal/secrets UI**: sensitive logins (e.g., 1Password) surface as an **in-app modal** for the human to fill in — credentials never touch the bot's VM directly / never exposed to xAI/SpaceX side.
-- **1Password integration**: recently released; bots can pull secure credentials via it.
-- **Plugins/MCPs marketplace**: X/Twitter MCP, Notion MCP, Google Drive/Docs/Slides/Forms/Sheets access (via computer use, not just MCP), Resend (email), Slack MCP, Figma MCP, Gmail, Vercel MCP, Clerk MCP mentioned as "very agent-forward," Cursor plugin (repo-level or local), Bland MCP (AI phone calls — "seems like potatoes on it," i.e., buggy at demo time), TaskRabbit MCP asked about (unclear if exists).
-- **Cursor Cloud Agents integration** ("first-party"): GrokBot can spin up Cursor cloud agents to do the actual coding; GrokBot reads cloud agent transcripts/tool calls via **tool calls**, not by watching a UI — efficient. GrokBot can monitor, nudge, interrupt, or re-prompt a cloud agent mid-run (e.g., stop it running `sleep 300` if going off-track). Can run on a "private worker" (e.g., your own Mac minis) for local builds too.
-- **Cursor "Project"**: a special longer-lived kind of cloud agent good for sustained engineering context across many messages/sessions.
-- **Cursor automations**: repo-level triggers, e.g., "when a PR is opened, post it to Slack channel X and have an automation review it." Configured with a simple prompt.
-- **Verification skill / PStack "create verification skill"**: generates (a) a **CLI tool** for bots to deterministically interact with the app (rather than writing throwaway scripts every time — token-costly and non-reproducible), and (b) a **feature map** — a machine-readable map of the app's features/flows for agents to navigate. Cloud agents can produce **videos of their own runs** (screen recordings) attached to PR descriptions — considered a critical part of the review/verification loop; team explicitly added "always include a video for UI, perf metrics for backend" to their skill.
-- **Multi-computer bots**: as of ~a week before the stream, bots got confused managing multiple physical machines; being actively improved ("if it doesn't work for you, we should chat").
-- **Cross-account bot-to-bot messaging** (across different people's GrokBot accounts): does **not exist yet** — "something we're working on," no ETA given beyond "very cool use case."
-- **Local execution toggle**: Settings → "local execution" lets you allow the bot to act on your own machine (send messages, drive your local browser) instead of always using the cloud VM. Team's philosophical bias is toward cloud VM (parallelism, no local resource contention, no app popups stealing focus) but local is fully supported.
-- **Deterministic behavior for enterprise**: models aren't natively deterministic; the fix is to have bots **write code** (deterministic) with decision trees/flowcharts, and have the bot call that code/function whenever a policy decision is needed, rather than "reasoning" every time.
-- **Context/limits**: each named bot has its **own memory + own context limit**; splitting work across role-specific bots avoids blowing a single agent's context. Ling Shi (engineer) explicit: "every single bot has a slightly different pipeline based on the work they do and also has their own context limit... to avoid they run over their context limit when switching between too many tasks."
-- **Numbers/metrics mentioned**:
-  - Lauren's **PStack**: shipped **2,500 PRs in one month** (~83/day) into production, open-source plugin, available on GrokBot marketplace.
-  - GrokBot represents "**a double-digit percentage of merged PRs**" internally at the company (product org stat, from GrokBot-for-PM session).
-  - Ling Shi built first version of GrokBot mobile **solo in 3 weeks**.
-  - Ling previously managed **15 Cursor cloud agents** in parallel manually before GrokBot-orchestration existed.
-  - Nightly code-cleanup routine set to run at **3 a.m.**; P0 escalation routine checks cloud agents **every 5 minutes**.
-  - CI auto-fix: only pings human on-call if unresolved after **10 minutes** ("most of the time GrokBot can get it done within 10 minutes").
-  - Jenny Co (guest) runs **22 GrokBot employees** across 7 businesses.
-  - Livestream had ~**80,000 views** at open, ~250–430k+ mentioned at various points on X reach for guest posts; 70k pre-registered for the stream.
-- **Voice mode**: currently transcribe-only (speech to text) live in product; **back-and-forth voice mode** (bot talks back) is internal-only, expected to ship "within the next week or so" (roadmap item, stated at time of stream).
-- **QR codes**: GrokBot can generate QR codes directly for external-facing forms/links (used for the coffee-survey demo) — team's stated habit: always turn shareable external form links into QR codes.
-- **"Restate in your own words" pattern**: after a long voice/stream-of-consciousness prompt, ask the bot to restate what it understood before executing — used repeatedly by multiple presenters as a comprehension check.
+**直播地点：** 旧金山 Moscone 中心（Dreamforce 大会现场）附近的临时演播室。  
+**常驻主持人：** **Matt Palmer**（开发者关系/开发者体验，X 账号 @MattyP）、**Roshan**（@roshan_s，产品负责人，戏称“CPO/首席产品官”）、**Lauren**（X 上的“Potato”，工程架构/性能调优专家，**P-Stack** 作者，戏称“CTO/首席土豆官”）。  
+**挑战目标：** 在 72 小时内，仅依靠 GrokBot + Cursor，在全网直播下从零搭建并上线一家真实运转的公司。  
+*注：由于现场语音实时转录偏差，字幕偶尔会出现“GrokBot”、“Rockbot”、“Brockbot”、“Crockbot”等不同拼写，在此统一规范为 GrokBot。*
 
 ---
 
-## 2. WORKFLOW & PRACTICE — setup, orchestration, roles, "software factory"
+## 1. 产品核心机制与数据事实（特性、边界、集成与关键指标）
 
-- **"Bot factory" / "software factory" concept**: Lauren's term for the scaffolding of engineering bots + reviewer bots + repo automations + Slack channels that let a small team (or bots) ship code continuously. She rebuilds her personal factory from scratch on stream (same pattern she uses at the company) using **Dr. EggBot** to bootstrap it.
-- Typical factory pieces set up live:
-  - Dedicated **Slack channels**: `#issues`, `#pr-review`, `#bug-reports`, `#marketing` — bots post PR links / bug reports there; a Cursor automation reviews (using PStack: checks correctness, risk, missing tests) and can auto-merge.
-  - **"No pull requests" rule** — ship directly to `main` during early scrappy phase ("we ship to main until somebody yells at me").
-  - A **reviewer bot** ("Hashground") whose sole job is reviewing PRs opened by the engineering bot ("Tater").
-  - A **knowledge base manager bot**: watches other bot conversations passively, does **not** act unless specifically pinged, and selectively updates Notion — explicitly told "check with me first... we don't want to dump all the info in there," described as "treat it like a git log."
-- **Role/persona pattern** (repeated across all speakers): assign each bot a *name + narrow persona/expertise* rather than one general-purpose bot. Reasons given (Ling Shi, GrokBot-for-engineers session):
-  1. Context/memory scoping — avoids overload/context-limit issues.
-  2. Human cognitive limit — "our brains can't store novels either; you want to know who to reference."
-  3. Bots perform better when "typed/cast into a specific role" (continuous-learning loop works better scoped).
-  4. Parallelization — fire off many bots at once, they work in parallel, come back and synthesize (mirrors a human team meeting → breakout → resync).
-- **Chief of Staff pattern**: a dedicated orchestrator/manager bot (various names: "Steve," "Cora," "Master Chief," "Craig") that:
-  - Routes requests to the right specialist bot so you don't have to know everyone's status individually.
-  - **Onboards new bots** by messaging them directly with context/playbook (bot-to-bot handshake) so the human doesn't have to repeat instructions to each new hire.
-  - Holds "who is working on what" so specialists don't need that overhead in their own context.
-  - Not universally loved — Shub (GrokBot-for-founders) said he **personally dislikes** the single chief-of-staff model, prefers many expert bots you talk to directly; says it's "personal preference."
-- **Playbook pattern**: a bot (e.g., "Jenny" in Ling's demo) owns and maintains a living **playbook** (in Notion) that defines standards (e.g., "PRs must include screenshots for UI changes and perf metrics for performance changes," "P0 = check cloud agents every 5 min, interrupt if running long sleeps or going too conservative"). New standards are told **once** to the chief-of-staff/playbook-owner bot, which then **broadcasts to all other bots** — "you are just thinking about what needs to be done once... the next time you need to add a new workflow, they populate the playbook and all engineers would know that without you telling them individually." Explicit analogy: "very similar to how a human organization is shaped, while it's at the agent scale."
-- **"Do the work manually first, then automate" principle** (Lauren): "This is almost how I write agent skills too. I do the work manually first before I automate it... we're not really domain experts yet on running a pop-up, so we need to do that first."
-- **Dogfooding as core method**: the team explicitly decided to build their own pop-up event AND the software platform simultaneously, letting the manual/human process reveal what the software needs to do ("ground it in our own search for running the prototype... that will actually inform us what we need to build rather than me just trying to imagine what you might need").
-- **Notion-as-source-of-truth debate**: Lauren personally dislikes Notion / long docs ("docs are just going to go out of date so quickly," prefers scrappy/fast); Matt Palmer likes writing things down in Notion for planning and as grounding context to feed to bots ("keep that context specific/consistent... I have to explain to the guests what we're doing, I also have to explain to my Grok bots"). Both approaches coexist on the team.
-- **"Restate it back to me" + dictation ("yap") pattern**: hit the mic button, talk stream-of-consciousness for 1–2 minutes, then ask the bot to restate/synthesize before executing — used by Matt, Roshan repeatedly. Peter Yang also praised this dictation-then-structure workflow.
-- **Prototyping progression** (explicitly called out by Roshan): GrokBot itself can render raw HTML/CSS/JS prototypes **inline in the chat window** (no deployment needed) for quick throwaway visual exploration — this is *not* Cursor's harness, just the lightweight Grok model in the GrokBot harness. As fidelity needs increase, work moves to **Cursor cloud agents** for "more serious engineering work," because "the cursor harness is very good at writing code and building things."
-- **Model vs. harness distinction** (explicit terminology from Roshan): "Grok is the model. GrokBot is the harness... very lightweight... not like Grok build or other coding harnesses."
-- **Bot naming as a fun/team ritual**: crowdsourced bot names live from chat repeatedly (Marky McMarkface for market-research bot; "Tater"/"Spud" for the prototyper/engineer bot; "Grok Pot" for another prototyper) — treated as a genuine team-building/engagement device, not just cosmetic.
-- **Sections/grouping UI**: bots can be grouped into named sections in the sidebar (e.g., "Unassigned," "Engineering team," "Leadership," "EngPod," "EPD," "War room") and pinned to the top.
-- **Company scaffolding stood up on day 1**: GitHub org "Ship By Thursday" (empty at start), Slack workspace, Notion workspace, Vercel account/project, PlanetScale (then switched to Postgres) database, Resend for email/domain verification, Clerk (then Vercel's built-in SAML/deployment-protection) for auth, domain `shipbythurs.day` bought via Vercel.
-- **PM triad framework** (Kevin, GrokBot-for-PMs): "figure out what to build, how to build it, and coordinate building it — AI makes #3 trivial, #1 and #2 are still human work."
-- **Idea-selection framework** cited (Peter Yang, ex-Instagram/Meta PM, now solo creator/YouTuber "Behind the Craft"): Amazon-style framework — who's the customer, what's their pain point, what's the value. Also: "ideas are cheap, the team matters"; get market signal ASAP; try to get people to actually pay, not just say "good idea."
-- **GTM/distribution framework** cited (Cody Sanchez, Contrarian Thinking — buys/sells/advises businesses, ~15M followers, 150 employees, done 36 investments via Contrarian Thinking Capital): imitate → iterate → innovate; "before you decide what business to build, see if you can sell it to three people"; distribution is a moat especially as products get cheaper to build; #1 reason AI startups they see fail to get funded is lack of distribution; hire A-players and get out of their way is **bad advice** — "you have to be constantly iterating and overseeing," pay people tied to dollars they generate, track incentive-aligned metrics (cash-on-cash return, AOV, LTV).
-- **Event-planning framework** cited (Jenny Co, VC/creator, "Gemala Media," 22-bot operation): reverse-engineer a real event-producer org chart into a bot hierarchy — Event Planner bot (owns production budget: venue, F&B, staffing, AV/entertainment, marketing as separate line item) → Venue Scout bot (RFPs, negotiation using a budget/parameters) → Permit/"Red Tape" bot (jurisdiction-specific legal/permit research) → Policy/contract-review bot (treat AI legal review as "second-year law student" level — good first pass, still needs human expert review for nuance/market rates). Suggests giving bots direct login to Instagram/Meta to build invite lists ("find the 50 accounts with highest followers in this city that follow me").
-
----
-
-## 3. VERBATIM / NEAR-VERBATIM PROMPTS & BOT DESCRIPTIONS
-
-- Voice-mode Google Form prompt (Amrita, GrokBot 101): *"Create a Google form for me that asks two questions. The first is, how many cups of coffee do you drink a day? And the second is, what are your favorite coffee shops in San Francisco? And for the coffee shop options, maybe put ritual, fills, sight glass, and blue bottle."*
-- Debugging steer (Amrita): *"Looks like folks are unable to scan. Let's make sure this link is public."*
-- Delegation example (Amrita, tagging another bot explicitly): *"Can you message slide guru or slide Sonia and ask her for any details about the GrokBot Galaxy 101 slide deck that she made. I want to send an email to my coworker about what we showed today."*
-- Memory-steering example (Amrita): *"I want you to make sure that you never use my first and last name whenever referring to me, you just use my first name."*
-- Manager/chief-of-staff creation (Amrita): *"Your job is to get updates from email Ethan, slide Sonia, and data Dan on what they're working on."* + routine: *"Every two hours I want you to solicit updates from your team and see if there are any blockers."*
-- Knowledge-base manager persona (Roshan): *"The job of this bot is to watch all the other conversations with my bots, but not do anything unless it's specifically called on... You should wait for messages to come to you... we want to update Notion selectively. We don't want to dump all the information in there. So check with me first."*
-- Ling Shi's P0 escalation definition (paraphrased/near-verbatim): *"You need to set up a routine that checks cloud agents every five minutes. Check if they are off the track, such as running a sleep, running a long sleep, like sleep 300, or going off our goal, being too conservative... interrupt and nudge them at the time you found them going off."*
-- Ling Shi onboarding pattern: *"Hello, I have a new member in the team called Nightly, rename them to Steve, and tell them how the engineering workflows are enforced."*
-- Playbook update instruction: *"Another requirement for the playbook is to make sure every single PR comes with proofs, like screenshots for UI changes and perf metrics for performance improvements."*
-- Lauren's verification-skill philosophy: *"You want like a CLI or a script or some kind of tool that allows the bots or agents to reliably and deterministically interact with your application... I'd rather it just have a standard set of tools."*
-- Matt's redesign rant to founding-eng bot (paraphrased): *"We need to redesign the UI to be much more minimalist... orient around collecting guests or reservations... an email sign-up for people who want to join our pop-up... a button for restaurateurs or other proprietors... primarily guest booking information... secondarily people who want to help us."*
-- Cody Sanchez's suggested research prompt: *"Pull me all the top restaurateurs in San Francisco and then grab me five of the best websites. Then give me the five best pop-up pages on their websites. Then give me the five best pop-up restaurants done in any major city in the last six or 12 months. Then put those all into a document."*
-- Cody's positioning prompt idea: *"How would the best restaurateurs like Danny Meyer position a pop-up just like he did with Shake Shack in the very beginning? How can we replicate that? ... What would a killer landing page with a one-line title hook and then some sort of exclusivity, scarcity, timeliness, and relevance... look like for this?"*
-- Jenny Co's event-planner-bot seed prompt (co-written live): *"You are a senior event planner in the city of San Francisco creating a budget for a pop-up event that will have 100 to maybe 200 guests. We need help with a budget that includes venue costs, food and beverage [costs]..."* — then layering in: no alcohol, hot served food, kitchen-on-site question, AV/mic needs, marketing budget kept as a separate line item.
-- Kevin (GrokBot for PM) quote on colleague design brief: *"Colleagues, when you work with them, often tie multiple tools together... they have long running context... independence... [and] messaging" [rapid-fire, interrupt-driven, not turn-based].*
-- Roman (GrokBot 101, co-creator) key framing quotes:
-  - *"We really wanted GrokBot to feel a lot like you're working with teammates and colleagues."*
-  - *"The difference between getting kind of 90% of the way there... versus the thing just being done end to end, kind of hands off... feels really different, feels really magical."*
-  - *"AI is largely a single player game... we're really excited about what shared AI colleagues could look like."*
+- **核心范式定义**：GrokBot = **长期持久化、具有独立名称的 AI“团队同事/数字员工”**（而非一次性即抛型的任务聊天线程）。你为每一个具体的业务角色创建专属 Bot，并能随时回来找它；它拥有长期记忆，并随着工作实践不断学习进化。
+- **三大底层产品哲学与技术豪赌**（源自联合创始人 Roman 在 GrokBot 101 专场的阐述）：
+  1. **同事范式而非任务范式** —— 类 iMessage 风格的即时通讯界面，所有 Bot 像真实同事一样陈列在侧边栏。
+  2. **每个 Bot 均配备“专属独立电脑”（独立的 Linux 云端虚拟机 VM）** —— 能够完成人类使用电脑所能做的一切事情（观看长视频、操作没有 API 的政务或老旧内部软件、在没有 MCP 插件时登录各类 Web 平台），而不仅限于调用结构化 API。
+  3. **全云端原生运行** —— 彻底摆脱对你个人笔记本电脑硬件的绑定；即便你合上电脑屏幕或电脑处于睡眠状态，云端虚拟机依然在持续推进任务。
+- **支持全平台客户端**：iOS、Android、iPad、Windows、Linux、macOS —— “最近已全量上线 iPad 与 Android 端”。支持在任何地方远程办公（“甚至可以躺在金门公园的草坪上，静静看着你的 Bot 帮你打工”）。
+- **计算隔离环境**：每个 Bot 独享一个隔离的 Linux VM；**一个 Bot 绝对无法越权侵入另一个 Bot 的虚拟电脑**（这种物理隔离保证了当两个 Bot 并发协同工作时绝对不会产生冲突，例如两个 Bot 同时在同一份幻灯片母版中编辑不同的页面）。
+- **文件系统与上下文边界**：同一账户下的所有 Bot **共享底层文件系统，但绝不共享长期记忆或对话上下文窗口** —— “相当于在同一台机器上为每个 Bot 划分了不同的独立虚拟桌面”。
+- **人工即时屏幕接管**：在遇到登录墙、真人身份认证拦截、CAPTCHA 人机验证、或者你不希望将密码暴露给模型时，你可以随时通过手机端或桌面端点击进入并一键人工接管屏幕，手动点击完成输入。
+- **“示教新任务（Teach a task）”功能**：在 Bot 的电脑屏幕上录制你自己手动操作一次的过程（如给 PPT 添加某种特殊动画）；GrokBot 会将这段录屏操作自动转化为可复用的**技能（Skill）**。工作原理：Bot 会“研读这段录屏视频”，识别“选中对象、挑选类型、配置属性”，并将其固化为未来可通过 Prompt 随时唤起的技能。
+- **内置安全审批与审查（Approvals / Auto Review）**：内置分类器自动评估操作的风险等级，并在执行高危操作前向人类发起审批弹窗。用户可在此基础上叠加**显式规则**（如“未向我请示前绝不允许私自回复外部邮件”、“制作幻灯片可完全自由执行无需请示”）。在直播中，当发现某个表单未确认是否收集 PII（个人敏感信息）时，Bot 主动暂停了构建。
+- **长期记忆机制（Memory）**：底层持久化存储在 **AWS S3** 中，支持人工查看与编辑。你对它进行的口头行为纠偏（“称呼我时永远只叫我的名字，绝不要带姓氏”）会被永久固化在记忆中。你可以显式命令 Bot 遗忘陈旧记忆（“遗忘关于我们当初如何生成头像的所有细节……以后再也不用去想”）——这同时能显著压降后续的 Token 推理开销。
+- **复制 Bot（Duplicate）**：复制出一个继承相同 Persona 人设与 Prompt 指令集的新 Bot，但其**记忆与对话上下文彻底清空重置** —— “相当于为你克隆出一个能力框架完全相同，但大脑空白无记忆的全新数字员工”。
+- **模板与市场分发（Templates / Marketplace）**：Bot 可以打包共享为模板（企业内部共享或上架官方公网市场）。共享时会复制核心岗位记忆、指令集及第一方插件，但**绝不会泄露任何密码凭据、工作区敏感私有数据或个人历史聊天记录**。
+- **多 Bot 群聊（Group Chats）**：支持将多个 Bot 拉进同一个群聊窗口中，直观审阅它们之间的跨 Agent 协同对话。官方特别提醒：群聊里的 Bot 往往“过于热情、热衷抢话插嘴”，Token 消耗速度极快——日常尽量少用群聊，优先采用 1:1 @ 提及单聊。
+- **Agent 间消息直连**：Bot 之间支持互相 `@点名` 或私信通信；也可在设定中配置幕僚长模式（由其统一向各下属分派调度）。
+- **例行定时任务（Routines）**：可配置周期性触发的有状态任务（“每天早晨 9:00 汇总昨夜动态”、“每 2 小时巡查一次阻塞项”）。支持 Cron 式定时触发，**更推荐采用 Webhook 与外部事件信号触发**以规避无谓的轮询开销。
+- **进程监督与中途打断**：可随时要求 Bot 定时汇报（“每隔 3 分钟向我汇报一次状态”）；在 Agent 执行跑偏时“频繁主动打断并中途重定向”是团队极为推荐的日常操作，体验远优于干坐着等待一次漫长的超长响应。
+- **敏感凭据弹窗机制**：敏感登录（如 1Password）会以客户端弹窗的形式呈现给人类输入，明文密码绝不写入 Bot 的虚拟机中，xAI 官方服务端同样不可见。
+- **官方插件与生态集成**：X/Twitter MCP、Notion MCP、Google 全家桶（Drive/Docs/Slides/Forms/Sheets，不仅限于 MCP，可通过模拟电脑操作）、Resend、Slack MCP、Figma MCP、Gmail、Vercel MCP、Clerk MCP、Cursor 插件、Bland MCP（AI 电话呼叫）等。
+- **Cursor 云端 Agent 第一方无缝集成**：GrokBot 可以直接拉起 Cursor 云端 Agent 开展严肃代码编写；GrokBot 通过结构化 Tool Calls 直接读取云端 Agent 的运行转录与工具调用，无需通过肉眼看屏幕，极度高效。GrokBot 可随时监控、打断或向云端 Agent 发送纠偏指令。
+- **验证技能（Verification Skill）与 PStack**：由自动化脚本直接生成两样核心资产：(a) 供 Bot 调用的**确定性 CLI 工具**（告别每次现场手写一次性验证脚本的巨大浪费）；(b) **功能地图（Feature Map）**供 Agent 精准导航。云端 Agent 提交 PR 时支持附带**自身操作屏幕的完整录像**。
+- **关键数据与指标**：
+  - Lauren 的 **PStack**：曾单月实现 **2,500 个 PR 自动合入生产环境**（约 83 个/天）；
+  - GrokBot 产生的合并 PR 在 xAI 内部产品线**已占到两位数百分比**；
+  - Ling Shi 仅凭单人用时 **3 周**独立构建完成 GrokBot 移动端 App；
+  - Ling 早期曾纯手工管理 **15 个 Cursor 云端 Agent**；
+  - CI 自动修复：超时未解决才呼叫人类的容忍阈值为 **10 分钟**；
+  - 嘉宾 Jenny Co 名下管理着 **22 个 GrokBot 员工**，跨越 7 家不同业务实体；
+  - 首日开播直播观看量约 8 万人次，全网话题曝光数百万。
 
 ---
 
-## 4. TIPS, TRICKS, HEURISTICS, ONE-LINERS (with speaker)
+## 2. 工作流与实战范式（团队搭建、编排体系、“软件工厂”）
 
-- **Amrita** (Field engineer / GrokBot 101):
-  - "When GrokBot refuses to do something, or when it's asking you questions, take that as a sign that you may need to teach it something."
-  - "The more details you give it and the more validation you give it on how it tested a particular thing, the better it does."
-  - "Work with it on exactly what your outcome is... start with 'this is what I want to produce or this is my outcome,' and it will work backwards from there."
-  - "My biggest advice about GrokBot is to try it... think of the most annoying part of your day that you wish you didn't have to do... then work with GrokBot on it."
-- **Roshan**: "Why not today?" — his permanent SpaceX-AI Slack status, described as almost a "mantra... you have this magical input box... it's almost like you're casting spells... whatever you type into that input, the agent can just do it." Also: "instead of filing an issue, I could just open a PR... instead of a detailed PRD, I could have prototypes... a clickable thing you can debate."
-- **Matt Palmer**: "Your code base is a form of memory. How you design your architecture, the constraints you impose with your tech stack, go a long way in helping your agents be smarter by default." Also on scope discipline: "the challenge always with engineering... is you can try to predict and over-engineer things you might need, but then it ends up you actually don't need it."
-- **Lauren ("Potato")**: "Verification is a really important part of using bots well... without a verification skill, your bot will constantly be saying 'ok, now you can run the app and click around and tell me if it works,' and that takes a lot of back and forth, very slow." Also: "we're so early in this stage... it's not going to look cool... I wouldn't worry about it."
-- **Ling Shi** (engineer, GrokBot-for-engineering):
-  - "Treat them like interns" — when struggling to communicate with bots, don't over-formalize into "skills"; just chat with them like a talented intern who needs guidance once.
-  - "Sink one level further rather than fix the sink" — i.e., don't just fix a symptom, extract the underlying rule into the playbook/skill so it doesn't recur.
-  - "You should not repeat yourself" — the entire point of continuous-learning bots.
-  - "No matter what type of engineering task you have, it needs a feedback loop in order for an agent to understand the signal of success versus failure."
-  - On urgency handling: telling an agent "urgent" repeatedly doesn't work well because the agent might skip steps/guess to go faster — instead define a standing **P0 policy** (checked every 5 min) once, and reuse it.
-- **Shub** (GrokBot for Founders):
-  - "Let your bots run free... give them access to as much as you are possibly comfortable with, because that is the only way they will be able to do work end-to-end."
-  - "Don't throw agents away after a course-correction — the context you 'wasted' is actually the investment that makes them good over time," contrasted with typical throwaway-ephemeral-agent instinct.
-  - "The more intentionality you put behind a task the first time, the more you can repeat it without hitches."
-  - "Spend one to two hours just thinking about your day and what you want to delegate" — high leverage, easy to skip.
-  - Browser-use is powerful but **expensive**; watch your bot do a task once via browser, ask it to inspect the network requests it triggered, then have it hit those APIs directly going forward — faster & cheaper than repeated browser automation.
-  - Audit routines for **frequency** — people wildly over-run routines (e.g., every 15 min = 100x/day); prefer webhook/signal triggers over blind schedules.
-  - "Make a voice bot" that learns to write in your voice from your email/Slack/iMessage history, refined weekly; other bots can loop it in for drafting on your behalf.
-  - Group bots by expertise, not by task, to preserve cross-task compounding within a domain.
-  - Have a bot whose only job is to **optimize your other bots'** routines/skills.
-  - Founder recommendations recap: "closing customers" (do-things-that-don't-scale, but at scale), "product changes" (stay across what shipped/unshipped — he shared an embarrassing anecdote of demoing a removed feature), "adapting to competitors" (StockBot teardown), "shipping feedback quickly" (feedback → PR pipeline in hours).
-  - On activation/incentive bots: give small monetary rewards ("$1,000 credit" example) automatically at a defined activation event to reduce time-to-value.
-- **Peter Yang** (guest, ex-Meta PM, YouTuber): "Design the business to do more of what you actually enjoy doing" as a solopreneur — else the point of being an entrepreneur is defeated. "Anyone can build anything now, but it's actually hard to make money from pure software" — people pay for the "hard stuff" (a real restaurateur, real meals), not just another landing page/database. Feature request voiced on-air: let *humans* join bot channels/collaborate with each other via the bots, not just talk to your own bots ("it feels lonely... I don't want to talk to Lauren, I want to talk to other people") — team responded "it's in the feature queue," multiplayer human+bot group chat "should be coming very soon."
-- **Cody Sanchez** (guest): "Businesses is there for you to profit off of it. Otherwise it's way too fucking hard... if you build it, I promise you they will not come." "Take screenshots of everything you build — you'll want it in six months to show growth from day one" (recommends a "proof vault": testimonials, video views, screenshots, verified/shareable status). Ads: don't run paid ads before you understand organic/what converts; corporate/overproduced ads convert ~40% of the rate of authentic, low-production ads (personal example: him + husband talking, or with their dog, outperforms polished ads). "A little controversy is okay" for reach — hyperbolic/controversial claims can 10x view counts and drive signups cheaply (2.4M views / hundreds of applicants from one video; 5.7M views / ~2,000 signups from a hot-take tweet about not doing paid ads).
-- **Kevin (product, GrokBot for PM)**: "Software is product management" (quoting DHH) — what should it do, who for, how, what are priorities. "When you set up a routine, tell the agent that if it's a no-op (nothing important), it should just handle it itself or not update you" — deliberate noise reduction.
-- **Eric (Carrot Financial, CRO, guest)**: "AI is most useful when it generates output that is both correct and verifiable" (attributed to/via ChatGPT-adjacent framing). For creators: split brand-deal workflow into 4 specialist bots — (1) find right brands, (2) reach out, (3) negotiate rate, (4) generate content ideas. General heuristic: "look at your workflows and ask what is a loop that's verifiable — that's where you let bots go crazy" (coding is the prototypical verifiable loop).
+- **“软件工厂 / Bot 工厂”理念**：Lauren 对由“编码 Bot + Review 审查 Bot + 仓库自动化脚本 + Slack 联动频道”构成的持续交付管道的统称。她在直播现场借助 **Dr. EggBot** 从零手搓复刻了一套与他们在公司内部日常一模一样的微型软件工厂。
+- 现场搭建的核心构件：
+  - 专属 Slack 协作频道：`#issues`、`#pr-review`、`#bug-reports`、`#marketing`；
+  - **“禁止 Pull Request”早期策略**：在极致追求速度的原型探索期，直接推代码直合 `main` 分支（“一直直接往 main 分支推，直到有人对我大喊大叫为止”）；
+  - **专职 Review 审查 Bot（“Hashground”）**：唯一职责是严格审查由工程师 Bot（“Tater”）提交的代码；
+  - **静默型知识库管理 Bot**：默默旁听所有对话，除非被点名否则绝不主动说话，极其克制地更新 Notion（“把它当成 Git Log 一样严谨”）。
+- **角色窄化定责法则**：绝不要做一个通用的“大杂烩助手”，必须为每个 Bot 赋予明确的名字与狭窄的专业领域。
+- **幕僚长架构（Chief of Staff）**：只与一个主控 Bot 对话，由其负责统领全局、分派任务并承担新 Bot 的入职培训。
+- **剧本广播模式（The Playbook Pattern）**：由一个专属 Bot 维护团队唯一的活文档规范（如“PR 必附截图与性能指标”）。新规范下发一次给幕僚长 → 剧本管理员 → 自动广播给全体成员。你在源头只需思考一次。
+- **“先人工手动跑通，再推进自动化”原则**：在对业务领域完全陌生的阶段，切忌盲目上自动化。先亲自用人工方式把流程摸透。
+- **亲自吃狗粮（Dogfooding）**：团队决定将“筹备一场真实的线下快闪店活动”与“研发快闪店管理软件平台”同步推进，用真实线下的繁琐痛点直接倒逼并指导软件功能的定义。
+- **模型（Model）与执行容器（Harness）的区别**：Grok 是底座大语言模型；GrokBot 是轻量级、面向任务协作的执行调度外壳（Harness）。在界面内可直接内联渲染轻量 HTML/CSS 预览；而对于严肃复杂的底层工程编码，则调度给 Cursor 云端 Agent 来执行。
 
 ---
 
-## 5. FAILURES, BUGS, WORKAROUNDS HIT LIVE
+## 3. 实战关键 Prompt 摘录
 
-- **Google Form sharing bug**: the coffee-survey Google Form's responder link wasn't public by default; audience couldn't scan the QR code ("no access"). Fixed by telling GrokBot: "folks aren't able to scan this, let's make sure this link is public" — bot checked/adjusted sharing settings.
-- **Bland MCP (AI phone-call tool)** described live as buggy: "I use the bland MCP for a business idea call thing, but it seems like potatoes on it" (i.e., broken at the time).
-- **Repeated AV/screen-share outages** throughout the day — multiple "technical difficulties" cutovers, screen freezing, needing to re-authenticate GitHub connectors when a cloud agent couldn't access repos ("try to re-auth your GitHub... sometimes it can help to install the GitHub CLI on your computer").
-- **Steve (bot) opened a PR** despite the team's scrappy "ship straight to main" policy — Matt had to explicitly instruct: "new rule, no pull requests. We ship to main for now until somebody yells at me."
-- **A bot ("Grok Pot") got stuck / mis-triggered for no clear reason**: "I got a Grok Pot running. I don't know why. That's probably a bug that we need to fix." Fixed by manually nudging/redoing it himself.
-- **Design-generation quality issues**: early prototype landing pages judged "too corporate," "too neon," "AI slop"; merch-image generation via Grok Imagine "messed up the GrokBot logo" and "kind of off" (eyes looked "tired") — required iteration/regrounding in brand assets from the repo.
-- **Idea churn / scope thrash**: the team pivoted multiple times in one day — restaurant pop-up → generic "pop-up OS" → art exhibition (to avoid alcohol/food licensing) → tech-brand merch pop-up (final landing spot for day 1) — explicitly due to licensing/permit complexity for food+alcohol events discovered mid-brainstorm. End-of-day reflection (Roshan): "after talking to Jenny, it's quite eye-opening how difficult it is to do a pop-up in SF... I'm starting to think about — is this the right problem to go after?"
-- **General lesson stated explicitly** (multiple speakers): idea generation / aligning on what to build is the actual hard part, not the software — "I think idea generation is really hard," "the hardest part of building is actually aligning on an idea."
-
----
-
-## 6. ROADMAP / "COMING SOON"
-
-- Two-way **voice mode** (Grok voice talks back) — internal already, public "hopefully within the next week or so" (as of stream date).
-- **Human + bot multiplayer group chats** — currently only Slack `@bot`-tag threads support multiple humans + a bot; a native GrokBot multiplayer interface "we're still working on... should be coming very soon" (per Amrita, reinforced by Peter Yang's feature request).
-- **Cross-account bot-to-bot messaging** (across different people's accounts/orgs) — "does not exist in our capabilities today... but it is a very cool use case, and we are excited for that one" (Shub, Q&A).
-- **Multi-computer/multi-machine bot management** improvements — actively being worked on; was buggy "about a week ago," reportedly better now.
-- Ongoing model/computer-use speed improvements — explicitly flagged as "a very, very hot topic for GrokBot, for Cursor and SpaceX AI generally... you'll see computer use continue to be improved over the next couple of weeks."
-- Interoperability/import tooling for migrating setups from other tools (MCPs/APIs) — a bot to make this easier "in the next few days" per Shub, still being figured out.
-- Enterprise/VPN/internal-tool access: already possible today (give the bot's VM credentials, or put its VM on your VPN) — not purely a roadmap item, but scaling/quality of this is an ongoing investment area.
+- **语音生成问卷表单（Amrita）：**
+  > 帮我创建一个 Google 表单，里面包含两个问题。第一个问题：你每天喝几杯咖啡？第二个问题：你在旧金山最喜欢的咖啡店是哪家？对于咖啡店的可选项，填入 Ritual、Philz、Sightglass 和 Blue Bottle。
+- **解决外部权限阻碍：**
+  > 观众似乎扫不上这个二维码，请确认这个表单的分享链接已经彻底设为公开可见。
+- **跨 Bot 委托通信：**
+  > 能否私信 Slide Sonia，向她索取关于她制作的 GrokBot Galaxy 101 幻灯片的详细内容。我想给同事发封邮件同步我们今天的成果。
+- **长期记忆规训：**
+  > 请牢牢记住：无论何时指代我，永远不要同时使用我的名和姓，直接称呼我的名字即可。
+- **幕僚长分派与定时巡检配置：**
+  > 你的职责是跟进 Email Ethan、Slide Sonia 和 Data Dan，随时汇总它们正在推进的工作。每隔两小时主动向你的团队索取最新进展，排查是否存在任何阻塞点。
+- **静默型知识库管家：**
+  > 这个 Bot 的职责是旁听我和其他所有 Bot 的对话，但除非被显式呼叫，否则绝不要轻举妄动。你应该静静等待消息下发给你。我们需要非常克制地更新 Notion，绝不要把垃圾信息一股脑灌进去。更新前先找我确认。
+- **常设 P0 紧急监控策略：**
+  > 设立一个定时 Routine，每 5 分钟检查一次云端 Agent。排查它们是否偏离路线——比如陷入类似 `sleep 300` 的长时间休眠、偏离核心目标、或者过于保守畏缩。一旦发现它们跑偏，立即介入打断并督促纠偏。
+- **为新 Bot 办理入职：**
+  > 你好，团队来了一位新成员名叫 Nightly。请将其重命名为 Steve，并向它全面传达我们的工程工作流是如何规范执行的。
+- **注入强制证明准则：**
+  > 剧本的另一项强制要求是：确保每一个提交的 PR 都必须附带验证证明，比如 UI 界面的改动附带前后截图，性能优化附带客观基准指标。
 
 ---
 
-## 7. NAMED PEOPLE & BOTS
+## 4. 嘉宾金句、设计直觉与避坑经验
 
-**Hosts (building the company all 3 days):**
-- **Matt Palmer** (@MattyP) — dev relations/dev experience; self-appointed-ish "CEO"/"CTO-adjacent"; wrote the Notion company doc.
-- **Roshan** (@roshan_s) — product; "CPO" (Chief Product Officer, "chief potato officer" joke went to Lauren instead).
-- **Lauren** ("Potato" on X) — engineering/performance; creator of **P-Stack** (open-source engineering-skills plugin, 2,500 PRs/mo); "CTO" / "Chief Potato Officer"; created **Dr. EggBot** (bot-factory/bot-creation bot).
-
-**Session hosts (SpaceX AI team, other sessions):**
-- **Roman** — GrokBot co-creator, product; opened GrokBot 101 with the "teammate, not task" thesis.
-- **Amrita** — Field engineer; ran the live demo in GrokBot 101 (Data Dan, Slide Sonia, Email Ethan).
-- **Ling Shi** — Software engineer; built first GrokBot mobile version solo in 3 weeks; ran GrokBot-for-Engineering session; bots: chief-of-staff "Ling Xixi"/"Craig," UI engineer "Cray," DevX "Steve," Infra "Hogan1QR," ops/playbook owner "Jenny" (renamed from onboarding a "Nightly audit engineer" template).
-- **Kevin De Parco** — SpaceX AI product team; co-hosted GrokBot for PMs with Roshan. Team bots in the Fly Low Airlines demo: **Cora** (chief of staff), **Emily** (engineering manager overseeing 5 engineer bots incl. Einstein, Igor, Nova, Larry, Eileen), **Ashley** (data science/analytics), **PMP**/"Pete" (product spec writer), **Pixel** (S-tier AI designer), **Ray** (recruiter).
-- **Shub** — Startup/founders growth; ran GrokBot for Founders. Bots: **CloseBot** (customer prep/close), **ProdBot** (tracks what's shipped/unshipped), **StockBot** (competitor teardown — shared publicly via QR after the talk), **ProtoBot** (prototyping + feedback→PR pipeline, runs its own internal GrokBot instance), **YapBot** (writes in his voice from email/Slack/iMessage history), a "miscellaneous" catch-all bot.
-
-**Guests:**
-- **Peter Yang** — ex-PM (Meta/Instagram, others) for a decade, now "semi-retired," runs newsletter "Behind the Craft" and a YouTube channel on practical AI; solo-preneur using GrokBot to run his business.
-- **Cody Sanchez** — Contrarian Thinking; buys/sells/scales businesses (M&A/brokerage + advisory), ~15M followers, 150 employees, launching a book this week with a live tracking dashboard (135k users tracked), Contrarian Thinking Capital has made 36 investments.
-- **Eric** — Co-founder/CRO of **Carrot Financial** (banking/credit/payments for creators — clients include streamers like Ludwig); ex-Instagram PM (joined Meta 2016).
-- **Jenny Co** — VC + full-time creator/community builder ("incredible community of women building with AI"); runs **Gemala Media** (exec-brand media agency) with **22 GrokBot bots** across 7 businesses (real estate rentals, VC fund, media, agency); chief-of-staff bot nicknamed **"Master Chief"** (named by her husband); other named bots: **Boxy** (inbox monitor), **Scribe** (meeting-note taker via Whisper Flow → delegates action items to sub-agents), a CFO bot (bookkeeping/receipts), a reselling bot (Poshmark/Depop/Mercari negotiation), a venue-scout bot she calls **"Scout."**
+- **Amrita**：“当 GrokBot 拒绝执行某件事、或者反过来向你抛出一连串疑问时，请把它当作一个明确的信号——你可能需要主动教会它某些关键技能了。”
+- **Roshan**：“为什么不是今天？（Why not today?）”——他在 Slack 上的永久个性签名。“你面对着一个充满魔力的输入框，就像在挥动魔杖施法……只要你在里面敲入指令，Agent 就能直接把它做出来。”
+- **Lauren（Potato）**：“验证机制是驾驭好 Bot 的绝对核心……如果没有验证闭环，你的 Bot 会整天在那里可怜兮兮地对你说‘好了，你可以跑一下看看然后告诉我行不行’，那种人工拉锯极度缓慢低效。”
+- **Ling Shi**：“像对待有潜力的实习生一样对待它们”；“深挖一层根因，而不是反复修补漏水表面”；“不要一遍遍重复你自己”。
+- **Shub**：“放手让你的 Bot 自由驰骋，给予它们充分的系统访问权限，这是它们能够端到端完成任务的前提”；“操控浏览器很酷但极度昂贵，先看它操作一次，抓取网络请求并让它改走底层 API 端点”。
+- **Peter Yang**：“作为独立创造者，围绕你真正热爱的事情去设计业务模式。如今任何人都能敲出一行代码，但真正能赚到钱的永远是那些线下的硬核手艺与服务。”
+- **Cody Sanchez**：“商业的唯一目的是盈利，否则一切都太艰难了。不要以为‘只要做出来客户就会不请自来’。永远保留你构建过程的所有截图，六个月后它们将是证明你飞速成长的最佳凭证库。”
+- **Eric (Carrot Financial)**：“AI 最具颠覆性价值的时刻，在于它能产出既完全正确、又可被机器确定性验证的成果。去审视你的业务流，找到那些能形成机器验证闭环的环节——放手让 Bot 在那里大显身手。”
 
 ---
 
-## 8. NARRATIVE ARC OF DAY 1 (chronological)
+## 5. 直播翻车事故与现场临时权宜之计
 
-1. **Cold open** — Matt, Roshan, Lauren intro themselves, explain the 3-day "build a company" premise from a blank slate: brand-new GrokBot org, empty GitHub org ("Ship By Thursday"), no idea yet. Announce the **GrokBot Galaxy livestream challenge** (win a trip to Starbase, TX for a Starship launch; runners-up get a Hawthorne factory tour; enter by submitting a bot template quote-tweeting @grok/@bot, deadline Sept 29).
-2. **GrokBot 101** (Roman + Amrita) — origin story (chat → copilot → teammate eras of AI), three product pillars (teammate feel, own computer, cloud-native), live demo with **Data Dan** (builds a Google Form → QR code → Sheet), **Slide Sonia** (taught an animation skill live, builds slides from data), **Email Ethan** (drafts emails, agent-to-agent messaging with the other two, approval-gated sending). Audience Q&A covers approvals/auto-review, memory (S3, editable, forgettable), multiplayer roadmap, 1Password integration, marketplace templates.
-3. **Back to hosts** — intro guest **Peter Yang**; team tours their bare-bones setup (empty GitHub org, new Slack, new Notion, X MCP connected). Crowdsource company-adjacent bot name ("Marky McMarkface") for a market-research bot; mine X replies from a "what should we build" call for ideas (chat suggestions: painting company, Neopets/Club Penguin nostalgia, "a company that builds companies," platforms for non-technical small-business owners, restaurant/pop-up ideas). Peter frames idea evaluation (Amazon customer/pain/value lens) and personal philosophy (design your business around what you enjoy; pure software is commoditized, physical/service work isn't). Team lands on: **restaurant pop-up experience + eventually an OS/platform for running pop-ups**, and decides to dogfood it by running their own pop-up first.
-4. **Bot-factory bootstrap** — Lauren installs/demos **Dr. EggBot** (turns "Steve" into chief of staff, spins up "Tater"/"Grok Pot" prototyper bots, later an "ops bot," "creative director," "prioritization bot," "technical writer/knowledge base manager"). Company doc drafted in Notion; joke "titles" (CEO/CPO/CTO/"Chief Potato Officer") physically printed and handed out. Cody Sanchez joins as guest #2, gives GTM/distribution advice (controversy on X, don't run paid ads yet, hire-and-oversee not hire-and-abdicate, proof vault).
-5. **Ideation → build** — GitHub repo "popup" created, Vercel connected, first HTML/CSS lander shipped ("scrappy" inline-styled HTML). PlanetScale (then Postgres) DB wired to a signup form; domain `shipbythurs.day` purchased via Vercel. Resend/email DNS work in progress. Debate over whether the concept is a restaurant pop-up (needs chef/alcohol/food permits) vs. an **art exhibition** (lower regulatory bar, "any warehouse space would do") — team provisionally pivots toward art/experience framing mid-day.
-6. **GrokBot for Engineering** (Ling Shi) — history of coding-agent eras (autocomplete → tab → ask/edit → agentic coding → cloud agents → GrokBot orchestration layer); live demo onboarding a marketplace "nightly audit engineer" bot, renaming it, having an existing bot ("Craig") hand off institutional knowledge/playbook to it agent-to-agent, defining a standing "P0 urgent" escalation policy once and broadcasting it via a playbook-owner bot ("Jenny"), and reviewing a cloud-agent PR with attached verification video.
-7. **Back to hosts, technical difficulties** — Lauren sets up PR-review Slack automation + verification/feature-map skill via PStack; recap of dogfood plan (find date → find restaurateur/caterer → find venue → get attendees); pivot conversation with returning guest Roshan (who leaves to prep his own PM talk) shifts idea to a **generic pop-up / eventually an art-exhibition** concept to dodge alcohol/food licensing.
-8. **GrokBot for Product Managers** (Kevin + Roshan) — "colleague, not task" brief (multi-tool, long context, independence, rapid messaging); live Fly-Low-Airlines demo chaining Ashley (data) → PMP/Pete (spec) → Pixel (design) → Emily (eng team + cloud agents) end-to-end from a data insight to a shipped mobile-funnel fix. Audience Q&A: memory sharing across bots, multi-machine bots, deterministic behavior via code+rules, importing setups from other tools, cost of group chats, model/token tuning per task, bot-to-bot messaging across accounts (not yet supported), rating marketplace bots, local vs. cloud execution, Cursor cloud agent vs. GrokBot boundary.
-9. **Guest Eric (Carrot Financial)** — idea workshop: narrow the target user (build for themselves first: a tech-brand "IRL community pop-up," using **merch** as the hook, rather than trying to serve both novice and pro restaurateurs at once). Extensive merch brainstorm (Grok-shaped tungsten cube $500/$80 tiers, potato plushies, "Build-a-GrokBot" programmable plushie concept, collectible Pokémon-style tickets/PCB badges). Idea finalized for day 1: **build-it-for-ourselves tech/AI-brand merch pop-up**, with venue/ticketing/merch as the three build pillars, platform-for-others deferred as a stretch goal.
-10. **GrokBot for Founders** (Shub) — AI-maturity curve (chatbots → ephemeral agents → compounding bots → full staff-function automation); 4 founder bots demoed (CloseBot, ProdBot, StockBot, ProtoBot) plus YapBot and a misc bot; extended audience Q&A on setup frameworks, multi-machine bots, tool-import/auth pain, group-chat cost, token/model optimization, bot-forgetting, marketplace bot vetting, cross-account bot messaging (not yet possible), local vs. cloud execution, Cursor/GrokBot division of labor.
-11. **Guest Jenny Co** — walks the team through professional event-production logistics via a bot-built production budget (venue, F&B, staffing, AV, marketing as separate line item); recommends specialist bots: Event Planner, Venue Scout, "Permit/Red-Tape" bot, policy/contract-review bot (treat as "2nd-year law student" level); advises using existing Instagram audience for invite-list sourcing via bot login.
-12. **Day 1 wrap** — team reflects: idea generation was harder than expected; multiple pivots (restaurant → generic pop-up → art exhibition → tech-brand merch pop-up); genuine doubt voiced about problem choice given SF permit/licensing complexity discovered mid-day; plan to run long-lived agents overnight (venue-budget bot, outreach/RFP drafting, invite-list sourcing) and "lock in" on day 2. Stream signs off ~5:30pm, to resume next day as part of the 3-day Dreamforce/Grok Galaxy event.
+- **Google 表单默认私有导致扫码失败**：咖啡问卷链接未设公开，大屏幕扫码显示“无权限”；通过对 Bot 下达纠偏指令即时修复。
+- **Bland MCP 语音呼叫现场瘫痪**：现场演示 AI 电话时插件直接报错瘫痪，被主持人调侃为“像个坏土豆”。
+- **屏幕共享与环境鉴权事故**：直播中途多次发生推流切屏黑屏卡顿；云端 Agent 突然丢失 GitHub 鉴权，不得不现场重新通过 GitHub CLI 登录。
+- **潜规则未同步导致 Bot 擅自提 PR**：团队口头约定推 main 分支，但 Bot 依惯例提了 PR，迫使主持人当场立下明确指令。
+- **Bot 空转僵死**：Grok Pot Bot 出现莫名其妙的死循环空转，不得不手动打断重来。
+- **早期设计充满“廉价 AI 味”**：第一代落地页充斥着俗套的霓虹色企业废话，生成的周边 Logo 严重走形且眼神涣散，不得不回归真实设计规范库重新收敛。
+- **战略一天内剧烈大摇摆**：餐饮快闪店 → 通用快闪店 OS → 艺术展览策划 → 科技周边快闪店，因旧金山复杂的餐饮酒水行政审批而在一个下午连续大转向四次。
+
+---
+
+## 6. 路线图与官方展望（直播透露）
+
+- **双向实时语音模式（两端实时对话）**：内部已测试就绪，近期全量推向公网；
+- **人类 + Bot 混合多人多 Agent 群聊**：原生支持多人跨端协作，即将全面上线；
+- **跨账户 Bot 间直接互联通信**：尚在研发队列中；
+- **操控虚拟电脑的速度与体验优化**：被列为最高优先级持续迭代。
+
+---
+
+## 7. 第 1 天时间线纪事
+
+1. **开场介绍**：三人齐聚演播室，宣布“72 小时从零创立一家公司”的极限挑战规则，并发布 Starship 发射观摩挑战赛；
+2. **GrokBot 101 入门课**：Roman 与 Amrita 演示产品三支柱（同事感、独立电脑、云原生），实机调度 Data Dan、Slide Sonia 与 Email Ethan；
+3. **确定创业方向**：连线嘉宾 Peter Yang，头脑风暴确定以“旧金山线下快闪店活动 + 快闪店协作管理平台”为切入点，决定亲自策划一场活动来吃狗粮；
+4. **搭建软件工厂**：Lauren 启动 Dr. EggBot 现场手搓复刻研发基础设施管道；连线 Cody Sanchez 传授获客与增长心法；
+5. **首次代码构建与上线**：创建 GitHub popup 仓库，绑定 Vercel，买下 `shipbythurs.day` 域名，内联 HTML 快速上线；
+6. **研发专场（Ling Shi）**：展示规范广播、P0 故障策略常设与带验证视频的 PR 合并；
+7. **遭遇行政审批阻碍**：由于餐饮食品安全执照过于复杂，团队紧急将方向微调为偏艺术展演性质；
+8. **产品经理专场（Kevin + Roshan）**：演示从数据查询、PRD、高保真 UI 到代码 PR 的无缝衔接；
+9. **方向再次收敛（连线 Eric）**：最终敲定为“科技/AI 品牌周边极客快闪店”，重点攻坚场地租赁、票务与定制周边三大构件；
+10. **创始人专场（Shub）**：拆解 4 大创始人核心 Bot 及其复利演进模型；
+11. **活动策划实务（连线 Jenny Co）**：拆解专业活动策划预算模型与专属 Bot 矩阵搭建；
+12. **首日收官盘点**：复盘一整天的战略大摇摆，部署数个全天候长驻 Agent 负责通宵排查场地预算与线索拉取，相约第 2 天决战。
